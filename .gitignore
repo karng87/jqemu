@@ -1,4 +1,5 @@
 *.img
+*.uimg
 *.zip
 *.xy
 *.tar.*
@@ -6,5 +7,5 @@
 *.o
 *.hex
 *.elf
-
+**/tmp/**
 *DS_Store

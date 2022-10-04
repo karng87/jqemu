@@ -13,5 +13,6 @@ _Reset:
 .section .text
 Reset_Handler:
     ldr r2, str1
-    b.
-    str1: .word 0xDEADBEEF
+    b .
+
+str1: .word 0xDEADBEEF
