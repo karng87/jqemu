@@ -8,6 +8,8 @@ programmer = arduino
 port = /dev/cu.usbserial-1410
 part = atmega328p
 
+CC = arv-gcc
+FLASH = avrdude
 
 all: build/led.hex
 

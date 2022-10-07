@@ -1,4 +1,12 @@
 # Raspberry pi pico
+    • Dual Cortex M0+ processor cores, up to 133MHz
+    • 264kB of embedded SRAM in 6 banks
+    • 30 multifunction GPIO
+    • 6 dedicated IO for SPI Flash (supporting XIP)
+    • Dedicated hardware for commonly used peripherals
+    • Programmable IO for extended peripheral support
+    • 4 channel ADC with internal temperature sensor, 500ksps, 12-bit conversion
+    • USB 1.1 Host/Device
 
 # Boot Sequence
     - On power up, 
@@ -45,3 +53,10 @@
     computes and appends the CRC, 
     and then writes out the result as a second assembler source file, 
     one that just uses data directives,
+
+## GPIO Control
+    On other board 
+    this is usually just a matter of setting a few(usually memory-mapped) registers 
+
+    SIO(Single-cycle I/O) interface
+
