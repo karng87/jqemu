@@ -2,11 +2,11 @@
 #include <util/delay.h>
 
 int main(){
-    DDRB = 0x01;
+    DDRB = 0xff;
     for(;1;){
-        PORTB = 0b00000001;
+        PORTB = 0xff;
         _delay_ms(500);
-        PORTB = 0b00000000;
+        PORTB = 0x0;
         _delay_ms(500);
     }
 }
