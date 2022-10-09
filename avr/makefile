@@ -2,10 +2,7 @@
 mcu = atmega328p
 frequency = 16000000UL
 
-output_format = ihex
-
 programmer = arduino
-
 #port = /dev/cu.usbserial-1410
 #port = /dev/cu.usbmodem14301
 port := $(shell arduino-cli board list | sed -En '/arduino:avr:uno/p' | sed -En 's/([^ ]*).*/\1/p')

@@ -5,7 +5,7 @@ int main(){
     DDRB = 0xff;
     for(;1;){
         PORTB = 0xff;
-        _delay_ms(500);
+        _delay_ms(1500);
         PORTB = 0x0;
         _delay_ms(500);
     }
