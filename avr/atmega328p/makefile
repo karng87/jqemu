@@ -6,12 +6,12 @@ port = /dev/cu.usbmodem14301
 
 mcu = atmega328p
 
-#frequency = 16000000UL
+frequency = 16000000UL
 #frequency = 8000000UL
-
+CC = avr-gcc
 part = atmega328p
 
-TARGET = PortB
+TARGET := PortOC0A
 output_format = ihex
 
 programmer = stk500v1
@@ -20,6 +20,8 @@ programmer = arduino
 baud = 19200
 baud = 57600
 
+
+.PHONY: flash echo clean
 
 all: flash
 
@@ -37,6 +39,6 @@ flash : build/$(TARGET).ihex
 	avrdude -c $(programmer) -P $(port) -p $(part) -b $(baud) -D -U flash:w:build/$(TARGET).ihex:i
 
 echo:
-	echo $(port)
+	echo $(TARGET)
 clean:
 	if [ -d build ]; then rm -rf build/*; fi
