@@ -1,19 +1,18 @@
 #port = /dev/cu.usbserial-1410
 #port = /dev/cu.usbserial-1430
-port = /dev/cu.usbmodem14301
+#port = /dev/cu.usbmodem14301
 #port = /dev/ttyACM0
-#port := $(shell arduino-cli board list | sed -En '/arduino/p' | sed -En 's/([^ ]*).*/\1/p')
-
+port := $(shell arduino-cli board list | sed '/^$$/d' | sed -En '$$s/([^ ]*).*/\1/p')
 mcu = atmega328p
-
+part = atmega328p
 frequency = 16000000UL
 #frequency = 8000000UL
-CC = avr-gcc
-part = atmega328p
 
 TARGET := PortOC0A
+TARGET := Pwm_CTC
 output_format = ihex
-
+CC = avr-gcc
+LD = avr-ld
 programmer = stk500v1
 programmer = avrisp
 programmer = arduino
@@ -27,7 +26,7 @@ all: flash
 
 build/%.o: src/%.c
 	if [ ! -d build ]; then mkdir build; fi
-	avr-gcc -Os -DF_CPU=$(frequency) -mmcu=$(mcu) -c $< -o $@
+	avr-gcc -Os -mmcu=$(mcu) -c $< -o $@
 
 build/%.elf: build/%.o
 	avr-gcc $< -o $@
@@ -39,6 +38,6 @@ flash : build/$(TARGET).ihex
 	avrdude -c $(programmer) -P $(port) -p $(part) -b $(baud) -D -U flash:w:build/$(TARGET).ihex:i
 
 echo:
-	echo $(TARGET)
+	echo $(port)
 clean:
 	if [ -d build ]; then rm -rf build/*; fi
