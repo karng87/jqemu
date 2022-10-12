@@ -76,14 +76,17 @@
         - TCCR0B bits
             | FOC0A| FOC0B | - | - | WGM02 | CS02 | CS01 | CS00 |
 
+
         CTC Mode set: pin OC0A
 
             WGM02=0
             WGM01=1 
             WGM00=0
+                WGM = Waveform Generate Mode
 
             COM0A1=0
             COM0A0=1
+                COM : Compare Output Mode bit
 
         Clock Select Bit
             CS02:0 CS01:0 CS00:0 -> No clock source
@@ -93,7 +96,7 @@
             CS02:1 CS01:0 CS00:1 -> clk_{i/o} / 256
             CS02:1 CS01:1 CS00:1 -> clk_{i/o} / 1024
 
-## OCR0A,B : Out put Compare Register
+## OCR0A,B : Output Compare Register
     OCR0A : Output Compare Register A
         set TOP value OC0A pin
     OCR0B : Output Compare Register B
@@ -111,7 +114,7 @@
     OCF0A : Output Compare A match Flag
     TOV0  : Timer/Counter 0 Overflow Flag
 
-### CTC Mode
+### CTC Mode : Clear Timer Compare Match
         - TCCR0A bits
             | COM0A1| COM0A0 | COM0B1 | COM0B0 | - | - | WGM01 | WGM00 |
         - TCCR0B bits

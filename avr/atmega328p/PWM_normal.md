@@ -37,7 +37,7 @@
     TCCR0B(0x45): Time/Counter Control Register B
         | FOC0A| FOC0B | - | - | WGM02 | CS02 | CS01 | CS00 |
 
-    - COMnxn : COMpare
+    - COMnxn : Compare Output Match
     - WGMn : Waveform Generator Mode 
     - CSn : Clock Select 
 

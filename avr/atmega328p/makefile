@@ -1,15 +1,14 @@
-#port = /dev/cu.usbserial-1410
-#port = /dev/cu.usbserial-1430
-#port = /dev/cu.usbmodem14301
-#port = /dev/ttyACM0
-port := $(shell arduino-cli board list | sed '/^$$/d' | sed -En '$$s/([^ ]*).*/\1/p')
 mcu = atmega328p
 part = atmega328p
-frequency = 16000000UL
+#frequency = 16000000UL
 #frequency = 8000000UL
+port := $(shell arduino-cli board list | sed '/^$$/d' | sed -En '$$s/([^ ]*).*/\1/p')
 
-TARGET := PortOC0A
+TARGET := PortB
 TARGET := Pwm_CTC
+TARGET := Pwm_NormaL
+TARGET := Pwm_FasT
+
 output_format = ihex
 CC = avr-gcc
 LD = avr-ld
