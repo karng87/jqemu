@@ -1,10 +1,5 @@
-#include <avr/io.h>
-
+#define F_CPU 16000000UL
 int main(){
-
-    volatile char* Bpintoggle = (char *)0x23;
-    volatile char* Bdirection = (char *)0x24;
-    volatile char* Bdata = (char *)0x25;
 
     *(volatile char*)0x24 = 0b00000001;
 

@@ -4,10 +4,11 @@ part = atmega328p
 #frequency = 8000000UL
 port := $(shell arduino-cli board list | sed '/^$$/d' | sed -En '$$s/([^ ]*).*/\1/p')
 
-TARGET := PortB
 TARGET := Pwm_CTC
 TARGET := Pwm_NormaL
+TARGET := PortB
 TARGET := Pwm_FasT
+TARGET := Fast_PWM
 
 output_format = ihex
 CC = avr-gcc

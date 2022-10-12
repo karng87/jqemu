@@ -50,9 +50,9 @@ int main(){
     // 8bit Fast PWM none invert mode, prescaler = 1024
     *(volatile unsigned char*)0x44 = 0b10000011; // TCCR0A
     *(volatile unsigned char*)0x45 = 0b00000101; // TCCR0B
-    //*(volatile unsigned char*)0x47 = 256/12;      // OCR0A 
 
-    *(volatile unsigned char*)0x2A = 0b01000000; // DDRD6
+    *(volatile unsigned char*)0x2A = 0b01000000; // DDRD6 = OC0A
+
     while(1){
         for(int i=0;i<256; i++){
             *(volatile unsigned char*)0x47 = i;      // OCR0A 
