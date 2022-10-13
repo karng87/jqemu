@@ -48,11 +48,12 @@ int main(){
     ICR1: ICR1H(0x87): ICR1L(0x86):
 
     OC1A(PIN): DDRB(0x24)1
+
 */
     *(volatile unsigned char*)0x80 = 0b10000010; // TCCR1A 
     *(volatile unsigned char*)0x81 = 0b00011011; // TCCR1B
     *(volatile unsigned short*)0x88 = 625; // OCR1A
-    *(volatile unsigned short*)0x86 = 5000-1; // ICR1A
+    *(volatile unsigned short*)0x86 = 65000; // ICR1A
     *(volatile unsigned char*)0x24 = 0b00000010; // OC1A == PB1 DDRB
     while(1);
 }
