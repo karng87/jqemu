@@ -9,9 +9,9 @@ TARGET := Pwm_NormaL
 TARGET := Pwm_FasT
 TARGET := TIMSK
 TARGET := Fast_PWM
+TARGET := AEICRA
 TARGET := PortB
 TARGET := EICRA
-TARGET := AEICRA
 
 output_format = ihex
 CC = avr-gcc
