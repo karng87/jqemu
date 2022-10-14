@@ -1,24 +1,18 @@
-#define F_CPU 16000000UL
 
-#define __INTR_ATTRS __used__, __externally_visible__
-void __vector_1(void) __attribute__ ((__signal__, __used__, __externally_visible__));
-void __vector_1(void){
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+ISR(__vector_1){
     *(volatile unsigned char*)0x25 |= (1<<0); // PORTB(0): high
     for(unsigned long l=0; l<0xFFFF00; l++);
 }
 
-void __vector_2(void) __attribute__ ((__signal__, __used__, __externally_visible__));
-void __vector_2(void){
+ISR(__vector_2){
     *(volatile unsigned char*)0x25 |= (1<<1); // PORTB(1): high
     for(unsigned long l=0; l<0xFFFF00; l++);
 }
 
-/*
-ISR(__vector_2){
-    *(volatile unsigned char*)0x25 ^= 0x02;
-    for(unsigned long l=0; l<100000; l++);
-}
-*/
 
 int main(){
 
@@ -27,7 +21,7 @@ int main(){
 
     // DDRD(0x2A): ( PD2: PD3: ) <- INPUT_MOD(0):
     *(volatile unsigned char*)0x2A &= ~(1<<2 | 1<<3);
-    // PORTD(0x2B): ( PD2: PD3: ) <- PULL_UP(1):
+    // PORTD(0x2B): ( PD2: PD3: ) <- HIGH(1):
     *(volatile unsigned char*)0x2B |= (1<<2 | 1<<3);
 
     //EIMSK(0x3d): INT(1:0): enable;

@@ -6,11 +6,12 @@ port := $(shell arduino-cli board list | sed '/^$$/d' | sed -En '$$s/([^ ]*).*/\
 
 TARGET := Pwm_CTC
 TARGET := Pwm_NormaL
-TARGET := PortB
 TARGET := Pwm_FasT
 TARGET := TIMSK
 TARGET := Fast_PWM
+TARGET := PortB
 TARGET := EICRA
+TARGET := AEICRA
 
 output_format = ihex
 CC = avr-gcc
