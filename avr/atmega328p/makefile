@@ -12,6 +12,7 @@ TARGET := Fast_PWM
 TARGET := AEICRA
 TARGET := PortB
 TARGET := EICRA
+TARGET := Timer_ISR
 
 output_format = ihex
 CC = avr-gcc
@@ -20,12 +21,13 @@ programmer = stk500v1
 programmer = avrisp
 programmer = arduino
 baud = 19200
-baud = 57600
+baud = 115200  # arduino uno
+baud = 57600 # bare metal atmega328p
 
 
 .PHONY: flash echo clean
 
-all: flash
+all: build/$(TARGET).ihex 
 
 build/%.o: src/%.c
 	if [ ! -d build ]; then mkdir build; fi
@@ -35,10 +37,11 @@ build/%.elf: build/%.o
 	avr-gcc $< -o $@
 
 build/%.ihex: build/%.elf
-	avr-objcopy -Oihex $< $@
+	avr-objcopy -Oihex -R .eeprom $< $@
 
 flash : build/$(TARGET).ihex
-	avrdude -c $(programmer) -P $(port) -p $(part) -b $(baud) -D -U flash:w:build/$(TARGET).ihex:i
+	#avrdude -F -V -c $(programmer) -P $(port) -p $(part) -D -U flash:w:build/$(TARGET).ihex:i
+	avrdude -F -V -c $(programmer) -P $(port) -p $(part) -b $(baud) -D -U flash:w:build/$(TARGET).ihex:i
 
 echo:
 	echo $(port)
