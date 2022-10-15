@@ -1,9 +1,3 @@
-mcu = atmega328p
-part = atmega328p
-#frequency = 16000000UL
-#frequency = 8000000UL
-port := $(shell arduino-cli board list | sed '/^$$/d' | sed -En '$$s/([^ ]*).*/\1/p')
-
 TARGET := Pwm_CTC
 TARGET := Pwm_NormaL
 TARGET := Pwm_FasT
@@ -14,6 +8,38 @@ TARGET := PortB
 TARGET := EICRA
 TARGET := Timer_ISR
 
+PROJECTNAME = input
+PRJSRC = $(wildcard src/*)
+CSRC = $(filter %.c, $(PRJSRC))
+
+TARGET := build/$(PROJECTNAME).ihex
+TRG = $(PROJECTNAME).out
+MCU = atmega328p
+part = atmega328p
+# compiler
+CFLAGS=-g -mmcu=$(MCU) -Os \
+	-fpack-struct -fshort-enums             \
+	-funsigned-bitfields -funsigned-char    \
+	-Wall -std=gnu99   \
+	-Wa,-ahlms=$(firstword                  \
+	$(filter %.lst, $(<:.c=.lst)))
+
+# assembler
+ASMFLAGS =-mmcu=$(MCU)        \
+	-x assembler-with-cpp            \
+	-Wa,-gstabs,-ahlms=$(firstword   \
+		$(<:.S=.lst) $(<.s=.lst))
+
+
+# linker
+LDFLAGS=-Wl,-Map,build/$(PROJECTNAME).map -mmcu=$(MCU) \
+	-lm
+
+#frequency = 16000000UL
+#frequency = 8000000UL
+port := $(shell arduino-cli board list | sed '/^$$/d' | sed -En '$$s/([^ ]*).*/\1/p')
+
+
 output_format = ihex
 CC = avr-gcc
 LD = avr-ld
@@ -21,29 +47,28 @@ programmer = stk500v1
 programmer = avrisp
 programmer = arduino
 baud = 19200
-baud = 115200  # arduino uno
 baud = 57600 # bare metal atmega328p
+baud = 115200  # arduino uno
 
-
-.PHONY: flash echo clean
-
-all: build/$(TARGET).ihex 
+all: flash
 
 build/%.o: src/%.c
 	if [ ! -d build ]; then mkdir build; fi
-	avr-gcc -Os -mmcu=$(mcu) -c $< -o $@
+	avr-gcc $(CFLAGS) -c $< -o $@
 
 build/%.elf: build/%.o
-	avr-gcc $< -o $@
+	avr-gcc $(LDFLAGS) $< -o $@
 
 build/%.ihex: build/%.elf
-	avr-objcopy -Oihex -R .eeprom $< $@
+	avr-objcopy -j .text -j .data -O ihex $< $@
 
-flash : build/$(TARGET).ihex
-	#avrdude -F -V -c $(programmer) -P $(port) -p $(part) -D -U flash:w:build/$(TARGET).ihex:i
-	avrdude -F -V -c $(programmer) -P $(port) -p $(part) -b $(baud) -D -U flash:w:build/$(TARGET).ihex:i
+flash : $(TARGET)
+	avrdude -F -V -c $(programmer) -P $(port) -p $(part) -D -U flash:w:$(TARGET):i
+	#avrdude -F -V -c $(programmer) -P $(port) -p $(part) -b $(baud) -D -U flash:w:$(TARGET):i
 
 echo:
 	echo $(port)
 clean:
 	if [ -d build ]; then rm -rf build/*; fi
+
+.PHONY: all flash echo clean
