@@ -5,10 +5,12 @@ TARGET := TIMSK
 TARGET := Fast_PWM
 TARGET := AEICRA
 TARGET := PortB
-TARGET := EICRA
 TARGET := Timer_ISR
 
 PROJECTNAME = input
+PROJECTNAME = input_eeprom
+PROJECTNAME = EICRA
+
 PRJSRC = $(wildcard src/*)
 CSRC = $(filter %.c, $(PRJSRC))
 
@@ -43,14 +45,15 @@ port := $(shell arduino-cli board list | sed '/^$$/d' | sed -En '$$s/([^ ]*).*/\
 output_format = ihex
 CC = avr-gcc
 LD = avr-ld
-programmer = stk500v1
 programmer = avrisp
 programmer = arduino
-baud = 19200
-baud = 57600 # bare metal atmega328p
-baud = 115200  # arduino uno
+programmer = stk500v1 # directly arduino uno
 
-all: flash
+baud = 19200
+baud = 115200  # directly arduino uno
+baud = 57600 # bare metal atmega328p
+
+all: $(TARGET) 
 
 build/%.o: src/%.c
 	if [ ! -d build ]; then mkdir build; fi
@@ -63,8 +66,8 @@ build/%.ihex: build/%.elf
 	avr-objcopy -j .text -j .data -O ihex $< $@
 
 flash : $(TARGET)
-	avrdude -F -V -c $(programmer) -P $(port) -p $(part) -D -U flash:w:$(TARGET):i
-	#avrdude -F -V -c $(programmer) -P $(port) -p $(part) -b $(baud) -D -U flash:w:$(TARGET):i
+	#avrdude -F -V -c $(programmer) -P $(port) -p $(part) -D -U flash:w:$(TARGET):i
+	avrdude -F -V -c $(programmer) -P $(port) -p $(part) -b $(baud) -D -U flash:w:$(TARGET):i
 
 echo:
 	echo $(port)

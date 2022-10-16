@@ -1,0 +1,624 @@
+GAS LISTING /tmp/ccbSsM5o.s 			page 1
+
+
+   1               		.file	"input_eeprom.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               		.file 0 "/home/jkarng/Project/jqemu/avr/atmega328p" "src/input_eeprom.c"
+  11               		.section	.text.startup,"ax",@progbits
+  12               	.global	main
+  13               		.type	main, @function
+  14               	main:
+  15               	.LFB0:
+  16               		.file 1 "src/input_eeprom.c"
+   1:src/input_eeprom.c **** #define F_CPU 16000000UL
+   2:src/input_eeprom.c **** 
+   3:src/input_eeprom.c **** signed char dirBit=0;
+   4:src/input_eeprom.c **** int main(){
+  17               		.loc 1 4 11 view -0
+  18               		.cfi_startproc
+  19 0000 00D0      		rcall .
+  20 0002 00D0      		rcall .
+  21               		.cfi_def_cfa_offset 6
+  22 0004 CDB7      		in r28,__SP_L__
+  23 0006 DEB7      		in r29,__SP_H__
+  24               		.cfi_def_cfa_register 28
+  25               	/* prologue: function */
+  26               	/* frame size = 4 */
+  27               	/* stack size = 4 */
+  28               	.L__stack_usage = 4
+   5:src/input_eeprom.c ****     // set INPUT_PIN: DDRD(0x2A): PD2(INT0): PD3(INT1):
+   6:src/input_eeprom.c ****     *(volatile unsigned char*)0x2a &= ~0b00001100;
+  29               		.loc 1 6 5 view .LVU1
+  30               		.loc 1 6 36 is_stmt 0 view .LVU2
+  31 0008 8AB1      		in r24,0xa
+  32 000a 837F      		andi r24,lo8(-13)
+  33 000c 8AB9      		out 0xa,r24
+   7:src/input_eeprom.c ****     *(volatile unsigned char*)0x2b |=  0b00001100;
+  34               		.loc 1 7 5 is_stmt 1 view .LVU3
+  35 000e 8BB1      		in r24,0xb
+  36               		.loc 1 7 36 is_stmt 0 view .LVU4
+  37 0010 8C60      		ori r24,lo8(12)
+  38 0012 8BB9      		out 0xb,r24
+   8:src/input_eeprom.c **** 
+   9:src/input_eeprom.c ****     // DDRB(0x24): PB0: PB1: PB2: PB3:
+  10:src/input_eeprom.c ****     *(volatile unsigned char*)0x24 |= 0b11111111;
+  39               		.loc 1 10 5 is_stmt 1 view .LVU5
+  40 0014 84B1      		in r24,0x4
+  41               		.loc 1 10 36 is_stmt 0 view .LVU6
+  42 0016 8FEF      		ldi r24,lo8(-1)
+  43 0018 84B9      		out 0x4,r24
+  11:src/input_eeprom.c **** 
+  12:src/input_eeprom.c ****         // EECR(0x3f): EEprom Control Register
+  13:src/input_eeprom.c ****     while(*(volatile unsigned char*)0x3f & 0b00000010); // [-:-:EEPM1:EEPM0:EERIE:EEMPE:EEPE:EERE]
+  44               		.loc 1 13 5 is_stmt 1 view .LVU7
+GAS LISTING /tmp/ccbSsM5o.s 			page 2
+
+
+  45               	.L2:
+  46               		.loc 1 13 11 discriminator 1 view .LVU8
+  47 001a F999      		sbic 0x1f,1
+  48 001c 00C0      		rjmp .L2
+  14:src/input_eeprom.c ****     *(volatile unsigned int*)0x41 = 100; // EEAR: EEARH: + EEARL:  EEprom Address Register
+  49               		.loc 1 14 5 view .LVU9
+  50               		.loc 1 14 35 is_stmt 0 view .LVU10
+  51 001e 84E6      		ldi r24,lo8(100)
+  52 0020 90E0      		ldi r25,0
+  53 0022 92BD      		out 0x21+1,r25
+  54 0024 81BD      		out 0x21,r24
+  15:src/input_eeprom.c ****     *(volatile unsigned char*)0x3f |= 0b00000001; // EECR: set EERE: EEprom Control Register [-:-:E
+  55               		.loc 1 15 5 is_stmt 1 view .LVU11
+  56               		.loc 1 15 36 is_stmt 0 view .LVU12
+  57 0026 F89A      		sbi 0x1f,0
+  16:src/input_eeprom.c ****     dirBit = *(volatile unsigned char*)0x40;
+  58               		.loc 1 16 5 is_stmt 1 view .LVU13
+  59               		.loc 1 16 14 is_stmt 0 view .LVU14
+  60 0028 80B5      		in r24,0x20
+  61               		.loc 1 16 12 view .LVU15
+  62 002a 8093 0000 		sts dirBit,r24
+  17:src/input_eeprom.c **** 
+  18:src/input_eeprom.c ****    
+  19:src/input_eeprom.c **** 
+  20:src/input_eeprom.c ****     while(1){
+  21:src/input_eeprom.c ****         if(!(*(volatile unsigned char*)0x29 & 0b00000100)){ // PIND2 == 0
+  22:src/input_eeprom.c ****             ++dirBit;
+  23:src/input_eeprom.c ****             if(dirBit > 3) dirBit= 0;
+  24:src/input_eeprom.c ****         }else if(!(*(volatile unsigned char*)0x29 & 0b00001000)){ // PIND3 == 0
+  25:src/input_eeprom.c ****             --dirBit;
+  26:src/input_eeprom.c ****             if(dirBit < 0) dirBit=3;
+  63               		.loc 1 26 34 view .LVU16
+  64 002e 63E0      		ldi r22,lo8(3)
+  27:src/input_eeprom.c ****         }
+  28:src/input_eeprom.c **** 
+  29:src/input_eeprom.c ****         *(volatile unsigned char*)0x25 = 1<<dirBit;
+  65               		.loc 1 29 43 view .LVU17
+  66 0030 21E0      		ldi r18,lo8(1)
+  67 0032 30E0      		ldi r19,0
+  30:src/input_eeprom.c ****         while (*(volatile unsigned char*)0x3f & 0b00000010); // is writing? EEPE
+  31:src/input_eeprom.c ****         *(volatile unsigned int*)0x41 = 100; // EEAR: EEARH: + EEARL:  EEprom Address Register
+  68               		.loc 1 31 39 view .LVU18
+  69 0034 44E6      		ldi r20,lo8(100)
+  70 0036 50E0      		ldi r21,0
+  71               	.L11:
+  20:src/input_eeprom.c ****         if(!(*(volatile unsigned char*)0x29 & 0b00000100)){ // PIND2 == 0
+  72               		.loc 1 20 5 is_stmt 1 view .LVU19
+  21:src/input_eeprom.c ****             ++dirBit;
+  73               		.loc 1 21 9 view .LVU20
+  22:src/input_eeprom.c ****             if(dirBit > 3) dirBit= 0;
+  74               		.loc 1 22 13 is_stmt 0 view .LVU21
+  75 0038 8091 0000 		lds r24,dirBit
+  21:src/input_eeprom.c ****             ++dirBit;
+  76               		.loc 1 21 11 view .LVU22
+  77 003c 4A99      		sbic 0x9,2
+  78 003e 00C0      		rjmp .L3
+  22:src/input_eeprom.c ****             if(dirBit > 3) dirBit= 0;
+GAS LISTING /tmp/ccbSsM5o.s 			page 3
+
+
+  79               		.loc 1 22 13 is_stmt 1 view .LVU23
+  80 0040 8F5F      		subi r24,lo8(-(1))
+  23:src/input_eeprom.c ****         }else if(!(*(volatile unsigned char*)0x29 & 0b00001000)){ // PIND3 == 0
+  81               		.loc 1 23 13 view .LVU24
+  23:src/input_eeprom.c ****         }else if(!(*(volatile unsigned char*)0x29 & 0b00001000)){ // PIND3 == 0
+  82               		.loc 1 23 15 is_stmt 0 view .LVU25
+  83 0042 8430      		cpi r24,lo8(4)
+  84 0044 04F4      		brge .L4
+  85               	.L14:
+  25:src/input_eeprom.c ****             if(dirBit < 0) dirBit=3;
+  86               		.loc 1 25 13 view .LVU26
+  87 0046 8093 0000 		sts dirBit,r24
+  88 004a 00C0      		rjmp .L5
+  89               	.L4:
+  23:src/input_eeprom.c ****         }else if(!(*(volatile unsigned char*)0x29 & 0b00001000)){ // PIND3 == 0
+  90               		.loc 1 23 28 is_stmt 1 discriminator 1 view .LVU27
+  23:src/input_eeprom.c ****         }else if(!(*(volatile unsigned char*)0x29 & 0b00001000)){ // PIND3 == 0
+  91               		.loc 1 23 34 is_stmt 0 discriminator 1 view .LVU28
+  92 004c 1092 0000 		sts dirBit,__zero_reg__
+  93               	.L5:
+  29:src/input_eeprom.c ****         while (*(volatile unsigned char*)0x3f & 0b00000010); // is writing? EEPE
+  94               		.loc 1 29 9 is_stmt 1 view .LVU29
+  29:src/input_eeprom.c ****         while (*(volatile unsigned char*)0x3f & 0b00000010); // is writing? EEPE
+  95               		.loc 1 29 43 is_stmt 0 view .LVU30
+  96 0050 8091 0000 		lds r24,dirBit
+  97 0054 F901      		movw r30,r18
+  98 0056 00C0      		rjmp 2f
+  99               		1:
+ 100 0058 EE0F      		lsl r30
+ 101 005a FF1F      		rol r31
+ 102               		2:
+ 103 005c 8A95      		dec r24
+ 104 005e 02F4      		brpl 1b
+  29:src/input_eeprom.c ****         while (*(volatile unsigned char*)0x3f & 0b00000010); // is writing? EEPE
+ 105               		.loc 1 29 40 view .LVU31
+ 106 0060 E5B9      		out 0x5,r30
+  30:src/input_eeprom.c ****         *(volatile unsigned int*)0x41 = 100; // EEAR: EEARH: + EEARL:  EEprom Address Register
+ 107               		.loc 1 30 9 is_stmt 1 view .LVU32
+ 108               	.L8:
+  30:src/input_eeprom.c ****         *(volatile unsigned int*)0x41 = 100; // EEAR: EEARH: + EEARL:  EEprom Address Register
+ 109               		.loc 1 30 16 discriminator 1 view .LVU33
+ 110 0062 F999      		sbic 0x1f,1
+ 111 0064 00C0      		rjmp .L8
+ 112               		.loc 1 31 9 view .LVU34
+ 113               		.loc 1 31 39 is_stmt 0 view .LVU35
+ 114 0066 52BD      		out 0x21+1,r21
+ 115 0068 41BD      		out 0x21,r20
+  32:src/input_eeprom.c ****         *(volatile unsigned char*)0x40 = dirBit; // EEDR:
+ 116               		.loc 1 32 9 is_stmt 1 view .LVU36
+ 117               		.loc 1 32 40 is_stmt 0 view .LVU37
+ 118 006a 8091 0000 		lds r24,dirBit
+ 119 006e 80BD      		out 0x20,r24
+  33:src/input_eeprom.c ****         *(volatile unsigned char*)0x3f |= 0b00000100; // EECR: set EEMPE:
+ 120               		.loc 1 33 9 is_stmt 1 view .LVU38
+ 121               		.loc 1 33 40 is_stmt 0 view .LVU39
+ 122 0070 FA9A      		sbi 0x1f,2
+  34:src/input_eeprom.c ****         *(volatile unsigned char*)0x3f |= 0b00000010; // EECR: set EEPE:
+GAS LISTING /tmp/ccbSsM5o.s 			page 4
+
+
+ 123               		.loc 1 34 9 is_stmt 1 view .LVU40
+ 124               		.loc 1 34 40 is_stmt 0 view .LVU41
+ 125 0072 F99A      		sbi 0x1f,1
+  35:src/input_eeprom.c **** 
+  36:src/input_eeprom.c ****         for(volatile long i=0;i<0x8fff;i++);
+ 126               		.loc 1 36 9 is_stmt 1 view .LVU42
+ 127               	.LBB2:
+ 128               		.loc 1 36 13 view .LVU43
+ 129               		.loc 1 36 27 is_stmt 0 view .LVU44
+ 130 0074 1982      		std Y+1,__zero_reg__
+ 131 0076 1A82      		std Y+2,__zero_reg__
+ 132 0078 1B82      		std Y+3,__zero_reg__
+ 133 007a 1C82      		std Y+4,__zero_reg__
+ 134               	.L9:
+ 135               		.loc 1 36 32 is_stmt 1 discriminator 1 view .LVU45
+ 136 007c 8981      		ldd r24,Y+1
+ 137 007e 9A81      		ldd r25,Y+2
+ 138 0080 AB81      		ldd r26,Y+3
+ 139 0082 BC81      		ldd r27,Y+4
+ 140 0084 8F3F      		cpi r24,-1
+ 141 0086 9F48      		sbci r25,-113
+ 142 0088 A105      		cpc r26,__zero_reg__
+ 143 008a B105      		cpc r27,__zero_reg__
+ 144 008c 04F4      		brge .L11
+ 145               		.loc 1 36 41 discriminator 3 view .LVU46
+ 146 008e 8981      		ldd r24,Y+1
+ 147 0090 9A81      		ldd r25,Y+2
+ 148 0092 AB81      		ldd r26,Y+3
+ 149 0094 BC81      		ldd r27,Y+4
+ 150 0096 0196      		adiw r24,1
+ 151 0098 A11D      		adc r26,__zero_reg__
+ 152 009a B11D      		adc r27,__zero_reg__
+ 153 009c 8983      		std Y+1,r24
+ 154 009e 9A83      		std Y+2,r25
+ 155 00a0 AB83      		std Y+3,r26
+ 156 00a2 BC83      		std Y+4,r27
+ 157 00a4 00C0      		rjmp .L9
+ 158               	.L3:
+ 159               	.LBE2:
+  24:src/input_eeprom.c ****             --dirBit;
+ 160               		.loc 1 24 15 view .LVU47
+  24:src/input_eeprom.c ****             --dirBit;
+ 161               		.loc 1 24 17 is_stmt 0 view .LVU48
+ 162 00a6 4B99      		sbic 0x9,3
+ 163 00a8 00C0      		rjmp .L5
+  25:src/input_eeprom.c ****             if(dirBit < 0) dirBit=3;
+ 164               		.loc 1 25 13 is_stmt 1 view .LVU49
+ 165 00aa 8150      		subi r24,lo8(-(-1))
+  26:src/input_eeprom.c ****         }
+ 166               		.loc 1 26 13 view .LVU50
+  26:src/input_eeprom.c ****         }
+ 167               		.loc 1 26 15 is_stmt 0 view .LVU51
+ 168 00ac 87FF      		sbrs r24,7
+ 169 00ae 00C0      		rjmp .L14
+  26:src/input_eeprom.c ****         }
+ 170               		.loc 1 26 28 is_stmt 1 discriminator 1 view .LVU52
+  26:src/input_eeprom.c ****         }
+GAS LISTING /tmp/ccbSsM5o.s 			page 5
+
+
+ 171               		.loc 1 26 34 is_stmt 0 discriminator 1 view .LVU53
+ 172 00b0 6093 0000 		sts dirBit,r22
+ 173 00b4 00C0      		rjmp .L5
+ 174               		.cfi_endproc
+ 175               	.LFE0:
+ 176               		.size	main, .-main
+ 177               	.global	dirBit
+ 178               		.section .bss
+ 179               		.type	dirBit, @object
+ 180               		.size	dirBit, 1
+ 181               	dirBit:
+ 182 0000 00        		.zero	1
+ 183               		.text
+ 184               	.Letext0:
+ 185               		.section	.debug_info,"",@progbits
+ 186               	.Ldebug_info0:
+ 187 0000 8100 0000 		.long	0x81
+ 188 0004 0500      		.word	0x5
+ 189 0006 01        		.byte	0x1
+ 190 0007 04        		.byte	0x4
+ 191 0008 0000 0000 		.long	.Ldebug_abbrev0
+ 192 000c 02        		.uleb128 0x2
+ 193 000d 0000 0000 		.long	.LASF4
+ 194 0011 0C        		.byte	0xc
+ 195 0012 0000 0000 		.long	.LASF0
+ 196 0016 0000 0000 		.long	.LASF1
+ 197 001a 0000 0000 		.long	.LLRL0
+ 198 001e 0000 0000 		.long	0
+ 199 0022 0000 0000 		.long	.Ldebug_line0
+ 200 0026 03        		.uleb128 0x3
+ 201 0027 0000 0000 		.long	.LASF5
+ 202 002b 01        		.byte	0x1
+ 203 002c 03        		.byte	0x3
+ 204 002d 0D        		.byte	0xd
+ 205 002e 3800 0000 		.long	0x38
+ 206 0032 05        		.uleb128 0x5
+ 207 0033 03        		.byte	0x3
+ 208 0034 0000 0000 		.long	dirBit
+ 209 0038 01        		.uleb128 0x1
+ 210 0039 01        		.byte	0x1
+ 211 003a 06        		.byte	0x6
+ 212 003b 0000 0000 		.long	.LASF2
+ 213 003f 04        		.uleb128 0x4
+ 214 0040 0000 0000 		.long	.LASF6
+ 215 0044 01        		.byte	0x1
+ 216 0045 04        		.byte	0x4
+ 217 0046 05        		.byte	0x5
+ 218 0047 7100 0000 		.long	0x71
+ 219 004b 0000 0000 		.long	.LFB0
+ 220 004f B600 0000 		.long	.LFE0-.LFB0
+ 221 0053 01        		.uleb128 0x1
+ 222 0054 9C        		.byte	0x9c
+ 223 0055 7100 0000 		.long	0x71
+ 224 0059 05        		.uleb128 0x5
+ 225 005a 0000 0000 		.long	.LBB2
+ 226 005e 3200 0000 		.long	.LBE2-.LBB2
+ 227 0062 06        		.uleb128 0x6
+GAS LISTING /tmp/ccbSsM5o.s 			page 6
+
+
+ 228 0063 6900      		.string	"i"
+ 229 0065 01        		.byte	0x1
+ 230 0066 24        		.byte	0x24
+ 231 0067 1B        		.byte	0x1b
+ 232 0068 7F00 0000 		.long	0x7f
+ 233 006c 02        		.uleb128 0x2
+ 234 006d 8C        		.byte	0x8c
+ 235 006e 01        		.sleb128 1
+ 236 006f 00        		.byte	0
+ 237 0070 00        		.byte	0
+ 238 0071 07        		.uleb128 0x7
+ 239 0072 02        		.byte	0x2
+ 240 0073 05        		.byte	0x5
+ 241 0074 696E 7400 		.string	"int"
+ 242 0078 01        		.uleb128 0x1
+ 243 0079 04        		.byte	0x4
+ 244 007a 05        		.byte	0x5
+ 245 007b 0000 0000 		.long	.LASF3
+ 246 007f 08        		.uleb128 0x8
+ 247 0080 7800 0000 		.long	0x78
+ 248 0084 00        		.byte	0
+ 249               		.section	.debug_abbrev,"",@progbits
+ 250               	.Ldebug_abbrev0:
+ 251 0000 01        		.uleb128 0x1
+ 252 0001 24        		.uleb128 0x24
+ 253 0002 00        		.byte	0
+ 254 0003 0B        		.uleb128 0xb
+ 255 0004 0B        		.uleb128 0xb
+ 256 0005 3E        		.uleb128 0x3e
+ 257 0006 0B        		.uleb128 0xb
+ 258 0007 03        		.uleb128 0x3
+ 259 0008 0E        		.uleb128 0xe
+ 260 0009 00        		.byte	0
+ 261 000a 00        		.byte	0
+ 262 000b 02        		.uleb128 0x2
+ 263 000c 11        		.uleb128 0x11
+ 264 000d 01        		.byte	0x1
+ 265 000e 25        		.uleb128 0x25
+ 266 000f 0E        		.uleb128 0xe
+ 267 0010 13        		.uleb128 0x13
+ 268 0011 0B        		.uleb128 0xb
+ 269 0012 03        		.uleb128 0x3
+ 270 0013 1F        		.uleb128 0x1f
+ 271 0014 1B        		.uleb128 0x1b
+ 272 0015 1F        		.uleb128 0x1f
+ 273 0016 55        		.uleb128 0x55
+ 274 0017 17        		.uleb128 0x17
+ 275 0018 11        		.uleb128 0x11
+ 276 0019 01        		.uleb128 0x1
+ 277 001a 10        		.uleb128 0x10
+ 278 001b 17        		.uleb128 0x17
+ 279 001c 00        		.byte	0
+ 280 001d 00        		.byte	0
+ 281 001e 03        		.uleb128 0x3
+ 282 001f 34        		.uleb128 0x34
+ 283 0020 00        		.byte	0
+ 284 0021 03        		.uleb128 0x3
+GAS LISTING /tmp/ccbSsM5o.s 			page 7
+
+
+ 285 0022 0E        		.uleb128 0xe
+ 286 0023 3A        		.uleb128 0x3a
+ 287 0024 0B        		.uleb128 0xb
+ 288 0025 3B        		.uleb128 0x3b
+ 289 0026 0B        		.uleb128 0xb
+ 290 0027 39        		.uleb128 0x39
+ 291 0028 0B        		.uleb128 0xb
+ 292 0029 49        		.uleb128 0x49
+ 293 002a 13        		.uleb128 0x13
+ 294 002b 3F        		.uleb128 0x3f
+ 295 002c 19        		.uleb128 0x19
+ 296 002d 02        		.uleb128 0x2
+ 297 002e 18        		.uleb128 0x18
+ 298 002f 00        		.byte	0
+ 299 0030 00        		.byte	0
+ 300 0031 04        		.uleb128 0x4
+ 301 0032 2E        		.uleb128 0x2e
+ 302 0033 01        		.byte	0x1
+ 303 0034 3F        		.uleb128 0x3f
+ 304 0035 19        		.uleb128 0x19
+ 305 0036 03        		.uleb128 0x3
+ 306 0037 0E        		.uleb128 0xe
+ 307 0038 3A        		.uleb128 0x3a
+ 308 0039 0B        		.uleb128 0xb
+ 309 003a 3B        		.uleb128 0x3b
+ 310 003b 0B        		.uleb128 0xb
+ 311 003c 39        		.uleb128 0x39
+ 312 003d 0B        		.uleb128 0xb
+ 313 003e 49        		.uleb128 0x49
+ 314 003f 13        		.uleb128 0x13
+ 315 0040 11        		.uleb128 0x11
+ 316 0041 01        		.uleb128 0x1
+ 317 0042 12        		.uleb128 0x12
+ 318 0043 06        		.uleb128 0x6
+ 319 0044 40        		.uleb128 0x40
+ 320 0045 18        		.uleb128 0x18
+ 321 0046 7A        		.uleb128 0x7a
+ 322 0047 19        		.uleb128 0x19
+ 323 0048 01        		.uleb128 0x1
+ 324 0049 13        		.uleb128 0x13
+ 325 004a 00        		.byte	0
+ 326 004b 00        		.byte	0
+ 327 004c 05        		.uleb128 0x5
+ 328 004d 0B        		.uleb128 0xb
+ 329 004e 01        		.byte	0x1
+ 330 004f 11        		.uleb128 0x11
+ 331 0050 01        		.uleb128 0x1
+ 332 0051 12        		.uleb128 0x12
+ 333 0052 06        		.uleb128 0x6
+ 334 0053 00        		.byte	0
+ 335 0054 00        		.byte	0
+ 336 0055 06        		.uleb128 0x6
+ 337 0056 34        		.uleb128 0x34
+ 338 0057 00        		.byte	0
+ 339 0058 03        		.uleb128 0x3
+ 340 0059 08        		.uleb128 0x8
+ 341 005a 3A        		.uleb128 0x3a
+GAS LISTING /tmp/ccbSsM5o.s 			page 8
+
+
+ 342 005b 0B        		.uleb128 0xb
+ 343 005c 3B        		.uleb128 0x3b
+ 344 005d 0B        		.uleb128 0xb
+ 345 005e 39        		.uleb128 0x39
+ 346 005f 0B        		.uleb128 0xb
+ 347 0060 49        		.uleb128 0x49
+ 348 0061 13        		.uleb128 0x13
+ 349 0062 02        		.uleb128 0x2
+ 350 0063 18        		.uleb128 0x18
+ 351 0064 00        		.byte	0
+ 352 0065 00        		.byte	0
+ 353 0066 07        		.uleb128 0x7
+ 354 0067 24        		.uleb128 0x24
+ 355 0068 00        		.byte	0
+ 356 0069 0B        		.uleb128 0xb
+ 357 006a 0B        		.uleb128 0xb
+ 358 006b 3E        		.uleb128 0x3e
+ 359 006c 0B        		.uleb128 0xb
+ 360 006d 03        		.uleb128 0x3
+ 361 006e 08        		.uleb128 0x8
+ 362 006f 00        		.byte	0
+ 363 0070 00        		.byte	0
+ 364 0071 08        		.uleb128 0x8
+ 365 0072 35        		.uleb128 0x35
+ 366 0073 00        		.byte	0
+ 367 0074 49        		.uleb128 0x49
+ 368 0075 13        		.uleb128 0x13
+ 369 0076 00        		.byte	0
+ 370 0077 00        		.byte	0
+ 371 0078 00        		.byte	0
+ 372               		.section	.debug_aranges,"",@progbits
+ 373 0000 1C00 0000 		.long	0x1c
+ 374 0004 0200      		.word	0x2
+ 375 0006 0000 0000 		.long	.Ldebug_info0
+ 376 000a 04        		.byte	0x4
+ 377 000b 00        		.byte	0
+ 378 000c 0000      		.word	0
+ 379 000e 0000      		.word	0
+ 380 0010 0000 0000 		.long	.LFB0
+ 381 0014 B600 0000 		.long	.LFE0-.LFB0
+ 382 0018 0000 0000 		.long	0
+ 383 001c 0000 0000 		.long	0
+ 384               		.section	.debug_rnglists,"",@progbits
+ 385               	.Ldebug_ranges0:
+ 386 0000 1000 0000 		.long	.Ldebug_ranges3-.Ldebug_ranges2
+ 387               	.Ldebug_ranges2:
+ 388 0004 0500      		.word	0x5
+ 389 0006 04        		.byte	0x4
+ 390 0007 00        		.byte	0
+ 391 0008 0000 0000 		.long	0
+ 392               	.LLRL0:
+ 393 000c 07        		.byte	0x7
+ 394 000d 0000 0000 		.long	.LFB0
+ 395 0011 B601      		.uleb128 .LFE0-.LFB0
+ 396 0013 00        		.byte	0
+ 397               	.Ldebug_ranges3:
+ 398               		.section	.debug_line,"",@progbits
+GAS LISTING /tmp/ccbSsM5o.s 			page 9
+
+
+ 399               	.Ldebug_line0:
+ 400 0000 2D02 0000 		.section	.debug_str,"MS",@progbits,1
+ 400      0500 0400 
+ 400      2E00 0000 
+ 400      0201 01FB 
+ 400      0E0D 0001 
+ 401               	.LASF4:
+ 402 0000 474E 5520 		.string	"GNU C99 12.2.0 -mn-flash=1 -mno-skip-bug -mdouble=32 -mlong-double=64 -mmcu=avr5 -g -Os -
+ 402      4339 3920 
+ 402      3132 2E32 
+ 402      2E30 202D 
+ 402      6D6E 2D66 
+ 403               	.LASF2:
+ 404 00a4 7369 676E 		.string	"signed char"
+ 404      6564 2063 
+ 404      6861 7200 
+ 405               	.LASF5:
+ 406 00b0 6469 7242 		.string	"dirBit"
+ 406      6974 00
+ 407               	.LASF6:
+ 408 00b7 6D61 696E 		.string	"main"
+ 408      00
+ 409               	.LASF3:
+ 410 00bc 6C6F 6E67 		.string	"long int"
+ 410      2069 6E74 
+ 410      00
+ 411               		.section	.debug_line_str,"MS",@progbits,1
+ 412               	.LASF0:
+ 413 0000 7372 632F 		.string	"src/input_eeprom.c"
+ 413      696E 7075 
+ 413      745F 6565 
+ 413      7072 6F6D 
+ 413      2E63 00
+ 414               	.LASF1:
+ 415 0013 2F68 6F6D 		.string	"/home/jkarng/Project/jqemu/avr/atmega328p"
+ 415      652F 6A6B 
+ 415      6172 6E67 
+ 415      2F50 726F 
+ 415      6A65 6374 
+ 416               		.ident	"GCC: (GNU) 12.2.0"
+ 417 003d 2F68 6F6D 	.global __do_clear_bss
+ 417      652F 6A6B 
+ 417      6172 6E67 
+ 417      2F50 726F 
+ 417      6A65 6374 
+GAS LISTING /tmp/ccbSsM5o.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 input_eeprom.c
+     /tmp/ccbSsM5o.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccbSsM5o.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccbSsM5o.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccbSsM5o.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccbSsM5o.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccbSsM5o.s:14     .text.startup:0000000000000000 main
+     /tmp/ccbSsM5o.s:17     .text.startup:0000000000000000 .Loc.0
+     /tmp/ccbSsM5o.s:18     .text.startup:0000000000000000 L0
+     /tmp/ccbSsM5o.s:19     .text.startup:0000000000000002 L0
+     /tmp/ccbSsM5o.s:20     .text.startup:0000000000000004 L0
+     /tmp/ccbSsM5o.s:29     .text.startup:0000000000000008 .Loc.1
+     /tmp/ccbSsM5o.s:30     .text.startup:0000000000000008 .Loc.2
+     /tmp/ccbSsM5o.s:34     .text.startup:000000000000000e .Loc.3
+     /tmp/ccbSsM5o.s:36     .text.startup:0000000000000010 .Loc.4
+     /tmp/ccbSsM5o.s:39     .text.startup:0000000000000014 .Loc.5
+     /tmp/ccbSsM5o.s:41     .text.startup:0000000000000016 .Loc.6
+     /tmp/ccbSsM5o.s:44     .text.startup:000000000000001a .Loc.7
+     /tmp/ccbSsM5o.s:46     .text.startup:000000000000001a .Loc.8
+     /tmp/ccbSsM5o.s:49     .text.startup:000000000000001e .Loc.9
+     /tmp/ccbSsM5o.s:50     .text.startup:000000000000001e .Loc.10
+     /tmp/ccbSsM5o.s:55     .text.startup:0000000000000026 .Loc.11
+     /tmp/ccbSsM5o.s:56     .text.startup:0000000000000026 .Loc.12
+     /tmp/ccbSsM5o.s:58     .text.startup:0000000000000028 .Loc.13
+     /tmp/ccbSsM5o.s:59     .text.startup:0000000000000028 .Loc.14
+     /tmp/ccbSsM5o.s:61     .text.startup:000000000000002a .Loc.15
+     /tmp/ccbSsM5o.s:181    .bss:0000000000000000 dirBit
+     /tmp/ccbSsM5o.s:63     .text.startup:000000000000002e .Loc.16
+     /tmp/ccbSsM5o.s:65     .text.startup:0000000000000030 .Loc.17
+     /tmp/ccbSsM5o.s:68     .text.startup:0000000000000034 .Loc.18
+     /tmp/ccbSsM5o.s:72     .text.startup:0000000000000038 .Loc.19
+     /tmp/ccbSsM5o.s:73     .text.startup:0000000000000038 .Loc.20
+     /tmp/ccbSsM5o.s:74     .text.startup:0000000000000038 .Loc.21
+     /tmp/ccbSsM5o.s:76     .text.startup:000000000000003c .Loc.22
+     /tmp/ccbSsM5o.s:79     .text.startup:0000000000000040 .Loc.23
+     /tmp/ccbSsM5o.s:81     .text.startup:0000000000000042 .Loc.24
+     /tmp/ccbSsM5o.s:82     .text.startup:0000000000000042 .Loc.25
+     /tmp/ccbSsM5o.s:86     .text.startup:0000000000000046 .Loc.26
+     /tmp/ccbSsM5o.s:90     .text.startup:000000000000004c .Loc.27
+     /tmp/ccbSsM5o.s:91     .text.startup:000000000000004c .Loc.28
+     /tmp/ccbSsM5o.s:94     .text.startup:0000000000000050 .Loc.29
+     /tmp/ccbSsM5o.s:95     .text.startup:0000000000000050 .Loc.30
+     /tmp/ccbSsM5o.s:105    .text.startup:0000000000000060 .Loc.31
+     /tmp/ccbSsM5o.s:107    .text.startup:0000000000000062 .Loc.32
+     /tmp/ccbSsM5o.s:109    .text.startup:0000000000000062 .Loc.33
+     /tmp/ccbSsM5o.s:112    .text.startup:0000000000000066 .Loc.34
+     /tmp/ccbSsM5o.s:113    .text.startup:0000000000000066 .Loc.35
+     /tmp/ccbSsM5o.s:116    .text.startup:000000000000006a .Loc.36
+     /tmp/ccbSsM5o.s:117    .text.startup:000000000000006a .Loc.37
+     /tmp/ccbSsM5o.s:120    .text.startup:0000000000000070 .Loc.38
+     /tmp/ccbSsM5o.s:121    .text.startup:0000000000000070 .Loc.39
+     /tmp/ccbSsM5o.s:123    .text.startup:0000000000000072 .Loc.40
+     /tmp/ccbSsM5o.s:124    .text.startup:0000000000000072 .Loc.41
+     /tmp/ccbSsM5o.s:126    .text.startup:0000000000000074 .Loc.42
+     /tmp/ccbSsM5o.s:128    .text.startup:0000000000000074 .Loc.43
+     /tmp/ccbSsM5o.s:129    .text.startup:0000000000000074 .Loc.44
+GAS LISTING /tmp/ccbSsM5o.s 			page 11
+
+
+     /tmp/ccbSsM5o.s:135    .text.startup:000000000000007c .Loc.45
+     /tmp/ccbSsM5o.s:145    .text.startup:000000000000008e .Loc.46
+     /tmp/ccbSsM5o.s:160    .text.startup:00000000000000a6 .Loc.47
+     /tmp/ccbSsM5o.s:161    .text.startup:00000000000000a6 .Loc.48
+     /tmp/ccbSsM5o.s:164    .text.startup:00000000000000aa .Loc.49
+     /tmp/ccbSsM5o.s:166    .text.startup:00000000000000ac .Loc.50
+     /tmp/ccbSsM5o.s:167    .text.startup:00000000000000ac .Loc.51
+     /tmp/ccbSsM5o.s:170    .text.startup:00000000000000b0 .Loc.52
+     /tmp/ccbSsM5o.s:171    .text.startup:00000000000000b0 .Loc.53
+     /tmp/ccbSsM5o.s:174    .text.startup:00000000000000b6 L0
+     /tmp/ccbSsM5o.s:178    .text.startup:00000000000000b6 L0
+                     .debug_frame:0000000000000000 L0
+     /tmp/ccbSsM5o.s:45     .text.startup:000000000000001a .L2
+     /tmp/ccbSsM5o.s:158    .text.startup:00000000000000a6 .L3
+     /tmp/ccbSsM5o.s:89     .text.startup:000000000000004c .L4
+     /tmp/ccbSsM5o.s:93     .text.startup:0000000000000050 .L5
+     /tmp/ccbSsM5o.s:102    .text.startup:000000000000005c .L21
+     /tmp/ccbSsM5o.s:99     .text.startup:0000000000000058 .L11
+     /tmp/ccbSsM5o.s:108    .text.startup:0000000000000062 .L8
+     /tmp/ccbSsM5o.s:71     .text.startup:0000000000000038 .L11
+     /tmp/ccbSsM5o.s:134    .text.startup:000000000000007c .L9
+     /tmp/ccbSsM5o.s:85     .text.startup:0000000000000046 .L14
+     /tmp/ccbSsM5o.s:250    .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+     /tmp/ccbSsM5o.s:392    .debug_rnglists:000000000000000c .LLRL0
+     /tmp/ccbSsM5o.s:399    .debug_line:0000000000000000 .Ldebug_line0
+     /tmp/ccbSsM5o.s:15     .text.startup:0000000000000000 .LFB0
+     /tmp/ccbSsM5o.s:175    .text.startup:00000000000000b6 .LFE0
+     /tmp/ccbSsM5o.s:127    .text.startup:0000000000000074 .LBB2
+     /tmp/ccbSsM5o.s:159    .text.startup:00000000000000a6 .LBE2
+     /tmp/ccbSsM5o.s:186    .debug_info:0000000000000000 .Ldebug_info0
+
+UNDEFINED SYMBOLS
+__do_clear_bss
