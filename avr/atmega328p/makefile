@@ -7,9 +7,10 @@ TARGET := AEICRA
 TARGET := PortB
 TARGET := Timer_ISR
 
+PROJECTNAME = EICRA
 PROJECTNAME = input
 PROJECTNAME = input_eeprom
-PROJECTNAME = EICRA
+PROJECTNAME = test
 
 PRJSRC = $(wildcard src/*)
 CSRC = $(filter %.c, $(PRJSRC))
@@ -27,10 +28,7 @@ CFLAGS=-g -mmcu=$(MCU) -Os \
 	$(filter %.lst, $(<:.c=.lst)))
 
 # assembler
-ASMFLAGS =-mmcu=$(MCU)        \
-	-x assembler-with-cpp            \
-	-Wa,-gstabs,-ahlms=$(firstword   \
-		$(<:.S=.lst) $(<.s=.lst))
+ASMFLAGS =-mmcu=$(MCU)
 
 
 # linker
@@ -50,10 +48,16 @@ programmer = arduino
 programmer = stk500v1 # directly arduino uno
 
 baud = 19200
-baud = 115200  # directly arduino uno
 baud = 57600 # bare metal atmega328p
+baud = 115200  # directly arduino uno
 
 all: $(TARGET) 
+
+asm: src/test.asm
+	if [ ! -d build ]; then mkdir build; fi
+	avr-as $(ASMFLAGS) src/test.asm -o build/test.o
+	avr-ld build/test.o -o build/test.elf
+	avr-objcopy -j .text -j .data -O ihex build/test.elf build/test.ihex
 
 build/%.o: src/%.c
 	if [ ! -d build ]; then mkdir build; fi

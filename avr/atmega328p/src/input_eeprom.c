@@ -2,16 +2,16 @@
 
 signed char dirBit=0;
 int main(){
-    // set INPUT_PIN: DDRD(0x2A): PD2(INT0): PD3(INT1):
-    *(volatile unsigned char*)0x2a &= ~0b00001100;
-    *(volatile unsigned char*)0x2b |=  0b00001100;
+    // INPUT_PIN: DDRD(0x2A): PD2(INT0): PD3(INT1):
+    *(volatile unsigned char*)0x2a &= 0b11110011;
+    *(volatile unsigned char*)0x2b |= 0b00001100;
 
     // DDRB(0x24): PB0: PB1: PB2: PB3:
-    *(volatile unsigned char*)0x24 |= 0b11111111;
+    *(volatile unsigned char*)0x24 |= 0b00001111;
 
         // EECR(0x3f): EEprom Control Register
     while(*(volatile unsigned char*)0x3f & 0b00000010); // [-:-:EEPM1:EEPM0:EERIE:EEMPE:EEPE:EERE]
-    *(volatile unsigned int*)0x41 = 100; // EEAR: EEARH: + EEARL:  EEprom Address Register
+    *(volatile unsigned int*)0x41 = 100; // EEAR: <= EEARH: EEARL:  EEprom Address Register
     *(volatile unsigned char*)0x3f |= 0b00000001; // EECR: set EERE: EEprom Control Register [-:-:EEPM1:EEPM0:EERIE:EEMPE:EEPE:EERE]
     dirBit = *(volatile unsigned char*)0x40;
 
@@ -33,6 +33,6 @@ int main(){
         *(volatile unsigned char*)0x3f |= 0b00000100; // EECR: set EEMPE:
         *(volatile unsigned char*)0x3f |= 0b00000010; // EECR: set EEPE:
 
-        for(volatile long i=0;i<0x8fff;i++);
+        for(volatile int i=0;i<0xfff0;i++);
     }
 }
