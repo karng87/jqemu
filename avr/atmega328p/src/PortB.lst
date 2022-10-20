@@ -1,0 +1,240 @@
+GAS LISTING /tmp/cc0n2oY9.s 			page 1
+
+
+   1               		.file	"PortB.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               		.file 0 "/home/jkarng/Project/jqemu/avr/atmega328p" "src/PortB.c"
+  11               		.section	.text.startup,"ax",@progbits
+  12               	.global	main
+  13               		.type	main, @function
+  14               	main:
+  15               	.LFB0:
+  16               		.file 1 "src/PortB.c"
+   1:src/PortB.c   **** #define F_CPU 16000000UL
+   2:src/PortB.c   **** int main(){
+  17               		.loc 1 2 11 view -0
+  18               		.cfi_startproc
+  19               	/* prologue: function */
+  20               	/* frame size = 0 */
+  21               	/* stack size = 0 */
+  22               	.L__stack_usage = 0
+   3:src/PortB.c   **** 
+   4:src/PortB.c   ****     // PB(0x23): DDRB(0x24): PB1 <- output 
+   5:src/PortB.c   ****     *(volatile char*)0x24 |= 0x11111111;
+  23               		.loc 1 5 5 view .LVU1
+  24 0000 84B1      		in r24,0x4
+  25 0002 8161      		ori r24,lo8(17)
+  26               		.loc 1 5 27 is_stmt 0 view .LVU2
+  27 0004 84B9      		out 0x4,r24
+  28               	.L2:
+   6:src/PortB.c   **** 
+   7:src/PortB.c   ****     for(;1;){
+  29               		.loc 1 7 5 is_stmt 1 discriminator 1 view .LVU3
+   8:src/PortB.c   ****         // PB(0x23): PORTB(0x25): PB0 <- high
+   9:src/PortB.c   ****         *(volatile char*)0x25 |= 0b00000011;
+  30               		.loc 1 9 9 discriminator 1 view .LVU4
+  31 0006 85B1      		in r24,0x5
+  32               		.loc 1 9 31 is_stmt 0 discriminator 1 view .LVU5
+  33 0008 8360      		ori r24,lo8(3)
+  34 000a 85B9      		out 0x5,r24
+   7:src/PortB.c   ****         // PB(0x23): PORTB(0x25): PB0 <- high
+  35               		.loc 1 7 5 is_stmt 1 discriminator 1 view .LVU6
+  36 000c 00C0      		rjmp .L2
+  37               		.cfi_endproc
+  38               	.LFE0:
+  39               		.size	main, .-main
+  40               		.text
+  41               	.Letext0:
+  42               		.section	.debug_info,"",@progbits
+  43               	.Ldebug_info0:
+  44 0000 4000 0000 		.long	0x40
+  45 0004 0500      		.word	0x5
+  46 0006 01        		.byte	0x1
+  47 0007 04        		.byte	0x4
+GAS LISTING /tmp/cc0n2oY9.s 			page 2
+
+
+  48 0008 0000 0000 		.long	.Ldebug_abbrev0
+  49 000c 01        		.uleb128 0x1
+  50 000d 0000 0000 		.long	.LASF2
+  51 0011 0C        		.byte	0xc
+  52 0012 0000 0000 		.long	.LASF0
+  53 0016 0000 0000 		.long	.LASF1
+  54 001a 0000 0000 		.long	.LLRL0
+  55 001e 0000 0000 		.long	0
+  56 0022 0000 0000 		.long	.Ldebug_line0
+  57 0026 02        		.uleb128 0x2
+  58 0027 0000 0000 		.long	.LASF3
+  59 002b 01        		.byte	0x1
+  60 002c 02        		.byte	0x2
+  61 002d 05        		.byte	0x5
+  62 002e 3C00 0000 		.long	0x3c
+  63 0032 0000 0000 		.long	.LFB0
+  64 0036 0E00 0000 		.long	.LFE0-.LFB0
+  65 003a 01        		.uleb128 0x1
+  66 003b 9C        		.byte	0x9c
+  67 003c 03        		.uleb128 0x3
+  68 003d 02        		.byte	0x2
+  69 003e 05        		.byte	0x5
+  70 003f 696E 7400 		.string	"int"
+  71 0043 00        		.byte	0
+  72               		.section	.debug_abbrev,"",@progbits
+  73               	.Ldebug_abbrev0:
+  74 0000 01        		.uleb128 0x1
+  75 0001 11        		.uleb128 0x11
+  76 0002 01        		.byte	0x1
+  77 0003 25        		.uleb128 0x25
+  78 0004 0E        		.uleb128 0xe
+  79 0005 13        		.uleb128 0x13
+  80 0006 0B        		.uleb128 0xb
+  81 0007 03        		.uleb128 0x3
+  82 0008 1F        		.uleb128 0x1f
+  83 0009 1B        		.uleb128 0x1b
+  84 000a 1F        		.uleb128 0x1f
+  85 000b 55        		.uleb128 0x55
+  86 000c 17        		.uleb128 0x17
+  87 000d 11        		.uleb128 0x11
+  88 000e 01        		.uleb128 0x1
+  89 000f 10        		.uleb128 0x10
+  90 0010 17        		.uleb128 0x17
+  91 0011 00        		.byte	0
+  92 0012 00        		.byte	0
+  93 0013 02        		.uleb128 0x2
+  94 0014 2E        		.uleb128 0x2e
+  95 0015 00        		.byte	0
+  96 0016 3F        		.uleb128 0x3f
+  97 0017 19        		.uleb128 0x19
+  98 0018 03        		.uleb128 0x3
+  99 0019 0E        		.uleb128 0xe
+ 100 001a 3A        		.uleb128 0x3a
+ 101 001b 0B        		.uleb128 0xb
+ 102 001c 3B        		.uleb128 0x3b
+ 103 001d 0B        		.uleb128 0xb
+ 104 001e 39        		.uleb128 0x39
+GAS LISTING /tmp/cc0n2oY9.s 			page 3
+
+
+ 105 001f 0B        		.uleb128 0xb
+ 106 0020 49        		.uleb128 0x49
+ 107 0021 13        		.uleb128 0x13
+ 108 0022 11        		.uleb128 0x11
+ 109 0023 01        		.uleb128 0x1
+ 110 0024 12        		.uleb128 0x12
+ 111 0025 06        		.uleb128 0x6
+ 112 0026 40        		.uleb128 0x40
+ 113 0027 18        		.uleb128 0x18
+ 114 0028 7A        		.uleb128 0x7a
+ 115 0029 19        		.uleb128 0x19
+ 116 002a 00        		.byte	0
+ 117 002b 00        		.byte	0
+ 118 002c 03        		.uleb128 0x3
+ 119 002d 24        		.uleb128 0x24
+ 120 002e 00        		.byte	0
+ 121 002f 0B        		.uleb128 0xb
+ 122 0030 0B        		.uleb128 0xb
+ 123 0031 3E        		.uleb128 0x3e
+ 124 0032 0B        		.uleb128 0xb
+ 125 0033 03        		.uleb128 0x3
+ 126 0034 08        		.uleb128 0x8
+ 127 0035 00        		.byte	0
+ 128 0036 00        		.byte	0
+ 129 0037 00        		.byte	0
+ 130               		.section	.debug_aranges,"",@progbits
+ 131 0000 1C00 0000 		.long	0x1c
+ 132 0004 0200      		.word	0x2
+ 133 0006 0000 0000 		.long	.Ldebug_info0
+ 134 000a 04        		.byte	0x4
+ 135 000b 00        		.byte	0
+ 136 000c 0000      		.word	0
+ 137 000e 0000      		.word	0
+ 138 0010 0000 0000 		.long	.LFB0
+ 139 0014 0E00 0000 		.long	.LFE0-.LFB0
+ 140 0018 0000 0000 		.long	0
+ 141 001c 0000 0000 		.long	0
+ 142               		.section	.debug_rnglists,"",@progbits
+ 143               	.Ldebug_ranges0:
+ 144 0000 0F00 0000 		.long	.Ldebug_ranges3-.Ldebug_ranges2
+ 145               	.Ldebug_ranges2:
+ 146 0004 0500      		.word	0x5
+ 147 0006 04        		.byte	0x4
+ 148 0007 00        		.byte	0
+ 149 0008 0000 0000 		.long	0
+ 150               	.LLRL0:
+ 151 000c 07        		.byte	0x7
+ 152 000d 0000 0000 		.long	.LFB0
+ 153 0011 0E        		.uleb128 .LFE0-.LFB0
+ 154 0012 00        		.byte	0
+ 155               	.Ldebug_ranges3:
+ 156               		.section	.debug_line,"",@progbits
+ 157               	.Ldebug_line0:
+ 158 0000 8A00 0000 		.section	.debug_str,"MS",@progbits,1
+ 158      0500 0400 
+ 158      2E00 0000 
+ 158      0201 01FB 
+GAS LISTING /tmp/cc0n2oY9.s 			page 4
+
+
+ 158      0E0D 0001 
+ 159               	.LASF2:
+ 160 0000 474E 5520 		.string	"GNU C99 12.2.0 -mn-flash=1 -mno-skip-bug -mdouble=32 -mlong-double=64 -mmcu=avr5 -g -Os -
+ 160      4339 3920 
+ 160      3132 2E32 
+ 160      2E30 202D 
+ 160      6D6E 2D66 
+ 161               	.LASF3:
+ 162 00a4 6D61 696E 		.string	"main"
+ 162      00
+ 163               		.section	.debug_line_str,"MS",@progbits,1
+ 164               	.LASF0:
+ 165 0000 7372 632F 		.string	"src/PortB.c"
+ 165      506F 7274 
+ 165      422E 6300 
+ 166               	.LASF1:
+ 167 000c 2F68 6F6D 		.string	"/home/jkarng/Project/jqemu/avr/atmega328p"
+ 167      652F 6A6B 
+ 167      6172 6E67 
+ 167      2F50 726F 
+ 167      6A65 6374 
+ 168 0036 2F68 6F6D 		.ident	"GCC: (GNU) 12.2.0"
+ 168      652F 6A6B 
+ 168      6172 6E67 
+ 168      2F50 726F 
+ 168      6A65 6374 
+GAS LISTING /tmp/cc0n2oY9.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 PortB.c
+     /tmp/cc0n2oY9.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/cc0n2oY9.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/cc0n2oY9.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/cc0n2oY9.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cc0n2oY9.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cc0n2oY9.s:14     .text.startup:0000000000000000 main
+     /tmp/cc0n2oY9.s:17     .text.startup:0000000000000000 .Loc.0
+     /tmp/cc0n2oY9.s:18     .text.startup:0000000000000000 L0
+     /tmp/cc0n2oY9.s:23     .text.startup:0000000000000000 .Loc.1
+     /tmp/cc0n2oY9.s:26     .text.startup:0000000000000004 .Loc.2
+     /tmp/cc0n2oY9.s:29     .text.startup:0000000000000006 .Loc.3
+     /tmp/cc0n2oY9.s:30     .text.startup:0000000000000006 .Loc.4
+     /tmp/cc0n2oY9.s:32     .text.startup:0000000000000008 .Loc.5
+     /tmp/cc0n2oY9.s:35     .text.startup:000000000000000c .Loc.6
+     /tmp/cc0n2oY9.s:37     .text.startup:000000000000000e L0
+     /tmp/cc0n2oY9.s:40     .text.startup:000000000000000e L0
+                     .debug_frame:0000000000000000 L0
+     /tmp/cc0n2oY9.s:28     .text.startup:0000000000000006 .L2
+     /tmp/cc0n2oY9.s:73     .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+     /tmp/cc0n2oY9.s:150    .debug_rnglists:000000000000000c .LLRL0
+     /tmp/cc0n2oY9.s:157    .debug_line:0000000000000000 .Ldebug_line0
+     /tmp/cc0n2oY9.s:15     .text.startup:0000000000000000 .LFB0
+     /tmp/cc0n2oY9.s:38     .text.startup:000000000000000e .LFE0
+     /tmp/cc0n2oY9.s:43     .debug_info:0000000000000000 .Ldebug_info0
+
+NO UNDEFINED SYMBOLS

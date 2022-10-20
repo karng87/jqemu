@@ -17,22 +17,25 @@ int main(){
     *(volatile unsigned char*)0x69 |= 0b00001010; // falling edgge(10)
 
     //sei(); SREG(7): set I(7) enable
-    *(volatile unsigned char*)0x5f |= (1<<7); // SREG(0x5f):
+    __asm__ __volatile__ ("sei" ::: "memory");
+    //*(volatile unsigned char*)0x5f |= (1<<7); // SREG(0x5f):
+
 
     while(1);
 }
 
-void __vector_1(void) __attribute__ ((__signal__, __used__, __externally_visible__));
+void __vector_1(void) __attribute__ ((__signal__, __used__, __externally_visible__)) __attribute__ ((__interrupt__));
 void __vector_1(void){
+    //__asm__ __volatile__ ("sei" ::: "memory");
     *(volatile unsigned char*)0x25 ^= 0b00000011;
-    for(unsigned long l=0;l<200;l++);
+    //__asm__ __volatile__ ("reti" ::: "memory");
 }
 
-void __vector_2(void) __attribute__ ((__signal__, __used__, __externally_visible__));
+void __vector_2(void) __attribute__ ((__signal__, __used__, __externally_visible__)) __attribute__ ((__interrupt__));
 void __vector_2(void){
-    //*(volatile unsigned char*)0x25 ^= 0b00001100;
-    //for(unsigned long l=0;l<0x8ffff;l++);
+    *(volatile unsigned char*)0x25 ^= 0b00001100;
 }
+
 
 /*
 ISR(INT0_vect){

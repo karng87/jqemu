@@ -79,31 +79,34 @@ Interrrupt:
     - Type 2: as long as the interrupt condition is present
 */
 
-.equ iVAl, 0xf9e
-.equ iVal_h, 0xf9e/256
-.equ iVal_l, 0xf9e%256
+.equ iVAl, 0xffff
+.equ iVal_h, 0xff
+.equ iVal_l, 0xff
 .section .text
 .org 0x00 ; RESET vector ISR address the lowest address in program memory space
 
-    LDI r16, 0b00100000
-    ldi r17, 0b00000000
+    LDI r16, 0b00111111 
     STS 0x24, r16 ; STore Space:16bit instruction address I/O(OFFSET):0x20, OUT 0x4, r16 (8bit)
+
+    ldi r17, 0b00111000
+    ldi r18, 0b00000111
 L:
-    STS 0x25, r16 ; OUT 0x5, r16
-    jmp Delay10ms
+    STS 0x25, r18 ; OUT 0x5, r16
+    call Delay10ms
     sts 0x25, r17
-    jmp Delay10ms
+    call Delay10ms
     rjmp L ; relative jmp
 
 Delay10ms:
-    ldi r26, iVal_l 
-    ldi r27, iVal_h
-
+    ldi r26, 0xff  ; r27:r26 == X
+    ldi r27, 0xff 
+    ldi r28, 0x0f
+    ldi r29, 0x00
 L1:
-    sbiw r26,1
+    sbiw r26,1 ; sbiw = substract imediate number word registers
+    brne L1     ; branch not equal
+    sbiw r28,1 ; sbiw = substract imediate number word registers
     brne L1
-    dec r18
-    brne Delay10ms
     nop
     ret
     

@@ -1,4 +1,4 @@
-GAS LISTING /var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s 			page 1
+GAS LISTING /tmp/ccvS8nz0.s 			page 1
 
 
    1               		.file	"EICRA.c"
@@ -10,412 +10,445 @@ GAS LISTING /var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s 			page
    7               		.text
    8               	.Ltext0:
    9               		.cfi_sections	.debug_frame
-  10               		.section	.text.startup,"ax",@progbits
-  11               	.global	main
-  12               		.type	main, @function
-  13               	main:
-  14               	.LFB0:
-  15               		.file 1 "src/EICRA.c"
+  10               		.file 0 "/home/jkarng/Project/jqemu/avr/atmega328p" "src/EICRA.c"
+  11               		.section	.text.startup,"ax",@progbits
+  12               	.global	main
+  13               		.type	main, @function
+  14               	main:
+  15               	.LFB0:
+  16               		.file 1 "src/EICRA.c"
    1:src/EICRA.c   **** #define F_CPU 16000000UL
    2:src/EICRA.c   **** 
    3:src/EICRA.c   **** int main(){
-  16               		.loc 1 3 11 view -0
-  17               		.cfi_startproc
-  18               	/* prologue: function */
-  19               	/* frame size = 0 */
-  20               	/* stack size = 0 */
-  21               	.L__stack_usage = 0
+  17               		.loc 1 3 11 view -0
+  18               		.cfi_startproc
+  19               	/* prologue: function */
+  20               	/* frame size = 0 */
+  21               	/* stack size = 0 */
+  22               	.L__stack_usage = 0
    4:src/EICRA.c   ****         // DDRB: 
    5:src/EICRA.c   ****     *(volatile unsigned char*)0x24 |= 0b00001111;
-  22               		.loc 1 5 5 view .LVU1
-  23               		.loc 1 5 36 is_stmt 0 view .LVU2
+  23               		.loc 1 5 5 view .LVU1
   24 0000 84B1      		in r24,0x4
-  25 0002 8F60      		ori r24,lo8(15)
-  26 0004 84B9      		out 0x4,r24
+  25               		.loc 1 5 36 is_stmt 0 view .LVU2
+  26 0002 8F60      		ori r24,lo8(15)
+  27 0004 84B9      		out 0x4,r24
    6:src/EICRA.c   ****         // PORTB:
    7:src/EICRA.c   ****     *(volatile unsigned char*)0x25 = 0b00001111;
-  27               		.loc 1 7 5 is_stmt 1 view .LVU3
-  28               		.loc 1 7 36 is_stmt 0 view .LVU4
-  29 0006 8FE0      		ldi r24,lo8(15)
-  30 0008 85B9      		out 0x5,r24
+  28               		.loc 1 7 5 is_stmt 1 view .LVU3
+  29               		.loc 1 7 36 is_stmt 0 view .LVU4
+  30 0006 8FE0      		ldi r24,lo8(15)
+  31 0008 85B9      		out 0x5,r24
    8:src/EICRA.c   **** 
    9:src/EICRA.c   ****         // DDRD: PD2(INT0 PIN): and PD3(INT1 PIN): <- INPUT:
   10:src/EICRA.c   ****     *(volatile unsigned char*)0x2A &= 0b11111001;
-  31               		.loc 1 10 5 is_stmt 1 view .LVU5
-  32               		.loc 1 10 36 is_stmt 0 view .LVU6
-  33 000a 8AB1      		in r24,0xa
-  34 000c 897F      		andi r24,lo8(-7)
-  35 000e 8AB9      		out 0xa,r24
+  32               		.loc 1 10 5 is_stmt 1 view .LVU5
+  33               		.loc 1 10 36 is_stmt 0 view .LVU6
+  34 000a 8AB1      		in r24,0xa
+  35 000c 897F      		andi r24,lo8(-7)
+  36 000e 8AB9      		out 0xa,r24
   11:src/EICRA.c   ****         // PROTD: <- PULL_UP(1):
   12:src/EICRA.c   ****     *(volatile unsigned char*)0x2B |= 0b00000110;
-  36               		.loc 1 12 5 is_stmt 1 view .LVU7
-  37               		.loc 1 12 36 is_stmt 0 view .LVU8
+  37               		.loc 1 12 5 is_stmt 1 view .LVU7
   38 0010 8BB1      		in r24,0xb
-  39 0012 8660      		ori r24,lo8(6)
-  40 0014 8BB9      		out 0xb,r24
+  39               		.loc 1 12 36 is_stmt 0 view .LVU8
+  40 0012 8660      		ori r24,lo8(6)
+  41 0014 8BB9      		out 0xb,r24
   13:src/EICRA.c   **** 
   14:src/EICRA.c   ****         //EIMSK(0x3d): <- MASK: [- - - - - - INT0: INT1: ]
   15:src/EICRA.c   ****     *(volatile unsigned char*)0x3d |= 0b00000011;
-  41               		.loc 1 15 5 is_stmt 1 view .LVU9
-  42               		.loc 1 15 36 is_stmt 0 view .LVU10
-GAS LISTING /var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s 			page 2
+  42               		.loc 1 15 5 is_stmt 1 view .LVU9
+GAS LISTING /tmp/ccvS8nz0.s 			page 2
 
 
   43 0016 8DB3      		in r24,0x1d
-  44 0018 8360      		ori r24,lo8(3)
-  45 001a 8DBB      		out 0x1d,r24
+  44               		.loc 1 15 36 is_stmt 0 view .LVU10
+  45 0018 8360      		ori r24,lo8(3)
+  46 001a 8DBB      		out 0x1d,r24
   16:src/EICRA.c   ****         //EICRA(0x69): [ - - - - ISC11: ISC10: ISC01: ISC00: ]
   17:src/EICRA.c   ****     *(volatile unsigned char*)0x69 |= 0b00001010; // falling edgge(10)
-  46               		.loc 1 17 5 is_stmt 1 view .LVU11
-  47               		.loc 1 17 36 is_stmt 0 view .LVU12
+  47               		.loc 1 17 5 is_stmt 1 view .LVU11
   48 001c 8091 6900 		lds r24,105
-  49 0020 8A60      		ori r24,lo8(10)
-  50 0022 8093 6900 		sts 105,r24
+  49               		.loc 1 17 36 is_stmt 0 view .LVU12
+  50 0020 8A60      		ori r24,lo8(10)
+  51 0022 8093 6900 		sts 105,r24
   18:src/EICRA.c   **** 
   19:src/EICRA.c   ****     //sei(); SREG(7): set I(7) enable
-  20:src/EICRA.c   ****     *(volatile unsigned char*)0x5f |= (1<<7); // SREG(0x5f):
-  51               		.loc 1 20 5 is_stmt 1 view .LVU13
-  52               		.loc 1 20 36 is_stmt 0 view .LVU14
-  53 0026 8FB7      		in r24,__SREG__
-  54 0028 8068      		ori r24,lo8(-128)
-  55 002a 8FBF      		out __SREG__,r24
-  56               	.L2:
-  21:src/EICRA.c   **** 
-  22:src/EICRA.c   ****     while(1);
-  57               		.loc 1 22 5 is_stmt 1 discriminator 1 view .LVU15
-  58               		.loc 1 22 13 discriminator 1 view .LVU16
-  59               		.loc 1 22 10 discriminator 1 view .LVU17
-  60 002c 00C0      		rjmp .L2
-  61               		.cfi_endproc
-  62               	.LFE0:
-  63               		.size	main, .-main
-  64               		.text
-  65               	.global	__vector_1
-  66               		.type	__vector_1, @function
-  67               	__vector_1:
-  68               	.LFB1:
-  23:src/EICRA.c   **** }
-  24:src/EICRA.c   **** 
-  25:src/EICRA.c   **** void __vector_1(void) __attribute__ ((__signal__, __used__, __externally_visible__));
-  26:src/EICRA.c   **** void __vector_1(void){
-  69               		.loc 1 26 22 view -0
-  70               		.cfi_startproc
-  71 0000 8F93 8FB7 		__gcc_isr 1
-  71      8F93 
-  72 0006 9F93      		push r25
-  73               		.cfi_def_cfa_offset 3
-  74               		.cfi_offset 25, -2
-  75               	/* prologue: Signal */
-  76               	/* frame size = 0 */
-  77               	/* stack size = 1...5 */
-  78               	.L__stack_usage = 1 + __gcc_isr.n_pushed
-  27:src/EICRA.c   ****     *(volatile unsigned char*)0x25 ^= 0b00000011;
-  79               		.loc 1 27 5 view .LVU19
-  80               		.loc 1 27 36 is_stmt 0 view .LVU20
-  81 0008 85B1      		in r24,0x5
-  82 000a 93E0      		ldi r25,lo8(3)
-  83 000c 8927      		eor r24,r25
-  84 000e 85B9      		out 0x5,r24
-  85               	/* epilogue start */
-  28:src/EICRA.c   ****     //for(unsigned long l=0;l<200;l++);
-GAS LISTING /var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s 			page 3
+  20:src/EICRA.c   ****     __asm__ __volatile__ ("sei" ::: "memory");
+  52               		.loc 1 20 5 is_stmt 1 view .LVU13
+  53               	/* #APP */
+  54               	 ;  20 "src/EICRA.c" 1
+  55 0026 7894      		sei
+  56               	 ;  0 "" 2
+  57               	/* #NOAPP */
+  58               	.L2:
+  21:src/EICRA.c   ****     //*(volatile unsigned char*)0x5f |= (1<<7); // SREG(0x5f):
+  22:src/EICRA.c   **** 
+  23:src/EICRA.c   **** 
+  24:src/EICRA.c   ****     while(1);
+  59               		.loc 1 24 5 discriminator 1 view .LVU14
+  60               		.loc 1 24 10 discriminator 1 view .LVU15
+  61 0028 00C0      		rjmp .L2
+  62               		.cfi_endproc
+  63               	.LFE0:
+  64               		.size	main, .-main
+  65               		.text
+  66               	.global	__vector_1
+  67               		.type	__vector_1, @function
+  68               	__vector_1:
+  69               	.LFB1:
+  25:src/EICRA.c   **** }
+  26:src/EICRA.c   **** 
+  27:src/EICRA.c   **** void __vector_1(void) __attribute__ ((__signal__, __used__, __externally_visible__)) __attribute__ 
+  28:src/EICRA.c   **** void __vector_1(void){
+  70               		.loc 1 28 22 view -0
+  71               		.cfi_startproc
+  72 0000 7894      		sei
+  73 0002 8F93 8FB7 		__gcc_isr 1
+  73      8F93 
+  74 0008 9F93      		push r25
+  75               		.cfi_def_cfa_offset 3
+  76               		.cfi_offset 25, -2
+  77               	/* prologue: Interrupt */
+  78               	/* frame size = 0 */
+  79               	/* stack size = 1...5 */
+  80               	.L__stack_usage = 1 + __gcc_isr.n_pushed
+  29:src/EICRA.c   ****     //__asm__ __volatile__ ("sei" ::: "memory");
+  30:src/EICRA.c   ****     *(volatile unsigned char*)0x25 ^= 0b00000011;
+  81               		.loc 1 30 5 view .LVU17
+  82 000a 85B1      		in r24,0x5
+  83               		.loc 1 30 36 is_stmt 0 view .LVU18
+GAS LISTING /tmp/ccvS8nz0.s 			page 3
 
 
-  29:src/EICRA.c   **** }
-  86               		.loc 1 29 1 view .LVU21
-  87 0010 9F91      		pop r25
-  88 0012 8F91 8FBF 		__gcc_isr 2
-  88      8F91 
-  89 0018 1895      		reti
-  90               		__gcc_isr 0,r24
-  91               		.cfi_endproc
-  92               	.LFE1:
-  93               		.size	__vector_1, .-__vector_1
-  94               	.global	__vector_2
-  95               		.type	__vector_2, @function
-  96               	__vector_2:
-  97               	.LFB2:
-  30:src/EICRA.c   **** 
-  31:src/EICRA.c   **** void __vector_2(void) __attribute__ ((__signal__, __used__, __externally_visible__));
-  32:src/EICRA.c   **** void __vector_2(void){
-  98               		.loc 1 32 22 is_stmt 1 view -0
-  99               		.cfi_startproc
- 100               		__gcc_isr 1
- 101               	/* prologue: Signal */
- 102               	/* frame size = 0 */
- 103               	/* stack size = 0...3 */
- 104               	.L__stack_usage = 0 + __gcc_isr.n_pushed
-  33:src/EICRA.c   ****     //*(volatile unsigned char*)0x25 ^= 0b00001100;
-  34:src/EICRA.c   ****     //for(unsigned long l=0;l<0x8ffff;l++);
-  35:src/EICRA.c   **** }
- 105               		.loc 1 35 1 view .LVU23
- 106               	/* epilogue start */
- 107               		__gcc_isr 2
- 108 001a 1895      		reti
- 109               		__gcc_isr 0,r0
- 110               		.cfi_endproc
- 111               	.LFE2:
- 112               		.size	__vector_2, .-__vector_2
- 113               	.Letext0:
- 114               		.section	.debug_info,"",@progbits
- 115               	.Ldebug_info0:
- 116 0000 6300 0000 		.long	0x63
- 117 0004 0400      		.word	0x4
- 118 0006 0000 0000 		.long	.Ldebug_abbrev0
- 119 000a 04        		.byte	0x4
- 120 000b 01        		.uleb128 0x1
- 121 000c 0000 0000 		.long	.LASF3
- 122 0010 0C        		.byte	0xc
- 123 0011 0000 0000 		.long	.LASF4
- 124 0015 0000 0000 		.long	.LASF5
- 125 0019 0000 0000 		.long	.Ldebug_ranges0+0
- 126 001d 0000 0000 		.long	0
- 127 0021 0000 0000 		.long	.Ldebug_line0
- 128 0025 02        		.uleb128 0x2
- 129 0026 0000 0000 		.long	.LASF0
- 130 002a 01        		.byte	0x1
- 131 002b 20        		.byte	0x20
- 132 002c 06        		.byte	0x6
- 133 002d 0000 0000 		.long	.LFB2
- 134 0031 0200 0000 		.long	.LFE2-.LFB2
-GAS LISTING /var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s 			page 4
+  84 000c 93E0      		ldi r25,lo8(3)
+  85 000e 8927      		eor r24,r25
+  86 0010 85B9      		out 0x5,r24
+  87               	/* epilogue start */
+  31:src/EICRA.c   ****     //__asm__ __volatile__ ("reti" ::: "memory");
+  32:src/EICRA.c   **** }
+  88               		.loc 1 32 1 view .LVU19
+  89 0012 9F91      		pop r25
+  90 0014 8F91 8FBF 		__gcc_isr 2
+  90      8F91 
+  91 001a 1895      		reti
+  92               		__gcc_isr 0,r24
+  93               		.cfi_endproc
+  94               	.LFE1:
+  95               		.size	__vector_1, .-__vector_1
+  96               	.global	__vector_2
+  97               		.type	__vector_2, @function
+  98               	__vector_2:
+  99               	.LFB2:
+  33:src/EICRA.c   **** 
+  34:src/EICRA.c   **** void __vector_2(void) __attribute__ ((__signal__, __used__, __externally_visible__)) __attribute__ 
+  35:src/EICRA.c   **** void __vector_2(void){
+ 100               		.loc 1 35 22 is_stmt 1 view -0
+ 101               		.cfi_startproc
+ 102 001c 7894      		sei
+ 103 001e 8F93 8FB7 		__gcc_isr 1
+ 103      8F93 
+ 104 0024 9F93      		push r25
+ 105               		.cfi_def_cfa_offset 3
+ 106               		.cfi_offset 25, -2
+ 107               	/* prologue: Interrupt */
+ 108               	/* frame size = 0 */
+ 109               	/* stack size = 1...5 */
+ 110               	.L__stack_usage = 1 + __gcc_isr.n_pushed
+  36:src/EICRA.c   ****     *(volatile unsigned char*)0x25 ^= 0b00001100;
+ 111               		.loc 1 36 5 view .LVU21
+ 112 0026 85B1      		in r24,0x5
+ 113               		.loc 1 36 36 is_stmt 0 view .LVU22
+ 114 0028 9CE0      		ldi r25,lo8(12)
+ 115 002a 8927      		eor r24,r25
+ 116 002c 85B9      		out 0x5,r24
+ 117               	/* epilogue start */
+  37:src/EICRA.c   **** }
+ 118               		.loc 1 37 1 view .LVU23
+ 119 002e 9F91      		pop r25
+ 120 0030 8F91 8FBF 		__gcc_isr 2
+ 120      8F91 
+ 121 0036 1895      		reti
+ 122               		__gcc_isr 0,r24
+ 123               		.cfi_endproc
+ 124               	.LFE2:
+ 125               		.size	__vector_2, .-__vector_2
+ 126               	.Letext0:
+ 127               		.section	.debug_info,"",@progbits
+ 128               	.Ldebug_info0:
+ 129 0000 6000 0000 		.long	0x60
+ 130 0004 0500      		.word	0x5
+GAS LISTING /tmp/ccvS8nz0.s 			page 4
 
 
- 135 0035 01        		.uleb128 0x1
- 136 0036 9C        		.byte	0x9c
- 137 0037 02        		.uleb128 0x2
- 138 0038 0000 0000 		.long	.LASF1
- 139 003c 01        		.byte	0x1
- 140 003d 1A        		.byte	0x1a
- 141 003e 06        		.byte	0x6
- 142 003f 0000 0000 		.long	.LFB1
- 143 0043 1A00 0000 		.long	.LFE1-.LFB1
- 144 0047 01        		.uleb128 0x1
- 145 0048 9C        		.byte	0x9c
- 146 0049 03        		.uleb128 0x3
- 147 004a 0000 0000 		.long	.LASF2
- 148 004e 01        		.byte	0x1
- 149 004f 03        		.byte	0x3
- 150 0050 05        		.byte	0x5
- 151 0051 5F00 0000 		.long	0x5f
- 152 0055 0000 0000 		.long	.LFB0
- 153 0059 2E00 0000 		.long	.LFE0-.LFB0
- 154 005d 01        		.uleb128 0x1
- 155 005e 9C        		.byte	0x9c
- 156 005f 04        		.uleb128 0x4
- 157 0060 02        		.byte	0x2
- 158 0061 05        		.byte	0x5
- 159 0062 696E 7400 		.string	"int"
- 160 0066 00        		.byte	0
- 161               		.section	.debug_abbrev,"",@progbits
- 162               	.Ldebug_abbrev0:
- 163 0000 01        		.uleb128 0x1
- 164 0001 11        		.uleb128 0x11
- 165 0002 01        		.byte	0x1
- 166 0003 25        		.uleb128 0x25
- 167 0004 0E        		.uleb128 0xe
- 168 0005 13        		.uleb128 0x13
- 169 0006 0B        		.uleb128 0xb
- 170 0007 03        		.uleb128 0x3
- 171 0008 0E        		.uleb128 0xe
- 172 0009 1B        		.uleb128 0x1b
- 173 000a 0E        		.uleb128 0xe
- 174 000b 55        		.uleb128 0x55
- 175 000c 17        		.uleb128 0x17
- 176 000d 11        		.uleb128 0x11
- 177 000e 01        		.uleb128 0x1
- 178 000f 10        		.uleb128 0x10
- 179 0010 17        		.uleb128 0x17
- 180 0011 00        		.byte	0
- 181 0012 00        		.byte	0
- 182 0013 02        		.uleb128 0x2
- 183 0014 2E        		.uleb128 0x2e
- 184 0015 00        		.byte	0
- 185 0016 3F        		.uleb128 0x3f
- 186 0017 19        		.uleb128 0x19
- 187 0018 03        		.uleb128 0x3
- 188 0019 0E        		.uleb128 0xe
- 189 001a 3A        		.uleb128 0x3a
- 190 001b 0B        		.uleb128 0xb
- 191 001c 3B        		.uleb128 0x3b
-GAS LISTING /var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s 			page 5
+ 131 0006 01        		.byte	0x1
+ 132 0007 04        		.byte	0x4
+ 133 0008 0000 0000 		.long	.Ldebug_abbrev0
+ 134 000c 02        		.uleb128 0x2
+ 135 000d 0000 0000 		.long	.LASF5
+ 136 0011 0C        		.byte	0xc
+ 137 0012 0000 0000 		.long	.LASF0
+ 138 0016 0000 0000 		.long	.LASF1
+ 139 001a 0000 0000 		.long	.LLRL0
+ 140 001e 0000 0000 		.long	0
+ 141 0022 0000 0000 		.long	.Ldebug_line0
+ 142 0026 01        		.uleb128 0x1
+ 143 0027 0000 0000 		.long	.LASF2
+ 144 002b 23        		.byte	0x23
+ 145 002c 0000 0000 		.long	.LFB2
+ 146 0030 1C00 0000 		.long	.LFE2-.LFB2
+ 147 0034 01        		.uleb128 0x1
+ 148 0035 9C        		.byte	0x9c
+ 149 0036 01        		.uleb128 0x1
+ 150 0037 0000 0000 		.long	.LASF3
+ 151 003b 1C        		.byte	0x1c
+ 152 003c 0000 0000 		.long	.LFB1
+ 153 0040 1C00 0000 		.long	.LFE1-.LFB1
+ 154 0044 01        		.uleb128 0x1
+ 155 0045 9C        		.byte	0x9c
+ 156 0046 03        		.uleb128 0x3
+ 157 0047 0000 0000 		.long	.LASF4
+ 158 004b 01        		.byte	0x1
+ 159 004c 03        		.byte	0x3
+ 160 004d 05        		.byte	0x5
+ 161 004e 5C00 0000 		.long	0x5c
+ 162 0052 0000 0000 		.long	.LFB0
+ 163 0056 2A00 0000 		.long	.LFE0-.LFB0
+ 164 005a 01        		.uleb128 0x1
+ 165 005b 9C        		.byte	0x9c
+ 166 005c 04        		.uleb128 0x4
+ 167 005d 02        		.byte	0x2
+ 168 005e 05        		.byte	0x5
+ 169 005f 696E 7400 		.string	"int"
+ 170 0063 00        		.byte	0
+ 171               		.section	.debug_abbrev,"",@progbits
+ 172               	.Ldebug_abbrev0:
+ 173 0000 01        		.uleb128 0x1
+ 174 0001 2E        		.uleb128 0x2e
+ 175 0002 00        		.byte	0
+ 176 0003 3F        		.uleb128 0x3f
+ 177 0004 19        		.uleb128 0x19
+ 178 0005 03        		.uleb128 0x3
+ 179 0006 0E        		.uleb128 0xe
+ 180 0007 3A        		.uleb128 0x3a
+ 181 0008 21        		.uleb128 0x21
+ 182 0009 01        		.sleb128 1
+ 183 000a 3B        		.uleb128 0x3b
+ 184 000b 0B        		.uleb128 0xb
+ 185 000c 39        		.uleb128 0x39
+ 186 000d 21        		.uleb128 0x21
+ 187 000e 06        		.sleb128 6
+GAS LISTING /tmp/ccvS8nz0.s 			page 5
 
 
- 192 001d 0B        		.uleb128 0xb
- 193 001e 39        		.uleb128 0x39
- 194 001f 0B        		.uleb128 0xb
- 195 0020 27        		.uleb128 0x27
- 196 0021 19        		.uleb128 0x19
- 197 0022 11        		.uleb128 0x11
- 198 0023 01        		.uleb128 0x1
- 199 0024 12        		.uleb128 0x12
- 200 0025 06        		.uleb128 0x6
- 201 0026 40        		.uleb128 0x40
- 202 0027 18        		.uleb128 0x18
- 203 0028 9742      		.uleb128 0x2117
- 204 002a 19        		.uleb128 0x19
- 205 002b 00        		.byte	0
- 206 002c 00        		.byte	0
- 207 002d 03        		.uleb128 0x3
- 208 002e 2E        		.uleb128 0x2e
- 209 002f 00        		.byte	0
- 210 0030 3F        		.uleb128 0x3f
- 211 0031 19        		.uleb128 0x19
- 212 0032 03        		.uleb128 0x3
- 213 0033 0E        		.uleb128 0xe
- 214 0034 3A        		.uleb128 0x3a
- 215 0035 0B        		.uleb128 0xb
- 216 0036 3B        		.uleb128 0x3b
- 217 0037 0B        		.uleb128 0xb
- 218 0038 39        		.uleb128 0x39
- 219 0039 0B        		.uleb128 0xb
- 220 003a 49        		.uleb128 0x49
- 221 003b 13        		.uleb128 0x13
- 222 003c 11        		.uleb128 0x11
- 223 003d 01        		.uleb128 0x1
- 224 003e 12        		.uleb128 0x12
- 225 003f 06        		.uleb128 0x6
- 226 0040 40        		.uleb128 0x40
- 227 0041 18        		.uleb128 0x18
- 228 0042 9742      		.uleb128 0x2117
- 229 0044 19        		.uleb128 0x19
- 230 0045 00        		.byte	0
- 231 0046 00        		.byte	0
- 232 0047 04        		.uleb128 0x4
- 233 0048 24        		.uleb128 0x24
- 234 0049 00        		.byte	0
- 235 004a 0B        		.uleb128 0xb
- 236 004b 0B        		.uleb128 0xb
- 237 004c 3E        		.uleb128 0x3e
- 238 004d 0B        		.uleb128 0xb
- 239 004e 03        		.uleb128 0x3
- 240 004f 08        		.uleb128 0x8
- 241 0050 00        		.byte	0
- 242 0051 00        		.byte	0
- 243 0052 00        		.byte	0
- 244               		.section	.debug_aranges,"",@progbits
- 245 0000 2400 0000 		.long	0x24
- 246 0004 0200      		.word	0x2
- 247 0006 0000 0000 		.long	.Ldebug_info0
- 248 000a 04        		.byte	0x4
-GAS LISTING /var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s 			page 6
+ 188 000f 27        		.uleb128 0x27
+ 189 0010 19        		.uleb128 0x19
+ 190 0011 11        		.uleb128 0x11
+ 191 0012 01        		.uleb128 0x1
+ 192 0013 12        		.uleb128 0x12
+ 193 0014 06        		.uleb128 0x6
+ 194 0015 40        		.uleb128 0x40
+ 195 0016 18        		.uleb128 0x18
+ 196 0017 7A        		.uleb128 0x7a
+ 197 0018 19        		.uleb128 0x19
+ 198 0019 00        		.byte	0
+ 199 001a 00        		.byte	0
+ 200 001b 02        		.uleb128 0x2
+ 201 001c 11        		.uleb128 0x11
+ 202 001d 01        		.byte	0x1
+ 203 001e 25        		.uleb128 0x25
+ 204 001f 0E        		.uleb128 0xe
+ 205 0020 13        		.uleb128 0x13
+ 206 0021 0B        		.uleb128 0xb
+ 207 0022 03        		.uleb128 0x3
+ 208 0023 1F        		.uleb128 0x1f
+ 209 0024 1B        		.uleb128 0x1b
+ 210 0025 1F        		.uleb128 0x1f
+ 211 0026 55        		.uleb128 0x55
+ 212 0027 17        		.uleb128 0x17
+ 213 0028 11        		.uleb128 0x11
+ 214 0029 01        		.uleb128 0x1
+ 215 002a 10        		.uleb128 0x10
+ 216 002b 17        		.uleb128 0x17
+ 217 002c 00        		.byte	0
+ 218 002d 00        		.byte	0
+ 219 002e 03        		.uleb128 0x3
+ 220 002f 2E        		.uleb128 0x2e
+ 221 0030 00        		.byte	0
+ 222 0031 3F        		.uleb128 0x3f
+ 223 0032 19        		.uleb128 0x19
+ 224 0033 03        		.uleb128 0x3
+ 225 0034 0E        		.uleb128 0xe
+ 226 0035 3A        		.uleb128 0x3a
+ 227 0036 0B        		.uleb128 0xb
+ 228 0037 3B        		.uleb128 0x3b
+ 229 0038 0B        		.uleb128 0xb
+ 230 0039 39        		.uleb128 0x39
+ 231 003a 0B        		.uleb128 0xb
+ 232 003b 49        		.uleb128 0x49
+ 233 003c 13        		.uleb128 0x13
+ 234 003d 11        		.uleb128 0x11
+ 235 003e 01        		.uleb128 0x1
+ 236 003f 12        		.uleb128 0x12
+ 237 0040 06        		.uleb128 0x6
+ 238 0041 40        		.uleb128 0x40
+ 239 0042 18        		.uleb128 0x18
+ 240 0043 7A        		.uleb128 0x7a
+ 241 0044 19        		.uleb128 0x19
+ 242 0045 00        		.byte	0
+ 243 0046 00        		.byte	0
+ 244 0047 04        		.uleb128 0x4
+GAS LISTING /tmp/ccvS8nz0.s 			page 6
 
 
- 249 000b 00        		.byte	0
- 250 000c 0000      		.word	0
- 251 000e 0000      		.word	0
- 252 0010 0000 0000 		.long	.Ltext0
- 253 0014 1C00 0000 		.long	.Letext0-.Ltext0
- 254 0018 0000 0000 		.long	.LFB0
- 255 001c 2E00 0000 		.long	.LFE0-.LFB0
- 256 0020 0000 0000 		.long	0
- 257 0024 0000 0000 		.long	0
- 258               		.section	.debug_ranges,"",@progbits
- 259               	.Ldebug_ranges0:
- 260 0000 0000 0000 		.long	.Ltext0
- 261 0004 0000 0000 		.long	.Letext0
- 262 0008 0000 0000 		.long	.LFB0
- 263 000c 0000 0000 		.long	.LFE0
- 264 0010 0000 0000 		.long	0
- 265 0014 0000 0000 		.long	0
- 266               		.section	.debug_line,"",@progbits
- 267               	.Ldebug_line0:
- 268 0000 1801 0000 		.section	.debug_str,"MS",@progbits,1
- 268      0300 2200 
- 268      0000 0201 
- 268      FB0E 0D00 
- 268      0101 0101 
- 269               	.LASF4:
- 270 0000 7372 632F 		.string	"src/EICRA.c"
- 270      4549 4352 
- 270      412E 6300 
- 271               	.LASF0:
- 272 000c 5F5F 7665 		.string	"__vector_2"
- 272      6374 6F72 
- 272      5F32 00
- 273               	.LASF3:
- 274 0017 474E 5520 		.string	"GNU C99 9.4.0 -mn-flash=1 -mno-skip-bug -mmcu=avr5 -g -Os -std=gnu99 -fpack-struct -fshor
- 274      4339 3920 
- 274      392E 342E 
- 274      3020 2D6D 
- 274      6E2D 666C 
- 275               	.LASF5:
- 276 009d 2F55 7365 		.string	"/Users/jkarng/Project/jqemu/avr/atmega328p"
- 276      7273 2F6A 
- 276      6B61 726E 
- 276      672F 5072 
- 276      6F6A 6563 
- 277               	.LASF2:
- 278 00c8 6D61 696E 		.string	"main"
- 278      00
- 279               	.LASF1:
- 280 00cd 5F5F 7665 		.string	"__vector_1"
- 280      6374 6F72 
- 280      5F31 00
- 281               		.ident	"GCC: (Homebrew AVR GCC 9.4.0) 9.4.0"
-GAS LISTING /var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s 			page 7
+ 245 0048 24        		.uleb128 0x24
+ 246 0049 00        		.byte	0
+ 247 004a 0B        		.uleb128 0xb
+ 248 004b 0B        		.uleb128 0xb
+ 249 004c 3E        		.uleb128 0x3e
+ 250 004d 0B        		.uleb128 0xb
+ 251 004e 03        		.uleb128 0x3
+ 252 004f 08        		.uleb128 0x8
+ 253 0050 00        		.byte	0
+ 254 0051 00        		.byte	0
+ 255 0052 00        		.byte	0
+ 256               		.section	.debug_aranges,"",@progbits
+ 257 0000 2400 0000 		.long	0x24
+ 258 0004 0200      		.word	0x2
+ 259 0006 0000 0000 		.long	.Ldebug_info0
+ 260 000a 04        		.byte	0x4
+ 261 000b 00        		.byte	0
+ 262 000c 0000      		.word	0
+ 263 000e 0000      		.word	0
+ 264 0010 0000 0000 		.long	.Ltext0
+ 265 0014 3800 0000 		.long	.Letext0-.Ltext0
+ 266 0018 0000 0000 		.long	.LFB0
+ 267 001c 2A00 0000 		.long	.LFE0-.LFB0
+ 268 0020 0000 0000 		.long	0
+ 269 0024 0000 0000 		.long	0
+ 270               		.section	.debug_rnglists,"",@progbits
+ 271               	.Ldebug_ranges0:
+ 272 0000 1500 0000 		.long	.Ldebug_ranges3-.Ldebug_ranges2
+ 273               	.Ldebug_ranges2:
+ 274 0004 0500      		.word	0x5
+ 275 0006 04        		.byte	0x4
+ 276 0007 00        		.byte	0
+ 277 0008 0000 0000 		.long	0
+ 278               	.LLRL0:
+ 279 000c 07        		.byte	0x7
+ 280 000d 0000 0000 		.long	.Ltext0
+ 281 0011 38        		.uleb128 .Letext0-.Ltext0
+ 282 0012 07        		.byte	0x7
+ 283 0013 0000 0000 		.long	.LFB0
+ 284 0017 2A        		.uleb128 .LFE0-.LFB0
+ 285 0018 00        		.byte	0
+ 286               	.Ldebug_ranges3:
+ 287               		.section	.debug_line,"",@progbits
+ 288               	.Ldebug_line0:
+ 289 0000 1F01 0000 		.section	.debug_str,"MS",@progbits,1
+ 289      0500 0400 
+ 289      2E00 0000 
+ 289      0201 01FB 
+ 289      0E0D 0001 
+ 290               	.LASF2:
+ 291 0000 5F5F 7665 		.string	"__vector_2"
+ 291      6374 6F72 
+ 291      5F32 00
+ 292               	.LASF3:
+ 293 000b 5F5F 7665 		.string	"__vector_1"
+ 293      6374 6F72 
+ 293      5F31 00
+GAS LISTING /tmp/ccvS8nz0.s 			page 7
+
+
+ 294               	.LASF5:
+ 295 0016 474E 5520 		.string	"GNU C99 12.2.0 -mn-flash=1 -mno-skip-bug -mdouble=32 -mlong-double=64 -mmcu=avr5 -g -Os -
+ 295      4339 3920 
+ 295      3132 2E32 
+ 295      2E30 202D 
+ 295      6D6E 2D66 
+ 296               	.LASF4:
+ 297 00ba 6D61 696E 		.string	"main"
+ 297      00
+ 298               		.section	.debug_line_str,"MS",@progbits,1
+ 299               	.LASF0:
+ 300 0000 7372 632F 		.string	"src/EICRA.c"
+ 300      4549 4352 
+ 300      412E 6300 
+ 301               	.LASF1:
+ 302 000c 2F68 6F6D 		.string	"/home/jkarng/Project/jqemu/avr/atmega328p"
+ 302      652F 6A6B 
+ 302      6172 6E67 
+ 302      2F50 726F 
+ 302      6A65 6374 
+ 303 0036 2F68 6F6D 		.ident	"GCC: (GNU) 12.2.0"
+ 303      652F 6A6B 
+ 303      6172 6E67 
+ 303      2F50 726F 
+ 303      6A65 6374 
+GAS LISTING /tmp/ccvS8nz0.s 			page 8
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 EICRA.c
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:2      *ABS*:000000000000003e __SP_H__
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:3      *ABS*:000000000000003d __SP_L__
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:4      *ABS*:000000000000003f __SREG__
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:5      *ABS*:0000000000000000 __tmp_reg__
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:6      *ABS*:0000000000000001 __zero_reg__
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:13     .text.startup:0000000000000000 main
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:16     .text.startup:0000000000000000 .Loc.0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:17     .text.startup:0000000000000000 L0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:22     .text.startup:0000000000000000 .Loc.1
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:23     .text.startup:0000000000000000 .Loc.2
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:27     .text.startup:0000000000000006 .Loc.3
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:28     .text.startup:0000000000000006 .Loc.4
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:31     .text.startup:000000000000000a .Loc.5
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:32     .text.startup:000000000000000a .Loc.6
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:36     .text.startup:0000000000000010 .Loc.7
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:37     .text.startup:0000000000000010 .Loc.8
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:41     .text.startup:0000000000000016 .Loc.9
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:42     .text.startup:0000000000000016 .Loc.10
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:46     .text.startup:000000000000001c .Loc.11
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:47     .text.startup:000000000000001c .Loc.12
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:51     .text.startup:0000000000000026 .Loc.13
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:52     .text.startup:0000000000000026 .Loc.14
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:57     .text.startup:000000000000002c .Loc.15
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:58     .text.startup:000000000000002c .Loc.16
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:59     .text.startup:000000000000002c .Loc.17
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:61     .text.startup:000000000000002e L0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:67     .text:0000000000000000 __vector_1
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:69     .text:0000000000000000 .Loc.18
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:70     .text:0000000000000000 L0
+     /tmp/ccvS8nz0.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccvS8nz0.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccvS8nz0.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccvS8nz0.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccvS8nz0.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccvS8nz0.s:14     .text.startup:0000000000000000 main
+     /tmp/ccvS8nz0.s:17     .text.startup:0000000000000000 .Loc.0
+     /tmp/ccvS8nz0.s:18     .text.startup:0000000000000000 L0
+     /tmp/ccvS8nz0.s:23     .text.startup:0000000000000000 .Loc.1
+     /tmp/ccvS8nz0.s:25     .text.startup:0000000000000002 .Loc.2
+     /tmp/ccvS8nz0.s:28     .text.startup:0000000000000006 .Loc.3
+     /tmp/ccvS8nz0.s:29     .text.startup:0000000000000006 .Loc.4
+     /tmp/ccvS8nz0.s:32     .text.startup:000000000000000a .Loc.5
+     /tmp/ccvS8nz0.s:33     .text.startup:000000000000000a .Loc.6
+     /tmp/ccvS8nz0.s:37     .text.startup:0000000000000010 .Loc.7
+     /tmp/ccvS8nz0.s:39     .text.startup:0000000000000012 .Loc.8
+     /tmp/ccvS8nz0.s:42     .text.startup:0000000000000016 .Loc.9
+     /tmp/ccvS8nz0.s:44     .text.startup:0000000000000018 .Loc.10
+     /tmp/ccvS8nz0.s:47     .text.startup:000000000000001c .Loc.11
+     /tmp/ccvS8nz0.s:49     .text.startup:0000000000000020 .Loc.12
+     /tmp/ccvS8nz0.s:52     .text.startup:0000000000000026 .Loc.13
+     /tmp/ccvS8nz0.s:59     .text.startup:0000000000000028 .Loc.14
+     /tmp/ccvS8nz0.s:60     .text.startup:0000000000000028 .Loc.15
+     /tmp/ccvS8nz0.s:62     .text.startup:000000000000002a L0
+     /tmp/ccvS8nz0.s:68     .text:0000000000000000 __vector_1
+     /tmp/ccvS8nz0.s:70     .text:0000000000000000 .Loc.16
+     /tmp/ccvS8nz0.s:71     .text:0000000000000000 L0
                             *ABS*:0000000000000002 __gcc_isr.n_pushed.001
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:79     .text:0000000000000008 .Loc.19
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:80     .text:0000000000000008 .Loc.20
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:86     .text:0000000000000010 .Loc.21
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:91     .text:000000000000001a L0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:96     .text:000000000000001a __vector_2
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:98     .text:000000000000001a .Loc.22
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:99     .text:000000000000001a L0
-                            *ABS*:0000000000000000 __gcc_isr.n_pushed.002
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:105    .text:000000000000001a .Loc.23
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:110    .text:000000000000001c L0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:64     .text.startup:000000000000002e L0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:114    .text:000000000000001c L0
+     /tmp/ccvS8nz0.s:81     .text:000000000000000a .Loc.17
+     /tmp/ccvS8nz0.s:83     .text:000000000000000c .Loc.18
+     /tmp/ccvS8nz0.s:88     .text:0000000000000012 .Loc.19
+     /tmp/ccvS8nz0.s:93     .text:000000000000001c L0
+     /tmp/ccvS8nz0.s:98     .text:000000000000001c __vector_2
+     /tmp/ccvS8nz0.s:100    .text:000000000000001c .Loc.20
+     /tmp/ccvS8nz0.s:101    .text:000000000000001c L0
+                            *ABS*:0000000000000002 __gcc_isr.n_pushed.002
+     /tmp/ccvS8nz0.s:111    .text:0000000000000026 .Loc.21
+     /tmp/ccvS8nz0.s:113    .text:0000000000000028 .Loc.22
+     /tmp/ccvS8nz0.s:118    .text:000000000000002e .Loc.23
+     /tmp/ccvS8nz0.s:123    .text:0000000000000038 L0
+     /tmp/ccvS8nz0.s:65     .text.startup:000000000000002a L0
+     /tmp/ccvS8nz0.s:127    .text:0000000000000038 L0
                      .debug_frame:0000000000000000 L0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:56     .text.startup:000000000000002c .L2
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:162    .debug_abbrev:0000000000000000 .Ldebug_abbrev0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:259    .debug_ranges:0000000000000000 .Ldebug_ranges0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:267    .debug_line:0000000000000000 .Ldebug_line0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:97     .text:000000000000001a .LFB2
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:111    .text:000000000000001c .LFE2
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:68     .text:0000000000000000 .LFB1
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:92     .text:000000000000001a .LFE1
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:14     .text.startup:0000000000000000 .LFB0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:62     .text.startup:000000000000002e .LFE0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:115    .debug_info:0000000000000000 .Ldebug_info0
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:8      .text:0000000000000000 .Ltext0
-GAS LISTING /var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s 			page 8
+     /tmp/ccvS8nz0.s:58     .text.startup:0000000000000028 .L2
+     /tmp/ccvS8nz0.s:172    .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+     /tmp/ccvS8nz0.s:278    .debug_rnglists:000000000000000c .LLRL0
+     /tmp/ccvS8nz0.s:288    .debug_line:0000000000000000 .Ldebug_line0
+     /tmp/ccvS8nz0.s:99     .text:000000000000001c .LFB2
+     /tmp/ccvS8nz0.s:124    .text:0000000000000038 .LFE2
+     /tmp/ccvS8nz0.s:69     .text:0000000000000000 .LFB1
+     /tmp/ccvS8nz0.s:94     .text:000000000000001c .LFE1
+     /tmp/ccvS8nz0.s:15     .text.startup:0000000000000000 .LFB0
+     /tmp/ccvS8nz0.s:63     .text.startup:000000000000002a .LFE0
+     /tmp/ccvS8nz0.s:128    .debug_info:0000000000000000 .Ldebug_info0
+     /tmp/ccvS8nz0.s:8      .text:0000000000000000 .Ltext0
+GAS LISTING /tmp/ccvS8nz0.s 			page 9
 
 
-/var/folders/bw/qt0c_sr91jn06zw8rq0xyt_m0000gn/T//ccCLMSLQ.s:113    .text:000000000000001c .Letext0
+     /tmp/ccvS8nz0.s:126    .text:0000000000000038 .Letext0
 
 NO UNDEFINED SYMBOLS

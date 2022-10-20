@@ -7,10 +7,10 @@ TARGET := AEICRA
 TARGET := PortB
 TARGET := Timer_ISR
 
-PROJECTNAME = EICRA
 PROJECTNAME = input
 PROJECTNAME = input_eeprom
 PROJECTNAME = test
+PROJECTNAME = EICRA
 
 PRJSRC = $(wildcard src/*)
 CSRC = $(filter %.c, $(PRJSRC))
