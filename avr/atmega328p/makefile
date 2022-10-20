@@ -21,14 +21,16 @@ ASMSRC = $(filter %.asm, $(PRJSRC))
 TARGET := build/$(PROJECTNAME).ihex
 TRG = $(PROJECTNAME).out
 MCU = atmega328p
-part = atmega328p
+part = m328p
 # compiler
 CFLAGS=-g -mmcu=$(MCU) -Os \
 	-fpack-struct -fshort-enums             \
 	-funsigned-bitfields -funsigned-char    \
-	-Wall -std=gnu99   \
+	-Wall -std=gnu99   						\
 	-Wa,-ahlms=$(firstword                  \
 	$(filter %.lst, $(<:.c=.lst)))
+
+CFLAGS=-g -mmcu=$(MCU) -Os -std=gnu99\
 
 # assembler
 ASMFLAGS =-mmcu=$(MCU)
@@ -51,8 +53,8 @@ programmer = arduino
 programmer = stk500v1 # directly arduino uno
 
 baud = 19200
-baud = 115200  # directly arduino uno
 baud = 57600 # bare metal atmega328p
+baud = 115200  # directly arduino uno
 
 all: $(TARGET) 
 
