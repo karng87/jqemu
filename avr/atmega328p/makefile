@@ -11,9 +11,12 @@ PROJECTNAME = input
 PROJECTNAME = input_eeprom
 PROJECTNAME = test
 PROJECTNAME = EICRA
+PROJECTNAME = asm_interrupt
 
 PRJSRC = $(wildcard src/*)
+
 CSRC = $(filter %.c, $(PRJSRC))
+ASMSRC = $(filter %.asm, $(PRJSRC))
 
 TARGET := build/$(PROJECTNAME).ihex
 TRG = $(PROJECTNAME).out
@@ -48,16 +51,18 @@ programmer = arduino
 programmer = stk500v1 # directly arduino uno
 
 baud = 19200
-baud = 57600 # bare metal atmega328p
 baud = 115200  # directly arduino uno
+baud = 57600 # bare metal atmega328p
 
 all: $(TARGET) 
 
-asm: src/test.asm
+asm: build/$(PROJECTNAME).ihex
+
+build/%.ihex: src/%.asm
 	if [ ! -d build ]; then mkdir build; fi
-	avr-as $(ASMFLAGS) src/test.asm -o build/test.o
-	avr-ld build/test.o -o build/test.elf
-	avr-objcopy -j .text -j .data -O ihex build/test.elf build/test.ihex
+	avr-as $(ASMFLAGS) $< -o build/%.o
+	avr-ld build/%.o -o build/%.elf
+	avr-objcopy -j .text -j .data -O ihex build/%.elf $@
 
 build/%.o: src/%.c
 	if [ ! -d build ]; then mkdir build; fi
