@@ -1,3 +1,7 @@
+CC = avr-gcc
+LD = avr-ld
+AS = avr-as
+
 TARGET := Pwm_CTC
 TARGET := Pwm_NormaL
 TARGET := Pwm_FasT
@@ -9,9 +13,11 @@ TARGET := Timer_ISR
 
 PROJECTNAME = input
 PROJECTNAME = input_eeprom
-PROJECTNAME = test
-PROJECTNAME = EICRA
 PROJECTNAME = asm_interrupt
+PROJECTNAME = gdb
+PROJECTNAME = EICRA
+PROJECTNAME = test
+PROJECTNAME = asm_PortB
 
 PRJSRC = $(wildcard src/*)
 
@@ -23,21 +29,19 @@ TRG = $(PROJECTNAME).out
 MCU = atmega328p
 part = m328p
 # compiler
-CFLAGS=-g -mmcu=$(MCU) -Os \
+CFLAGS = -g Wa,--gstabs -mmcu=$(MCU) -Os \
 	-fpack-struct -fshort-enums             \
 	-funsigned-bitfields -funsigned-char    \
 	-Wall -std=gnu99   						\
 	-Wa,-ahlms=$(firstword                  \
-	$(filter %.lst, $(<:.c=.lst)))
-
-CFLAGS=-g -mmcu=$(MCU) -Os -std=gnu99\
+	$(filter %.lst, $(patsubst src/%.lst,build/%.lst,$(<:.c=.lst))))
 
 # assembler
-ASMFLAGS =-mmcu=$(MCU)
+ASMFLAGS = -mmcu=$(MCU)
 
 
 # linker
-LDFLAGS=-Wl,-Map,build/$(PROJECTNAME).map -mmcu=$(MCU) \
+LDFLAGS = -Wl,-Map,build/$(PROJECTNAME).map -mmcu=$(MCU) \
 	-lm
 
 #frequency = 16000000UL
@@ -46,15 +50,13 @@ port := $(shell arduino-cli board list | sed '/^$$/d' | sed -En '$$s/([^ ]*).*/\
 
 
 output_format = ihex
-CC = avr-gcc
-LD = avr-ld
 programmer = avrisp
 programmer = arduino
 programmer = stk500v1 # directly arduino uno
 
 baud = 19200
-baud = 57600 # bare metal atmega328p
 baud = 115200  # directly arduino uno
+baud = 57600 # bare metal atmega328p
 
 all: $(TARGET) 
 
@@ -62,9 +64,9 @@ asm: build/$(PROJECTNAME).ihex
 
 build/%.ihex: src/%.asm
 	if [ ! -d build ]; then mkdir build; fi
-	avr-as $(ASMFLAGS) $< -o build/%.o
-	avr-ld build/%.o -o build/%.elf
-	avr-objcopy -j .text -j .data -O ihex build/%.elf $@
+	avr-as $(ASMFLAGS) $< -o $(patsubst src/%.asm,build/%.o,$<)
+	avr-ld $(patsubst src/%.asm,build/%.o,$<) -o $(patsubst src/%.asm,build/%.elf,$<)
+	avr-objcopy -j .text -j .data -O ihex $(patsubst src/%.asm,build/%.elf,$<) $@
 
 build/%.o: src/%.c
 	if [ ! -d build ]; then mkdir build; fi
