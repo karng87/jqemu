@@ -18,6 +18,9 @@ PROJECTNAME = gdb
 PROJECTNAME = EICRA
 PROJECTNAME = test
 PROJECTNAME = asm_PortB
+PROJECTNAME = instruction_cycle
+PROJECTNAME = linker
+PROJECTNAME = section_init
 
 PRJSRC = $(wildcard src/*)
 
@@ -28,8 +31,12 @@ TARGET := build/$(PROJECTNAME).ihex
 TRG = $(PROJECTNAME).out
 MCU = atmega328p
 part = m328p
+
+baud = 19200
+baud = 115200  # directly arduino uno
+baud = 57600 # bare metal atmega328p
 # compiler
-CFLAGS = -g Wa,--gstabs -mmcu=$(MCU) -Os \
+CFLAGS = -g -Wa,--gstabs -mmcu=$(MCU) -Os \
 	-fpack-struct -fshort-enums             \
 	-funsigned-bitfields -funsigned-char    \
 	-Wall -std=gnu99   						\
@@ -54,9 +61,6 @@ programmer = avrisp
 programmer = arduino
 programmer = stk500v1 # directly arduino uno
 
-baud = 19200
-baud = 115200  # directly arduino uno
-baud = 57600 # bare metal atmega328p
 
 all: $(TARGET) 
 
