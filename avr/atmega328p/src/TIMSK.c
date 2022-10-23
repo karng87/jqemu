@@ -16,7 +16,7 @@ void __vector_17 (void)
 #define frequency 5 //  5Hz = (1024* 16Mhz ) * X(half frequency: up + down)
 #define Used Overflow_Interrupt
 
-void __vector_17(void) __attribute__ ((__signal__,__INTR_ATTRS));
+void __vector_17(void) __attribute__((interrupt));
 void __vector_17(void){
     *(volatile unsigned char*)0x46 = 255; // TCNT0
     *(volatile unsigned char*)0x25 ^= 1;

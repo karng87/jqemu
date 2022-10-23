@@ -12,15 +12,17 @@ TARGET := PortB
 TARGET := Timer_ISR
 
 PROJECTNAME = input
-PROJECTNAME = input_eeprom
-PROJECTNAME = asm_interrupt
 PROJECTNAME = gdb
-PROJECTNAME = EICRA
 PROJECTNAME = test
 PROJECTNAME = asm_PortB
 PROJECTNAME = instruction_cycle
 PROJECTNAME = linker
+PROJECTNAME = input_eeprom
 PROJECTNAME = section_init
+PROJECTNAME = avr_libc_exam
+PROJECTNAME = EICRA
+PROJECTNAME = asm_interrupt
+
 
 PRJSRC = $(wildcard src/*)
 
@@ -33,10 +35,13 @@ MCU = atmega328p
 part = m328p
 
 baud = 19200
-baud = 115200  # directly arduino uno
 baud = 57600 # bare metal atmega328p
+baud = 115200  # directly arduino uno
+
+F_CPU = 8000000UL
+F_CPU = 16000000UL
 # compiler
-CFLAGS = -g -Wa,--gstabs -mmcu=$(MCU) -Os \
+CFLAGS = -g -Wa,--gstabs -mmcu=$(MCU) -DF_CPU=$(F_CPU) -Os \
 	-fpack-struct -fshort-enums             \
 	-funsigned-bitfields -funsigned-char    \
 	-Wall -std=gnu99   						\
@@ -51,8 +56,6 @@ ASMFLAGS = -mmcu=$(MCU)
 LDFLAGS = -Wl,-Map,build/$(PROJECTNAME).map -mmcu=$(MCU) \
 	-lm
 
-#frequency = 16000000UL
-#frequency = 8000000UL
 port := $(shell arduino-cli board list | sed '/^$$/d' | sed -En '$$s/([^ ]*).*/\1/p')
 
 
@@ -84,10 +87,11 @@ build/%.ihex: build/%.elf
 
 flash : $(TARGET)
 	#avrdude -F -V -c $(programmer) -P $(port) -p $(part) -D -U flash:w:$(TARGET):i
-	avrdude -F -V -c $(programmer) -P $(port) -p $(part) -b $(baud) -D -U flash:w:$(TARGET):i
+	avrdude -F -V -c $(programmer) -P $(port) -p $(part) -b $(baud) -U flash:w:$(TARGET):i
 
 echo:
-	echo $(port)
+	echo ${TARGET}
+	#echo $(port)
 clean:
 	if [ -d build ]; then rm -rf build/*; fi
 

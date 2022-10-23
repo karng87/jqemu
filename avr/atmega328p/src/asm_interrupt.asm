@@ -135,6 +135,7 @@ L:
 ISR_EXT_INT0:
     IN r16, PORTB  
     LDI r17, 0b00111111
-    EOR r16, r17
+    mov r0, r17
+    EOR r16, r0
     OUT PORTB, r16
     reti
