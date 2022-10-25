@@ -53,6 +53,7 @@ TCB_t user_tasks[MAX_TASKS];
 //semihosting init function 
 extern void initialise_monitor_handles(void);
 
+void NMI_Handler(void){} // weak function attribute
 int main(void)
 {
 
