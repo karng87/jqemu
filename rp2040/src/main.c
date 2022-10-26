@@ -6,8 +6,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "rp2040.h"
-#include "hal_gpio.h"
+#include <rp2040.h>
+#include <hal_gpio.h>
 
 //-----------------------------------------------------------------------------
 #define PERIOD_FAST    100000
