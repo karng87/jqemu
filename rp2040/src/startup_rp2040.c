@@ -3,9 +3,12 @@
 
 //-----------------------------------------------------------------------------
 #include <stdint.h>
-#include "rp2040.h"
+#include <mpu/rp2040.h>
 
 //-----------------------------------------------------------------------------
+/* weak: enable override
+   alias: sharing one function 
+*/
 #define DUMMY __attribute__ ((weak, alias ("irq_handler_dummy")))
 
 //-----------------------------------------------------------------------------
@@ -57,6 +60,7 @@ extern uint32_t _ebss;
 // Note: Vector table does not need to be placed in a separate section on this MCU,
 //       but we do so anyway to ensure alignment at 128 byte boundary without
 //       potentially wasting space with automatic alignment.
+// .text .vectors
 __attribute__ ((used, section(".vectors")))
 void (* const vectors[])(void) =
 {
@@ -118,11 +122,20 @@ void irq_handler_dummy(void)
 __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(void)
 {
   // Note: This code must be position independent, it is linked at 0x10000000, but
-  //       loaded at 0x20041f00.
-  XIP_SSI->SSIENR = 0;
+  //       loaded at 0x20041f00.(halt address)
+
+/*----------------------------------------------- 
+ *   define @XIP_SSI (XIP_SSI_Type*)XIP_SSI_BASE
+ *   define @XIP_SSI_BASE 0x18000000UL
+ *   @XIP_SSI_Type   typedef struct { /*!< (@ 0x18000000)};XIP_SSI_Type  XIP_SSI Structure 
+ *   @SSI(Synchronous Serial Interface)
+ *       is a widely used serial interface standard for industrial applications between a master (e.g. controller) and a slave (e.g. sensor).
+ *------------------------------------------------*/
+  XIP_SSI->SSIENR = 0; // SSI Enable
 
   XIP_SSI->BAUDR = 2; // Must be even
 
+  // FRF: FRame Format <- STD(standard), DUAL, QUAD
   XIP_SSI->CTRLR0 = (XIP_SSI_CTRLR0_SPI_FRF_STD << XIP_SSI_CTRLR0_SPI_FRF_Pos) |
       (XIP_SSI_CTRLR0_TMOD_EEPROM_READ << XIP_SSI_CTRLR0_TMOD_Pos) |
       ((32-1) << XIP_SSI_CTRLR0_DFS_32_Pos);
@@ -148,12 +161,10 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
 
   SCB->VTOR = (uint32_t)vectors;
 
-  asm (R"asm(
-    msr    msp, %[sp]
-    bx     %[reset]
-    )asm"
-    :: [sp] "r" (&_stack_top), [reset] "r" (main)
-  );
+  asm(
+    "msr    msp, %[sp]\n"
+    "bx     %[reset]\n"
+    :: [sp] "r" (&_stack_top), [reset] "r" (main));
 
   __builtin_unreachable();
 }

@@ -2,9 +2,15 @@ CC=arm-none-eabi-gcc
 CPU=cortex-m4
 
 PROJECT=main
-
+OS = $(shell uname)
 #OBJS= $(patsubst src/%.c,build/%.o,$(shell find -E src -regex '.*.c' -not -regex '.*/main.c'))
-SRCS = $(shell find -E src -regex '.*.c')
+
+ifeq ($(OS),Linux)
+	SRCS := $(shell find src -regextype posix-extended -regex '.*.c')
+else
+	SRCS := $(shell find -E src -regex '.*.c')
+endif
+
 OBJS = $(patsubst src/%.c,build/%.o,$(SRCS))
 
 CFLAGS= -c \

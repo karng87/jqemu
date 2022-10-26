@@ -1,12 +1,12 @@
 
 ##############################################################################
-BUILD = build
-BIN = Demo
-
+OS := $(shell uname -s)
 ##############################################################################
 .PHONY: all directory clean size
 
 CC = arm-none-eabi-gcc
+AS = arm-none-eabi-as
+LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 
@@ -47,11 +47,11 @@ DEFINES += \
 
 CFLAGS += $(INCLUDES) $(DEFINES)
 
-CMD = -W -Wall --std=gnu11 -O0
-CMD += -ffreestanding
-CMD += -fdata-sections -ffunction-sections
-CMD += -mcpu=cortex-m0plus -mthumb
-CMD += $(INCLUDES)
+CMDFLAG = -W -Wall --std=gnu11 -O0
+CMDFLAG += -ffreestanding
+CMDFLAG += -fdata-sections -ffunction-sections
+CMDFLAG += -mcpu=cortex-m0plus -mthumb
+CMDFLAG += $(INCLUDES)
 
 
 TARGET = main
@@ -89,10 +89,12 @@ clean:
 
 -include $(wildcard build/*.d)
 
+echo:
+	@echo $(OS)
 
 build/json/%.c.json: src/%.c
 	mkdir -p $(shell sed -En 's#src/((.*/)*)[^/]+$$#build/json/\1#p' <<< $<)
-	clang -c $< -MJ $@ $(CMD) -o /dev/null
+	clang -c $< -MJ $@ $(CMDFLAG) -o /dev/null
 
 compile_commands.json: $(patsubst src/%,build/json/%.json,$(SRCS))
 	$(shell sed -E -e '1s#^#[\n#' -e '$$s#,$$#\n]#' `find build -type f -name "*.json"` > compile_commands.json)

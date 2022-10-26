@@ -1004,7 +1004,7 @@ __NO_RETURN __STATIC_INLINE void __NVIC_SystemReset(void)
 
 #if defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U)
 
-#include "mpu_armv7.h"
+#include <mpu/mpu_armv7.h>
 
 #endif
 
