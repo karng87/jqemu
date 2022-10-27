@@ -62,7 +62,7 @@ extern uint32_t _ebss;
 //       potentially wasting space with automatic alignment.
 // .text .vectors
 __attribute__ ((used, section(".vectors")))
-void (* const vectors[])(void) =
+void (* const vectors[])(void) = // function array: vector table
 {
   0,                             // 0 - Initial Stack Pointer Value (unused)
 
@@ -119,10 +119,10 @@ void irq_handler_dummy(void)
 }
 
 //-----------------------------------------------------------------------------
-__attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(void)
+__attribute__((naked/*allow asm only arm*/, used, noreturn, section(".boot.entry"))) void boot_entry(void)
 {
   // Note: This code must be position independent, it is linked at 0x10000000, but
-  //       loaded at 0x20041f00.(halt address)
+  //       loaded at 0x2004_1f00.(halt address)
 
 /*----------------------------------------------- 
  *   @XIP(eXcutalbe In Place of Flash memory)
@@ -174,7 +174,7 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
     "bx     %[reset]\n"
     :: [sp] "r" (&_stack_top), [reset] "r" (main));
 
-  __builtin_unreachable();
+  __builtin_unreachable(); // __attribute__((noreturn))
 }
 
 
