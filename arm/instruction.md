@@ -1,3 +1,10 @@
+# UAL(Unified Assemble Language)
+    .unified
+    .thumb (.code16)
+
+# Prefix
+    S => update APSR  
+    
 # Instruction
     OP{Condition codes}{S} Rd, Rn, Operand2
 

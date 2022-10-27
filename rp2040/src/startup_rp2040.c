@@ -45,9 +45,9 @@ DUMMY void irq_handler_i2c0(void);
 DUMMY void irq_handler_i2c1(void);
 DUMMY void irq_handler_rtc(void);
 
-extern int main(void);
+extern int main(void); // liner search external object file
 
-extern uint32_t _text_start;
+extern uint32_t _text_start; // in rp2040.ld , link script file
 extern uint32_t _stack_top;
 extern uint32_t _text;
 extern uint32_t _etext;
@@ -125,15 +125,16 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
   //       loaded at 0x20041f00.(halt address)
 
 /*----------------------------------------------- 
+ *   @XIP(eXcutalbe In Place of Flash memory)
+ *   @SSI(Synchronous Serial Interface)
+ *       is a widely used serial interface standard for industrial applications between a master (e.g. controller) and a slave (e.g. sensor).
  *   define @XIP_SSI (XIP_SSI_Type*)XIP_SSI_BASE
  *   define @XIP_SSI_BASE 0x18000000UL
  *   @XIP_SSI_Type   typedef struct { /*!< (@ 0x18000000)};XIP_SSI_Type  XIP_SSI Structure 
- *   @SSI(Synchronous Serial Interface)
- *       is a widely used serial interface standard for industrial applications between a master (e.g. controller) and a slave (e.g. sensor).
  *------------------------------------------------*/
   XIP_SSI->SSIENR = 0; // SSI Enable
 
-  XIP_SSI->BAUDR = 2; // Must be even
+  XIP_SSI->BAUDR = 2; // Must be even (baud rage)
 
   // FRF: FRame Format <- STD(standard), DUAL, QUAD
   XIP_SSI->CTRLR0 = (XIP_SSI_CTRLR0_SPI_FRF_STD << XIP_SSI_CTRLR0_SPI_FRF_Pos) |
@@ -160,6 +161,13 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
     *dst++ = 0;
 
   SCB->VTOR = (uint32_t)vectors;
+
+  // set MSP(master stac pointer) and then  call main function
+  // msr: move to system coprocessor register from  arm register
+  // msp: mater stack pointer vs psp(process stack pointer
+  //   CONTROL: register 0bit 1: use psp or 0bit 0: use msp 
+  // _stack_top : in rp2040.ld 
+  // main: the linker try to search from all object file
 
   asm(
     "msr    msp, %[sp]\n"

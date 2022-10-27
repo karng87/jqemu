@@ -19,6 +19,63 @@ MEMORY
   ram  (rwx) : ORIGIN = 0x20000000, LENGTH = 264K
 }
 
+/*
+
+  -----------------------------------------------
+ * 0xFFFF_FFFF
+ *             SYSTEM
+ *             SYSTEM
+ * -----------
+ * 0xE00F_FFFF _ePPB(Private Peripheral Bus)
+ * -----------
+ * 0xE000_EFFF _eSCS(System Control Space)
+ * -----------
+ * 0xE00F_E000 _sSCS(System Control Space)
+ * 0xE00F_1000 _sSCS(System Control Space)
+ * ----------- 
+ * 0xE000_0000 _sPPB(Private Peripheral Bus)
+  -----------------------------------------------
+ * 0xDFFF_FFFF _eExternal Device
+ *             External Device
+ *             External DevRAM
+ *             External DevRAM
+ *             External DevRAM
+ *             External DevRAM
+ *             External DevRAM
+ * 0Xa000_0000 _sExternal Device
+  -----------------------------------------------
+ * 0X9FFF_FFFF _eExternal RAM
+ *             External RAM
+ *             External RAM
+ *             External RAM
+ *             External RAM
+ *             External RAM
+ *             External RAM
+ * 0X6000_0000 _sExternal RAM
+  -----------------------------------------------
+ * 0X5FFF_FFFF _ePerpherals
+ *             Peripherals
+ *             PeripherRAM
+ *             PeripherRAM
+ * 0X4000_0000 _sPeripherals
+  -----------------------------------------------
+ * 0X3FFF_FFFF e_RAM
+ *             RAM
+ *             RAM
+ *             RAM
+ * 0X2000_0000 _sRAM
+  -----------------------------------------------
+ * e_ROM   0X1FFF_FFFF _eROM
+ *                     
+ *                     
+ *                     
+ *         0x1000_000c  irq_handler_hard_fault,        // 3 - Hard Fault
+ *         0x1000_0008  irq_handler_nmi jmp address              // 2 - NMI
+ *         0x0000_0004  reset_handler jmp address
+ * s_ROM   0x0000_0000  _stack_top value
+  -----------------------------------------------
+ */
+
 ENTRY(boot_entry)
 
 SECTIONS
