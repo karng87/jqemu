@@ -15,9 +15,10 @@ ROM BTL: ROM BooTLoader
 
 MEMORY
 {
-  boot  (rx) : ORIGIN = 0x10000000, LENGTH = 256            /* Flash ROM */
-  flash (rx) : ORIGIN = 0x10000100, LENGTH = 2048K - 256    /* Flash ROM */
-  ram  (rwx) : ORIGIN = 0x20000000, LENGTH = 264K           /* RAM */
+  /*XIP 2MB FLash Memory */
+  boot  (rx) : ORIGIN = 0x10000000, LENGTH = 256         /* 256 Flash ROM */
+  flash (rx) : ORIGIN = 0x10000100, LENGTH = 2048K - 256 /* Flash ROM 2M */
+  ram  (rwx) : ORIGIN = 0x20000000, LENGTH = 264K        /* RAM */
 }
 /*
   -----------------------------------------------
@@ -35,6 +36,37 @@ MEMORY
  * 0xE000_0000 _sPPB(Private Peripheral Bus)
   -----------------------------------------------
  * 0xDFFF_FFFF _eExternal Device
+ * -----------  SIO(Single-cycle IO block)
+ * -----------     : word-aligned address 
+ * -----------     : CPUID
+ * -----------     : GPIO control
+ * -----------          : GPIO_x - for direct control of IO bank(0~29)
+ * -----------          : GPIO_OUT GPIO_HI_OUT - set the output level
+ * -----------          : GPIO_IN GPIO_HI_IN - sample the current GPIOs
+ * -----------          : GPIO_OE GPIO_HI_OE - enable the output driver
+ * -----------     : SPIN LOCK
+ * -----------     : Inter-processor FIFOs (Mailboxes)
+ * -----------     : Integer Divider
+ * -----------     : Intepolator
+ * -----------     : Lane Operations
+ * -----------     : Blend Mode
+ * -----------     : Clamp Mode
+ * -----------     : Linear Interpolation: Sample Use Case
+ * -----------     : Simple Affine Texture Mapping : Sample Use Case
+ * -----------     : List of Registers
+ * -----------          : Base address of 0x_d000_0000
+ * -----------          : 0x_000 = CPUID
+ * -----------          : 0x_004 = GPIO_IN
+ * -----------          : 0x_008 = GPIO_HI_IN
+ * -----------          : 0x_010 = GPIO_OUT
+ * -----------          : 0x_014 = GPIO_OUT_SET
+ * -----------          : 0x_018 = GPIO_OUT_CLR
+ * -----------          : 0x_02c = GPIO_OUT_XOR
+ * -----------          : 0x_020 = GPIO_OE
+ * -----------          : 0x_024 = GPIO_OE_SET
+ * -----------          : 0x_028 = GPIO_OE_CLR
+
+ * 0xD000_0000 _eExternal Device
  *             External Device
  *             External DevRAM
  *             External DevRAM
