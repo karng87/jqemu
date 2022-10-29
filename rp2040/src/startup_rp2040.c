@@ -3,7 +3,6 @@
 
 //-----------------------------------------------------------------------------
 #include <stdint.h>
-#include <mpu/rp2040.h>
 
 //-----------------------------------------------------------------------------
 /* weak: enable override
@@ -119,7 +118,7 @@ void irq_handler_dummy(void)
 }
 
 //-----------------------------------------------------------------------------
-__attribute__((naked/*allow asm only arm*/, used, noreturn, section(".boot.entry"))) void boot_entry(void)
+__attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(void)
 {
   // Note: This code must be position independent, it is linked at 0x10000000, but
   //       loaded at 0x2004_1f00.(halt address)
@@ -176,5 +175,3 @@ __attribute__((naked/*allow asm only arm*/, used, noreturn, section(".boot.entry
 
   __builtin_unreachable(); // __attribute__((noreturn))
 }
-
-

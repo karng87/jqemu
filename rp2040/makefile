@@ -15,14 +15,15 @@ ifeq ($(OS), Windows_NT)
 else
   MKDIR = mkdir
 endif
+MCU=cortex-m0plus
 
-
+INCLUDES += -I include
 CFLAGS += -W -Wall --std=gnu11 -O0
-CFLAGS += -ffreestanding
-CFLAGS += -fno-diagnostics-show-caret
-CFLAGS += -fdata-sections -ffunction-sections
-CFLAGS += -funsigned-char -funsigned-bitfields
-CFLAGS += -mcpu=cortex-m0plus -mthumb
+CFLAGS += -mcpu=$(MCU) -mthumb
+CFLAGS += $(INCLUDES)
+
+LLVMFLAG += $(CFLAGS)
+
 # -M : auto generate depency files for GNU Make  
 #         hello.o: hello.c f:/usr/include/std.h ...
 # -MM : exclusive System header
@@ -34,32 +35,27 @@ CFLAGS += -M -MP -MT build/$(patsubst src/%.c,%.o,$<) -MF build/$(patsubst src/%
 
 
 LDFLAGS += -mcpu=cortex-m0plus -mthumb
-LDFLAGS += -nostartfiles
-# --gc : garbage collection
-LDFLAGS += -Wl,--gc-sections
-LDFLAGS += -Wl,--script=linker/rp2040.ld
+LDFLAGS += -nostdlib
+LDFLAGS += -T linker/rp2040.ld
+LDFLAGS += -Wl,-Map=build/$(TARGET).map
 
-INCLUDES += -I include
 
 SRCS = $(shell find src -name "*.c")
 
-DEFINES += \
-
-CFLAGS += $(INCLUDES) $(DEFINES)
-
-CMDFLAG = -W -Wall --std=gnu11 -O0
-CMDFLAG += -ffreestanding
-CMDFLAG += -fdata-sections -ffunction-sections
-CMDFLAG += -mcpu=cortex-m0plus -mthumb
-CMDFLAG += $(INCLUDES)
+CRT0 += startup_rp2040
+OBJS +=
 
 
-TARGET = main
 
-all:$(patsubst src/%.c,build/%.o,$(SRCS)) \
-	build/$(TARGET).elf \
-	build/$(TARGET).bin \
-	build/$(TARGET).uf2
+
+TARGET = led25
+
+all:$(patsubst %,build/%.o,$(CRT0)) \
+	$(patsubst %,build/%.o,$(OBJS)) \
+	$(patsubst %,build/%.o,$(TARGET)) \
+	$(patsubst %,build/%.elf,$(TARGET)) \
+	$(patsubst %,build/%.bin,$(TARGET)) \
+	$(patsubst %,build/%.uf2,$(TARGET))
 
 build/%.o: src/%.c
 	if [[ ! -d build ]];then mkdir build;fi
@@ -68,7 +64,7 @@ build/%.o: src/%.c
 
 build/%.elf: build/%.o
 	@echo LD $@
-	@$(CC) $(LDFLAGS) $< -o $@
+	@$(CC) $(LDFLAGS) $^ -o $@
 
 build/%.bin: build/%.elf
 	@echo OBJCOPY $@
@@ -85,7 +81,7 @@ size: build/$(TARGET).elf
 
 clean:
 	@echo clean
-	@-rm -rf build
+	@rm -rf build
 
 -include $(wildcard build/*.d)
 
@@ -94,7 +90,7 @@ echo:
 
 build/json/%.c.json: src/%.c
 	mkdir -p $(shell sed -En 's#src/((.*/)*)[^/]+$$#build/json/\1#p' <<< $<)
-	clang -c $< -MJ $@ $(CMDFLAG) -o /dev/null
+	clang -c $< -MJ $@ $(LLVMFLAG) -o /dev/null
 
 compile_commands.json: $(patsubst src/%,build/json/%.json,$(SRCS))
 	$(shell sed -E -e '1s#^#[\n#' -e '$$s#,$$#\n]#' `find build -type f -name "*.json"` > compile_commands.json)

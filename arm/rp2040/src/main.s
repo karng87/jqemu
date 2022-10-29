@@ -28,7 +28,7 @@
 
 // .set == .equ
 // APB (Advanced Peripheral Bus) 
-.set APB_BASE, 0x40000000
+.set APB_BASE, 0x40000000 ; SYSINFO_BASE
 
 .set RESETS_BASE, (APB_BASE + 0xc000)
 .set RESETS_CTRL, (RESETS_BASE + 0x0)
