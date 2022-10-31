@@ -1,51 +1,28 @@
-/**
- * Copyright (c) 2021 Raspberry Pi (Trading) Ltd.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-#ifndef _ADDRESSMAP_H_
-#define _ADDRESSMAP_H_
-
-#define _u(x) (x ## UL)
-
-// each  Peripherals register block is allocated 4KB(0x1000) of address space
-#define NORMAL_RW_BITS  (0x0u << 12u) // Normal Read Write: 0x0000
-#define ATOMIC_XOR_BITS (0x1u << 12u) // Atomic XOR  : 0x1000
-#define ATOMIC_SET_BITS (0x2u << 12u) // Atomic Write: 0x2000
-#define ATOMIC_CLR_BITS (0x3u << 12u) // Atomic Write: 0x3000
-
-// ROM(BIOS): 16KB BIOS
-#define ROM_BASE _u(0x00000000)
-
-// Flash XIP:2MB with XIP(provided by SSI SPI(DSPI,QSPI))
-    // SSI: FIFO-based SPI master
-#define XIP_BASE _u(0x10000000)
-#define XIP_MAIN_BASE _u(0x10000000)
-#define XIP_NOALLOC_BASE _u(0x11000000)
-#define XIP_NOCACHE_BASE _u(0x12000000)
-#define XIP_NOCACHE_NOALLOC_BASE _u(0x13000000)
-#define XIP_CTRL_BASE _u(0x14000000)
-#define XIP_SRAM_BASE _u(0x15000000)
-#define XIP_SRAM_END _u(0x15004000)
-#define XIP_SSI_BASE _u(0x18000000)
-
-// SRAM(Factory RAM):256KB :Banks(4x64KB + 2x4KB)
-#define SRAM_BASE _u(0x20000000)
-#define SRAM_STRIPED_BASE _u(0x20000000)
-#define SRAM_STRIPED_END _u(0x20040000)
-#define SRAM4_BASE _u(0x20040000)
-#define SRAM5_BASE _u(0x20041000)
-#define SRAM_END _u(0x20042000)
-#define SRAM0_BASE _u(0x21000000)
-#define SRAM1_BASE _u(0x21010000)
-#define SRAM2_BASE _u(0x21020000)
-#define SRAM3_BASE _u(0x21030000)
-
+#pragma once
 // APB Bridge - Advanced Peripherals Bus Splitter
     // GPIO(BANK0,QSPI(BANK1):for excute code from Falsh device, PADS), UART0, UART1, SPI0, SPI1, I2C0, I2C1, ADC, PWM, TIMER, RTC, Watch-dog..
 #define APB_BASE _u(0x40000000)
+//=====================================================
+    #define SYSINFO_SEG 0x00
+        #define CHIP_ID 0x00
+        #define PLATFORM 0x04
+        #define GITREF_RP2040 0x40
+        
     #define SYSCFG_SEG 0x4000
+        #define PROC0_NMI_MASK 0x00 // Non Maskable Interrupt
 
+//=====================================================
+    #define RESETS_SEG 0xc000
+        #define RESET 0x0 // [31:25,24<USBCTRL>,]
+                          // [23:<UART1>,22<UART0>,21<TIMER>,20<TBMAN>,19<SYSINFO>,18<SYSCFG>,17<SPI1>,16<SPI0>]
+                          // [15<RTC>,14<PWM>,13<PLL_USB>,12<PLL_SYS,11<PIO1>,10<PIO0>,9<PADS_QSPI>,8<PADS_BANK0>]
+                          // [7<JTAG>,6<IO_QSPI,5<IO_BANK0>,4<I2C1>,3<I2C0>,2<DMA>,1<BUSCTRL>,0<ADC>]
+            #define IO_BANK0 5
+            #define PADS_BANK0 8
+
+        #define WDSEL 0x4 // Watchdog select
+        #define RESET_DONE 0x8 
+//=====================================================
     #define CLOCKS_SEG 0x8000
         #define CLK_CPOUT0_CTRL 0x00
         #define CLK_CPOUT0_DIV 0x04
@@ -83,14 +60,14 @@
         #define INTE 0xbc
         #define INTF 0xc0
         #define INTS 0xc4
+//==================================================
+    #define TBMAN 0x6c000 // Test Bench Manager
+        #define PLATFORM_T 0x0
+
 
         
         
 
-    #define RESETS_SEG 0xc000
-        #define RESET 0x0
-        #define WDSEL 0x4 // Watchdog select
-        #define RESET_DONE 0x8 
 
 
     #define PSM_SEG 0x10000 // Power-on State Machine
@@ -136,51 +113,18 @@
             #define GPIO_IRQOVER(x) *(volatile unsigned int*)GPIO0_CTRL |= (x << 28)
         //***** END: GPIOx_CTRL*****//
 
-    #define IO_QSPI_BASE _u(APB_BASE + 0x18000)
+    #define IO_QSPI_SEG  0x18000
 
-    #define PADS_BANK0_BASE _u(APB_BASE + 0x1c000)
-        #define VOLTAGE_SELECT (PADS_BANK0_BASE + 0x00)
+    #define PADS_BANK0_SEG 0x1c000
+        #define VOLTAGE_SELECT 0x00
+        #define GPIO00 0x04
+        #define GPIO01 0x08
+        // ...
+        #define GPIO25 0x68
+        // ...
+        #define GPIO29 0x78
+        #define SWCLK 0x7c
+        #define SWD 0x80
 
-    #define PADS_QSPI_BASE _u(APB_BASE + 0x20000)
+    #define PADS_QSPI_SEG 0x20000
 
-
-#define XOSC_BASE _u(0x40024000)
-#define PLL_SYS_BASE _u(0x40028000)
-#define PLL_USB_BASE _u(0x4002c000)
-#define BUSCTRL_BASE _u(0x40030000)
-#define UART0_BASE _u(0x40034000)
-#define UART1_BASE _u(0x40038000)
-#define SPI0_BASE _u(0x4003c000)
-#define SPI1_BASE _u(0x40040000)
-#define I2C0_BASE _u(0x40044000)
-#define I2C1_BASE _u(0x40048000)
-#define ADC_BASE _u(0x4004c000)
-#define PWM_BASE _u(0x40050000)
-#define TIMER_BASE _u(0x40054000)
-#define WATCHDOG_BASE _u(0x40058000)
-#define RTC_BASE _u(0x4005c000)
-#define ROSC_BASE _u(0x40060000)
-#define VREG_AND_CHIP_RESET_BASE _u(0x40064000)
-#define TBMAN_BASE _u(0x4006c000)
-
-//  AHB-Lite Advanced High Bus Lite Splitter (DMA)
-    // Flash XIP, PIO0, PIO1, USB
-#define DMA_BASE _u(0x50000000)
-#define AHB_BASE _u(0x50000000)
-#define USBCTRL_DPRAM_BASE _u(0x50100000)
-#define USBCTRL_BASE _u(0x50100000)
-#define USBCTRL_REGS_BASE _u(0x50110000)
-#define PIO0_BASE _u(0x50200000)
-#define PIO1_BASE _u(0x50300000)
-#define XIP_AUX_BASE _u(0x50400000)
-
-// I/O port Registers Single-cycle I/O
-#define SIO_BASE _u(0xd0000000)
-
-// Cortex-M0+ internal registers
-#define M0PLUS_BASE _u(0xe0000000)
-    #define SYST_CSR 0xe010 // SysTick Control Status Register
-    // ..
-    #define VTOR 0xed08 // Vector Table Offset Register
-
-#endif // _ADDRESSMAP_H_

@@ -9,6 +9,7 @@ AS = arm-none-eabi-as
 LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
+PAD_CHECKSUM = tools/pad_checksum
 
 ifeq ($(OS), Windows_NT)
   MKDIR = gmkdir
@@ -16,6 +17,8 @@ else
   MKDIR = mkdir
 endif
 MCU=cortex-m0plus
+
+ASFLAGS :=
 
 INCLUDES += -I include
 CFLAGS += -W -Wall --std=gnu11 -O0
@@ -46,25 +49,44 @@ CRT0 += startup_rp2040
 OBJS +=
 
 
-
-
 TARGET = led25
+TARGET = boot_led
 
-all:$(patsubst %,build/%.o,$(CRT0)) \
+all: build/$(TARGET).elf  build/$(TARGET).uf2
+
+allc:$(patsubst %,build/%.o,$(CRT0)) \
 	$(patsubst %,build/%.o,$(OBJS)) \
 	$(patsubst %,build/%.o,$(TARGET)) \
 	$(patsubst %,build/%.elf,$(TARGET)) \
 	$(patsubst %,build/%.bin,$(TARGET)) \
 	$(patsubst %,build/%.uf2,$(TARGET))
 
+build/%.o: src/asm/%.S
+	if [[ ! -d $(patsubst src/%,build/%,$(<D)) ]];then mkdir -p $(patsubst src/%,build/%,$(<D));fi
+	@echo AS $@
+	@$(CC) -c $(ASFLAGS) $< -o $@
+
 build/%.o: src/%.c
 	if [[ ! -d build ]];then mkdir build;fi
 	@echo CC $@
 	@$(CC) -c $(CFLAGS) $< -o $@
 
-build/%.elf: build/%.o
-	@echo LD $@
-	@$(CC) $(LDFLAGS) $^ -o $@
+build/%.bin: build/%.o
+	@echo $(OBJCOPY) $@
+	$(OBJCOPY) -Obinary $< $@
+
+
+build/pad_checksum.s : build/$(TARGET).bin
+	@echo $(PAD_CHECKSUM) $@
+	@$(PAD_CHECKSUM) -s 0xffffffff $< $@
+
+build/pad_checksum.o : build/pad_checksum.s
+	@echo $(AS) $@
+	$(AS) $< -o $@
+
+build/$(TARGET).elf : build/pad_checksum.o
+	@echo $(LD) $@
+	$(LD) --section-start .boot2=0x10000000 $< -o $@
 
 build/%.bin: build/%.elf
 	@echo OBJCOPY $@
@@ -73,7 +95,6 @@ build/%.bin: build/%.elf
 build/%.uf2: build/%.bin
 	@echo BIN2UF2 $@
 	@tools/bin2uf2 -i $^ -o $@
-
 
 size: build/$(TARGET).elf
 	@echo size:
