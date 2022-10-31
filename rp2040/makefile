@@ -9,7 +9,6 @@ AS = arm-none-eabi-as
 LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
-PAD_CHECKSUM = tools/pad_checksum
 
 ifeq ($(OS), Windows_NT)
   MKDIR = gmkdir
@@ -21,6 +20,7 @@ MCU=cortex-m0plus
 ASFLAGS :=
 
 INCLUDES += -I include
+LIBS += -L lib/build -l boot2
 CFLAGS += -W -Wall --std=gnu11 -O0
 CFLAGS += -mcpu=$(MCU) -mthumb
 CFLAGS += $(INCLUDES)
@@ -38,19 +38,21 @@ CFLAGS += -M -MP -MT build/$(patsubst src/%.c,%.o,$<) -MF build/$(patsubst src/%
 
 
 LDFLAGS += -mcpu=cortex-m0plus -mthumb
-LDFLAGS += -nostdlib
+LDFLAGS += -nostdlib $(LIBS)
 LDFLAGS += -T linker/rp2040.ld
 LDFLAGS += -Wl,-Map=build/$(TARGET).map
 
 
-SRCS = $(shell find src -name "*.c")
+SRCS = $(shell find src -regextype posix-extended -regex "boot.*.[cS]$$")
 
 CRT0 += startup_rp2040
-OBJS +=
+OBJS += 
 
 
 TARGET = led25
 TARGET = boot_led
+TARGET = origin
+TARGET = main
 
 all: build/$(TARGET).elf  build/$(TARGET).uf2
 
@@ -63,48 +65,31 @@ allc:$(patsubst %,build/%.o,$(CRT0)) \
 
 build/%.o: src/asm/%.S
 	if [[ ! -d $(patsubst src/%,build/%,$(<D)) ]];then mkdir -p $(patsubst src/%,build/%,$(<D));fi
-	@echo AS $@
-	@$(CC) -c $(ASFLAGS) $< -o $@
+	$(AS) $(ASFLAGS) $< -o $@
 
-build/%.o: src/%.c
-	if [[ ! -d build ]];then mkdir build;fi
-	@echo CC $@
-	@$(CC) -c $(CFLAGS) $< -o $@
 
 build/%.bin: build/%.o
-	@echo $(OBJCOPY) $@
 	$(OBJCOPY) -Obinary $< $@
 
-
 build/pad_checksum.s : build/$(TARGET).bin
-	@echo $(PAD_CHECKSUM) $@
-	@$(PAD_CHECKSUM) -s 0xffffffff $< $@
+	pad_checksum -s 0xffff_ffff $< $@
 
 build/pad_checksum.o : build/pad_checksum.s
-	@echo $(AS) $@
 	$(AS) $< -o $@
 
 build/$(TARGET).elf : build/pad_checksum.o
-	@echo $(LD) $@
 	$(LD) --section-start .boot2=0x10000000 $< -o $@
 
-build/%.bin: build/%.elf
-	@echo OBJCOPY $@
-	@$(OBJCOPY) -O ihex $^ $@
-
-build/%.uf2: build/%.bin
-	@echo BIN2UF2 $@
-	@tools/bin2uf2 -i $^ -o $@
+build/%.uf2: build/%.elf
+	tools/build/bin2uf2 -i $^ -o $@
 
 size: build/$(TARGET).elf
-	@echo size:
-	@$(SIZE) -t $^
+	$(SIZE) -t $^
 
 clean:
-	@echo clean
-	@rm -rf build
+	rm -rf build
 
--include $(wildcard build/*.d)
+-include $(wildcardbuild/*.d)
 
 echo:
 	@echo $(OS)
