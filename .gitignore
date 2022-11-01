@@ -6,8 +6,8 @@
 *.bin
 *.o
 *.hex
+*.uf2
 *.elf
-*.pdf
 **/tmp/**
 *DS_Store
 **/build/**
