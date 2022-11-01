@@ -272,12 +272,12 @@ configure_ssi:
 // external flash on cache miss. We are ready to run code from flash.
 
 // Pull in standard exit routine
-#include "boot2_helpers/exit_from_boot2.S"
+#include "asm/boot2_helpers/exit_from_boot2.S"
 
 // Common functions
-#include "boot2_helpers/wait_ssi_ready.S"
+#include "asm/boot2_helpers/wait_ssi_ready.S"
 #ifdef PROGRAM_STATUS_REG
-#include "boot2_helpers/read_flash_sreg.S"
+#include "asm/boot2_helpers/read_flash_sreg.S"
 #endif
 
 .global literals

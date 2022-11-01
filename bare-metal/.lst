@@ -1,0 +1,46 @@
+GAS LISTING build/hello.s 			page 1
+
+
+   1              		.file	"hello.c"
+   2              		.text
+   3              		.section	.rodata
+   4              	.LC0:
+   5 0000 48656C6C 		.string	"Hello World!"
+   5      6F20576F 
+   5      726C6421 
+   5      00
+   6              		.text
+   7              		.globl	main
+   8              		.type	main, @function
+   9              	main:
+  10              	.LFB0:
+  11              		.cfi_startproc
+  12 0000 55       		pushq	%rbp
+  13              		.cfi_def_cfa_offset 16
+  14              		.cfi_offset 6, -16
+  15 0001 4889E5   		movq	%rsp, %rbp
+  16              		.cfi_def_cfa_register 6
+  17 0004 488D0500 		leaq	.LC0(%rip), %rax
+  17      000000
+  18 000b 4889C7   		movq	%rax, %rdi
+  19 000e E8000000 		call	puts@PLT
+  19      00
+  20 0013 B8000000 		movl	$0, %eax
+  20      00
+  21 0018 5D       		popq	%rbp
+  22              		.cfi_def_cfa 7, 8
+  23 0019 C3       		ret
+  24              		.cfi_endproc
+  25              	.LFE0:
+  26              		.size	main, .-main
+  27              		.ident	"GCC: (GNU) 12.2.0"
+  28              		.section	.note.GNU-stack,"",@progbits
+GAS LISTING build/hello.s 			page 2
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 hello.c
+       build/hello.s:9      .text:0000000000000000 main
+
+UNDEFINED SYMBOLS
+puts

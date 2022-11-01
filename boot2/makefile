@@ -15,6 +15,7 @@ ifeq ($(OS), Windows_NT)
 else
   MKDIR = mkdir
 endif
+
 MCU=cortex-m0plus
 
 ASFLAGS :=
@@ -34,12 +35,13 @@ LLVMFLAG += $(CFLAGS)
 # -MT : rename 
 # -MF : generate file
 # -MD : -M -MF
-CFLAGS += -M -MP -MT build/$(patsubst src/%.c,%.o,$<) -MF build/$(patsubst src/%.c,%.d,$<)
-
 
 LDFLAGS += -mcpu=cortex-m0plus -mthumb
-LDFLAGS += -nostdlib $(LIBS)
-LDFLAGS += -T linker/rp2040.ld
+# if clang 
+#LDFLAGS += -nostdlib
+# else
+LDFLAGS += --specs=nosys.specs -nostartfiles
+LDFLAGS += -T src/boot_stage2.ld
 LDFLAGS += -Wl,-Map=build/$(TARGET).map
 
 
@@ -48,39 +50,45 @@ SRCS = $(shell find src -regextype posix-extended -regex "boot.*.[cS]$$")
 CRT0 += startup_rp2040
 OBJS += 
 
+TARGET = boot2_w25q080
 
-TARGET = boot2_stage 
+all: build/$(TARGET)_pad_checksum.o 
 
-all: build/$(TARGET).elf  build/$(TARGET).uf2
+build/%.o: src/%.S
+	if [[ ! -d $(patsubst src%,build%,$(<D)) ]];then mkdir -p $(patsubst src%,build%,$(<D));fi
+	$(CC) -c $(CFLAGS) $< -o $@
 
-allc:$(patsubst %,build/%.o,$(CRT0)) \
-	$(patsubst %,build/%.o,$(OBJS)) \
-	$(patsubst %,build/%.o,$(TARGET)) \
-	$(patsubst %,build/%.elf,$(TARGET)) \
-	$(patsubst %,build/%.bin,$(TARGET)) \
-	$(patsubst %,build/%.uf2,$(TARGET))
-
-build/%.o: src/asm/%.S
-	if [[ ! -d $(patsubst src/%,build/%,$(<D)) ]];then mkdir -p $(patsubst src/%,build/%,$(<D));fi
-	$(AS) $(ASFLAGS) $< -o $@
-
+build/%.o: src/%.c
+	if [[ ! -d $(patsubst src%,build%,$(<D)) ]];then mkdir -p $(patsubst src%,build%,$(<D));fi
+	$(CC) -M -MP -MT $(patsubst src/%.c,build/%.o,$<) -MF $(patsubst src/%.c,build/%.d,$<) $(CFLAGS) $< -o $@
 
 build/%.bin: build/%.o
 	$(OBJCOPY) -Obinary $< $@
 
-build/pad_checksum.s : build/$(TARGET).bin
+build/$(TARGET)_pad_checksum.s : build/$(TARGET).bin
 	pad_checksum -s 0xffff_ffff $< $@
 
-build/pad_checksum.o : build/pad_checksum.s
-	$(AS) $< -o $@
+build/$(TARGET)_pad_checksum.o : build/$(TARGET)_pad_checksum.s
+	$(CC) -c $(CFLAGS) $< -o $@
 
-build/$(TARGET).elf : build/pad_checksum.o
-	$(LD) --section-start .boot2=0x10000000 $< -o $@
+#build/$(TARGET).elf: build/boot2_w25q080.o build/$(TARGET).o
+#	$(CC) $(LDFLAGS) $< -o $@
 
-build/%.uf2: build/%.elf
-	tools/build/bin2uf2 -i $^ -o $@
 
-size: build/$(TARGET).elf
+#build/%.o: src/asm/%.S
+#	if [[ ! -d $(patsubst src/%,build/%,$(<D)) ]];then mkdir -p $(patsubst src/%,build/%,$(<D));fi
+#	$(AS) $(ASFLAGS) $< -o $@
+
+
+
+
+#build/$(TARGET).elf : build/pad_checksum.o
+#	$(LD) --section-start .boot2=0x10000000 $< -o $@
+
+#build/%.uf2: build/%.elf
+#	tools/build/bin2uf2 -i $^ -o $@
+
+size: build/$(TARGET)_pad_checksum.o
 	$(SIZE) -t $^
 
 clean:
