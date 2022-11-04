@@ -11,5 +11,5 @@
 *.elf
 **/tmp/**
 *DS_Store
-**/build/**
+**/build*/**
 **/.cache/**

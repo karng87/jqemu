@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 
+#set(CMAKE_VERBOSE_MAKEFILE on)
+#set_property(GLOBAL PROPERTY RULE_MESSAGES OFF)
+
 include(~/Project/rasp/pico-sdk/pico_sdk_init.cmake)
 project(led25)
 pico_sdk_init()

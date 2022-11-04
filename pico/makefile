@@ -1,3 +1,5 @@
+## cmake -Dmake_verbose_makefile:bool=1 -Dcmake_rule_messages:bool=0 
+## make VERBOSE=1 -no-print-directory
 CC := arm-none-eabi-gcc
 LD := arm-none-eabi-ld
 AS := arm-none-eabi-as
@@ -12,7 +14,8 @@ DEFINE += -DPICO_BUILD=1
 DEFINE += -DPICO_NO_HARDWARE=0
 DEFINE += -DPICO_ON_DEVICE=1
 
-CFLAGS := -mcpu=cortex-m0plus -mthumb -ffunction-sections -fdata-sections
+CFLAGS := -Wall -Werror
+CFLAGS += -mcpu=cortex-m0plus -mthumb -ffunction-sections -fdata-sections
 CFLAGS += $(INCLUDES) $(DEFINE)
 
 LIBS +=
@@ -22,42 +25,50 @@ ld_script := boot_stage2.ld
 LDFLAGS := -mcpu=cortex-m0plus -mthumb
 LDFLAGS += -O3 -DNDEBUG
 LDFLAGS += -Wl,--build-id=none --specs=nosys.specs -nostartfiles
+### --specs=nosys.specs
+### 	newlib does not by default provide implementations for the functions
+### 		that make only sense on a system with a console and an hard drive,
+### 		basically system calls such as read/write/open/close/...
+### 		if don't need to those functions,
+### 	using --specs=nosys.specs: make the app link with default
+### 		when called, the linker will return an error code
+
 LDFLAGS += -Wl,--script=$(ld_script)
 #LDFLAGS += -Wl,-Map=$(patsubst %,%.map,$@)
-
-target_bs2_default := build/bs2/bs2_default_padded_checksummed.S
 
 SRCS := $(if $(filter Darwin,$(shell uname -s)), \
 			$(shell find -E src -regex '.*\.[cS]$$'), \
 			$(shell find src -regextype posix-extended -regex '.*\.[cS]$$'))
 
-all: $(target_bs2_default)
+BS2_SRC  := $(filter %bs2_default.S,$(SRCS))
+TARGET_BS2 := $(patsubst src/%.S,build/%_checksummed.S.o.elf.S,$(BS2_SRC))
+
+all: $(TARGET_BS2)
+build/%.c.o: src/%.c
+	@if [[ ! -d $(patsubst src%,build%,$(dir $<)) ]];then mkdir -p $(patsubst src%,build%,$(dir $<)) ;fi
+	$(CC) -c $(CFLAGS) $< -o $@ 
 
 build/%.S.o: src/%.S
 	@if [[ ! -d $(patsubst src%,build%,$(dir $<)) ]];then mkdir -p $(patsubst src%,build%,$(dir $<)) ;fi
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-build/%.c.o: src/%.c
-	@if [[ ! -d $(patsubst src%,build%,$(dir $<)) ]];then mkdir -p $(patsubst src%,build%,$(dir $<)) ;fi
-	$(CC) -c $(CFLAGS) $< -o $@ 
 
 build/%.o.elf: build/%.o
 	@if [[ ! -d $(patsubst src%,build%,$(<D)) ]];then mkdir -p $(patsubst src%,build%,$(<D)) ;fi
-	$(CC) $(LDFLAGS) -Wl,-Map=$(patsubst %,%.map,$@) $< -o $@
+	$(CC) $(LDFLAGS) -Wl,-Map=$(patsubst %,%.map,$<) $< -o $@
 
-$(target_bs2_default): build/bs2/bs2_default.bin
-	$(PAD_CHECKSUM) -s 0xffffffff $< $@
-
-build/bs2/bs2_default.bin: build/rp2_common/boot_stage2/compile_time_choice.S.o.elf
+build/%.elf.bin: build/%.elf
 	@mkdir -p build/bs2
 	$(OBJCOPY) -Obinary $< $@
-	$(OBJDUMP) -h $< > build/bs2/bs2_default.dis
-	$(OBJDUMP) -d $< >> build/bs2/bs2_default.dis
+	$(OBJDUMP) -h $< > $(patsubst %,%.dis,$<)
+	$(OBJDUMP) -d $< >> $(patsubst %,%.dis,$<)
 
+build/%_checksummed.S.o.elf.S: build/%.S.o.elf.bin
+	$(PAD_CHECKSUM) -s 0xffffffff $< $@
 
-.PHONY: c f e
+.PHONY: f fv fc g gv vi
 
-path := ~/Project/rasp/pico-sdk/src
+path := ~/Project/rasp/pico-sdk
 line := 1
 sl:= 1
 el:= 20
@@ -81,11 +92,16 @@ g:
 	@grep --color=always -ERHn '$(pat)' ~/Project/rasp/pico-sdk/src
 
 gv:
-	@grep --color=always -ERHn $(pat) ~/Project/rasp/pico-sdk/src \
+	@grep -ERHn $(pat) $(path) \
 		| sed -En -e '$(line)s#([^:]+):([0-9]+):.*#nvim +\2 \1#p' | sh 
 
+vi: 
+	nvim $(BS2_SRC)
+
 echo:
-	sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
+	echo $(patsubst src/%,build/%.o.elf,$(bs2_default_src))
+
+	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
 
 clean:
 	rm -rf build
