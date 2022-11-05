@@ -68,21 +68,22 @@ build/%_checksummed.S.o.elf.S: build/%.S.o.elf.bin
 
 .PHONY: f fv fc g gv vi
 
-path := ~/Project/rasp/pico-sdk
-line := 1
-sl:= 1
-el:= 20
+path := ~/Project/rasp/pico-sdk ~/Project/rasp/pico-sdk/src build-cmake build src
+ln := 1 # line number
+sln:= 1  # start line number
+eln:= 20 # end line number
 
 f: 
-	@find $(path) -name "$(pat)" | grep -E --color=always '^/|/|[^/]*$$'
+	@find $(word $(ln),$(path)) -name "$(pat)" | grep -E -n --color=always '^/|/|[^/]*$$'
 
 fv: 
 	@find $(path) -name "$(pat)" \
-		| sed -En '$(line)s#.*#nvim &#p' | sh
+		| sed -En '$(ln)s#.*#nvim &#p' | sh
 
 fc: 
 	@for i in `find ~/Project/rasp/pico-sdk/src -name $(pat)` \
-		;do mkdir -p $$(sed -En 's#.*(include|src)(.*)/.*#\1\2#gp' <<< $$i);\
+		;do if [[ -z $$i ]] ;then continue;fi; \
+			mkdir -p $$(sed -En 's#.*(include|src)(.*)/.*#\1\2#gp' <<< $$i);\
 			if [[ $$i =~ .*\.h ]] ;then cp $$i `sed -En 's#.*(include/.*\.h)$$#\1#p' <<< $$i`;tree include \
 			;elif [[ $$i =~ .*\.[cS] ]] ;then cp $$i `sed -En 's#.*(src/.*\.[cS])$$#\1#p' <<< $$i`; tree src \
 			;else cp $$i .; tree . \
@@ -93,7 +94,7 @@ g:
 
 gv:
 	@grep -ERHn $(pat) $(path) \
-		| sed -En -e '$(line)s#([^:]+):([0-9]+):.*#nvim +\2 \1#p' | sh 
+		| sed -En -e '$(ln)s#([^:]+):([0-9]+):.*#nvim +\2 \1#p' | sh 
 
 vi: 
 	nvim $(BS2_SRC)
@@ -102,6 +103,7 @@ echo:
 	echo $(patsubst src/%,build/%.o.elf,$(bs2_default_src))
 
 	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
-
+ld:
+	nvim $(ld_script)
 clean:
 	rm -rf build
