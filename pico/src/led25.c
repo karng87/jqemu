@@ -1,4 +1,4 @@
-#define SIO_SEG 0xD0000000
+#define SIO_SEG 0xD0000000u
 #define GPIO_OUT_SET 0x14
 #define GPIO_OUT_CLR 0x18
 
@@ -6,11 +6,11 @@
 #define GPIO_OE_CLR 0x28
 #define GPIO_FUNC_SIO 5
 
-#define IO_BANK0_SEG 0x40014000
-#define IO_QSPI_SEG 0x40018000
+#define IO_BANK0_SEG 0x40014000u
+#define IO_QSPI_SEG 0x40018000u
 
-#define PADS_BANK0_SEG 0x4001C000
-#define PADS_QSPI_SEG 0x40020000
+#define PADS_BANK0_SEG 0x4001C000u
+#define PADS_QSPI_SEG 0x40020000u
 
 #define PADS_BANK0_IE 6 // Input Enable
 #define PADS_BANK0_OD 7 // Output Disable

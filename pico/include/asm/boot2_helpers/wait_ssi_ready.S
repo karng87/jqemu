@@ -7,6 +7,18 @@
 #ifndef _BOOT2_HELPER_WAIT_SSI_READY
 #define _BOOT2_HELPER_WAIT_SSI_READY
 
+#ifndef SSI_SR_OFFSET
+    #define SSI_SR_OFFSET 0x00000028
+#endif
+
+#ifndef SSI_SR_TFE_BITS
+    #define SSI_SR_TFE_BITS 0x00000004
+#endif
+
+#ifndef SSI_SR_BUSY_BITS
+    #define SSI_SR_BUSY_BITS 0x00000001
+#endif
+
 wait_ssi_ready:
     push {r0, r1, lr}
 

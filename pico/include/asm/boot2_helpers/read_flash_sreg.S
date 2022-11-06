@@ -14,6 +14,11 @@
 .global read_flash_sreg
 .type read_flash_sreg,%function
 .thumb_func
+
+#ifndef SSI_DR0_OFFSET
+    #define SSI_DR0_OFFSET 0x00000060
+#endif
+
 read_flash_sreg:
     push {r1, lr}
     str r0, [r3, #SSI_DR0_OFFSET]

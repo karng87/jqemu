@@ -1,76 +1,70 @@
 ## cmake -Dmake_verbose_makefile:bool=1 -Dcmake_rule_messages:bool=0 
 ## make VERBOSE=1 -no-print-directory
-
-MCU := -mcpu=cortex-m0plus -mthumb
-
 CC := arm-none-eabi-gcc
 LD := arm-none-eabi-ld
 AS := arm-none-eabi-as
-
 OBJCOPY := arm-none-eabi-objcopy
 OBJDUMP := arm-none-eabi-objdump
 PAD_CHECKSUM := ~/Project/rasp/bin/pad_checksum
 
-INCLUDES := -I include
+MCU := -mcpu=cortex-m0plus -mthumb
 
-ASFLAGS := $(MCU) -g
+BUILD_DIR := $(shell sed -En 's#src#build#p' <<< `pwd`)
 
-CFLAGS +=  -ffreestanding -g -O0 -std=gnu11 -fpic
-CFLAGS += $(MCU) $(INCLUDES) $(DEFINE)
+SRCS  := boot2.S
+TARGET := $(patsubst %.S,$(BUILD_DIR)/%_crc.S.o.elf.bin.S,$(SRCS))
 
-ld_crt0 := Crt0.ld
-LDFLAGS = -nostdlib -T$(ld_crt0)
+INCLUDES := -I ../../../include
 
-SRCS := $(if $(filter Darwin,$(shell uname -s)), \
-			$(shell find -E src -regex '.*\.[cS]$$'), \
-			$(shell find src -regextype posix-extended -regex '.*\.[cS]$$'))
+D := -DPICO_BOARD=\"pico\"
+D += -DPICO_BUILD=1
+D += -DPICO_NO_HARDWARE=0
+D += -DPICO_ON_DEVICE=1
 
-BOOT2_SRC  := $(filter %boot2.S,$(SRCS))
-BOOT2_CRC := $(patsubst src/%.S,build/%_crc.S.o.elf.bin.S,$(BOOT2_SRC))
+CFLAGS +=  -ffunction-sections -fdata-sections
+CFLAGS += $(MCU) $(INCLUDES) $(D)
 
-CRT0_SRC  := $(filter %Crt0.S,$(SRCS))
-CRT0_OBJ := $(patsubst src/%,build/%.o,$(CRT0_SRC))
+ld_script := boot2.ld
+
+LDFLAGS += -O3 -DNDEBUG
+LDFLAGS += -Wl,--build-id=none --specs=nosys.specs -nostartfiles
+LDFLAGS += -Wl,--script=$(ld_script)
+### --specs=nosys.specs
+### 	newlib does not by default provide implementations for the functions
+### 		that make only sense on a system with a console and an hard drive,
+### 		basically system calls such as read/write/open/close/...
+### 		if don't need to those functions,
+### 	using --specs=nosys.specs: make the app link with default
+### 		when called, the linker will return an error code
+
+#LDFLAGS += -Wl,-Map=$(patsubst %,%.map,$@)
 
 
-TARGET := led25
-TARGET := main
 
-DEPS :=  $(addsuffix .o,$(BOOT2_CRC)) \
-		 $(CRT0_OBJ) \
-		 $(patsubst %,build/%.c.o,$(TARGET))
+all: $(TARGET)
 
-all: boot_stage2 build/$(TARGET).uf2
+$(BUILD_DIR)/%.c.o: %.c
+	@if [[ ! -d $(BUILD_DIR) ]];then mkdir -p $(BUILD_DIR) ;fi
+	$(CC) -c $(CFLAGS) $< -o $@ 
 
-boot_stage2:
-	make -C src/boot/stage2
+$(BUILD_DIR)/%.S.o: %.S
+	@if [[ ! -d $(BUILD_DIR) ]];then mkdir -p $(BUILD_DIR) ;fi
+	$(CC) $(CFLAGS) -o $@ -c $<
 
-build/%.c.o: src/%.c
-	@if [[ ! -d $(patsubst src%,build%,$(dir $<)) ]];then mkdir -p $(patsubst src%,build%,$(dir $<)) ;fi
-	$(CC) $(CFLAGS) -c $< -o$@ 
+$(BUILD_DIR)/%.S.o: $(BUILD_DIR)/%.S
+	$(CC) $(CFLAGS) -o $@ -c $<
 
-build/%.S.o: src/%.S
-	@if [[ ! -d $(patsubst src%,build%,$(dir $<)) ]];then mkdir -p $(patsubst src%,build%,$(dir $<)) ;fi
-	$(AS) $(ASFLAGS) $< -o$@ 
+$(BUILD_DIR)/%.o.elf: $(BUILD_DIR)/%.o
+	$(CC) $(LDFLAGS) -Wl,-Map=$(patsubst %,%.map,$<) $< -o $@
 
-build/%.S.o: build/%.S
-	@if [[ ! -d $(patsubst src%,build%,$(dir $<)) ]];then mkdir -p $(patsubst src%,build%,$(dir $<)) ;fi
-	$(AS) $(ASFLAGS) $< -o$@ 
-
-build/%.o.elf: build/%.o
-	@if [[ ! -d $(patsubst src%,build%,$(<D)) ]];then mkdir -p $(patsubst src%,build%,$(<D)) ;fi
-	$(LD) $(LDFLAGS) $< -o$@
-
-build/%.elf.bin: build/%.elf
+$(BUILD_DIR)/%.elf.bin: $(BUILD_DIR)/%.elf
 	$(OBJCOPY) -Obinary $< $@
 	$(OBJDUMP) -h $< > $(patsubst %,%.dis,$<)
 	$(OBJDUMP) -d $< >> $(patsubst %,%.dis,$<)
 
+$(TARGET): $(patsubst %,$(BUILD_DIR)/%.o.elf.bin,$(SRCS))
+	$(PAD_CHECKSUM) -s 0xffffffff $< $@
 
-build/$(TARGET): $(DEPS)
-	$(LD) $(LDFLAGS) $^ -o$@
-
-build/$(TARGET).uf2 : build/$(TARGET)
-	elf2uf2 $< $@
 
 .PHONY: f fv fc g gv vi
 
@@ -116,15 +110,11 @@ gv:
 	@grep -ERHn $(pat) $(word $(idx),$(path)) \
 		| sed -En -e '$(idx)s#([^:]+):([0-9]+):.*#nvim +\2 \1#p' | sh 
 
-vi:
-	nvim $(filter %$(addsuffix .c,$(TARGET)), $(SRCS))
-crt: 
-	nvim $(CRT0_SRC)
+vi: 
+	nvim $(SRC)
 
-b2:
-	nvim $(BOOT2_SRC)
 echo:
-	echo $(filter a b c, "xaz bcd")
+	echo $(BUILD_DIR)
 
 	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
 ld:
