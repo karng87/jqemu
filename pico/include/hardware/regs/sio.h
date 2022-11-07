@@ -1,16 +1,3 @@
-/**
- * Copyright (c) 2022 Raspberry Pi (Trading) Ltd.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-// =============================================================================
-// Register block : SIO
-// Version        : 1
-// Bus type       : apb
-// Description    : Single-cycle IO block
-//                  Provides core-local and inter-core hardware for the two
-//                  processors, with single-cycle access.
-// =============================================================================
 #ifndef HARDWARE_REGS_SIO_DEFINED
 #define HARDWARE_REGS_SIO_DEFINED
 // =============================================================================
@@ -29,7 +16,7 @@
 // Description : Input value for GPIO pins
 //               Input value for GPIO0...29
 #define SIO_GPIO_IN_OFFSET _u(0x00000004)
-#define SIO_GPIO_IN_BITS   _u(0x3fffffff)
+#define SIO_GPIO_IN_BITS   _u(0x3fffffff) // [31:30|29:0]
 #define SIO_GPIO_IN_RESET  _u(0x00000000)
 #define SIO_GPIO_IN_MSB    _u(29)
 #define SIO_GPIO_IN_LSB    _u(0)

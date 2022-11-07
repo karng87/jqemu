@@ -9,9 +9,9 @@
 #ifndef _HARDWARE_STRUCTS_SIO_H
 #define _HARDWARE_STRUCTS_SIO_H
 
-#include "hardware/address_mapped.h"
-#include "hardware/regs/sio.h"
-#include "hardware/structs/interp.h"
+#include <hardware/address_mapped.h>
+#include <hardware/regs/sio.h>
+#include <hardware/structs/interp.h>
 
 // Reference to datasheet: https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf#tab-registerlist_sio
 //

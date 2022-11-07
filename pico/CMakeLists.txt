@@ -14,13 +14,13 @@ pico_sdk_init()
 
 #add_executable(0x02_hello_world src/0x02_hello_world.c)
 #add_executable(0x03_char src/0x03_char.c)
-add_executable(led25 src/led25.c)
+add_executable(0x06_double src/0x06_double.c)
 
 #pico_enable_stdio_usb(0x02_hello_world 1)
-pico_enable_stdio_usb(led25 1)
+pico_enable_stdio_usb(0x06_double 1)
 
 #pico_add_extra_outputs(0x02_hello_world)
-pico_add_extra_outputs(led25)
+pico_add_extra_outputs(0x06_double)
 
 #target_link_libraries(0x02_hello_world pico_stdlib)
-target_link_libraries(led25 pico_stdlib)
+target_link_libraries(0x06_double pico_stdlib)

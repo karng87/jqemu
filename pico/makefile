@@ -32,8 +32,8 @@ CRT0_SRC  := $(filter %Crt0.S,$(SRCS))
 CRT0_OBJ := $(patsubst src/%,build/%.o,$(CRT0_SRC))
 
 
-TARGET := led25
 TARGET := main
+TARGET := led25
 
 DEPS :=  $(addsuffix .o,$(BOOT2_CRC)) \
 		 $(CRT0_OBJ) \
@@ -113,8 +113,8 @@ g:
 	@grep --color=always -ERHn '$(pat)' $(word $(idx), $(path))
 
 gv:
-	@grep -ERHn $(pat) $(word $(idx),$(path)) \
-		| sed -En -e '$(idx)s#([^:]+):([0-9]+):.*#nvim +\2 \1#p' | sh 
+	@grep -ERHn '$(pat)' $(word $(idx),$(path)) \
+		| sed -En -e '$(idx)s#([^:]+):([0-9]+):.*#nvim +\2 \1#p' | sh
 
 vi:
 	nvim $(filter %$(addsuffix .c,$(TARGET)), $(SRCS))

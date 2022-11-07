@@ -10,11 +10,11 @@
 // This header is included from C and assembler - intended mostly for #defines; guard other stuff with #ifdef __ASSEMBLER__
 
 #ifndef _u
-#ifdef __ASSEMBLER__
-#define _u(x) x
-#else
-#define _u(x) x ## u
-#endif
+    #ifdef __ASSEMBLER__
+        #define _u(x) x
+    #else
+        #define _u(x) x ## u
+    #endif
 #endif
 
 #define NUM_CORES _u(2)
@@ -33,13 +33,13 @@
 #define NUM_ADC_CHANNELS _u(5)
 
 #define NUM_BANK0_GPIOS _u(30)
-#define NUM_QSPI_GPIOS _u(6)
+#define NUM_QSPI_GPIOS _u(6) // SCLK SS SD0 SD1 SD2 SD3
 
 #define PIO_INSTRUCTION_COUNT _u(32)
 
 // PICO_CONFIG: XOSC_MHZ, The crystal oscillator frequency in Mhz, type=int, default=12, advanced=true, group=hardware_base
 #ifndef XOSC_MHZ
-#define XOSC_MHZ _u(12)
+    #define XOSC_MHZ _u(12)
 #endif
 
 #endif
