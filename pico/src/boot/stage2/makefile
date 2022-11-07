@@ -1,5 +1,8 @@
 ## cmake -Dmake_verbose_makefile:bool=1 -Dcmake_rule_messages:bool=0 
 ## make VERBOSE=1 -no-print-directory
+
+SHELL := /bin/bash
+
 CC := arm-none-eabi-gcc
 LD := arm-none-eabi-ld
 AS := arm-none-eabi-as
@@ -9,7 +12,7 @@ PAD_CHECKSUM := ~/Project/rasp/bin/pad_checksum
 
 MCU := -mcpu=cortex-m0plus -mthumb
 
-BUILD_DIR := $(shell sed -En 's#src#build#p' <<< `pwd`)
+BUILD_DIR :=$(shell sed -En 's/src/build/p' <<< `pwd`)
 
 SRCS  := boot2.S
 TARGET := $(patsubst %.S,$(BUILD_DIR)/%_crc.S.o.elf.bin.S,$(SRCS))
@@ -38,7 +41,6 @@ LDFLAGS += -Wl,--script=$(ld_script)
 ### 		when called, the linker will return an error code
 
 #LDFLAGS += -Wl,-Map=$(patsubst %,%.map,$@)
-
 
 
 all: $(TARGET)
@@ -75,7 +77,10 @@ path := ~/Project/rasp/pico-sdk/src \
 
 idx := 1 # line number
 
-port := $(if $(filter Darwin,$(shell uname -s)),/dev/usb.,/dev/ttyACM0)
+port := $(if \
+		$(filter Darwin,$(shell uname -s))\
+		,/dev/$(shell ls /dev | grep 'cu\.usb')\
+		,/dev/ttyACM0)
 
 screen:
 	screen $(port)
@@ -91,11 +96,11 @@ f:
 	@find $(word $(idx),$(path)) -name "$(pat)" | grep -E -n --color=always '^/|/|[^/]*$$'
 
 fv: 
-	@find $(path) -name "$(pat)" \
+	@find $(word $(idx),$(path)) -name "$(pat)" \
 		| sed -En '$(idx)s#.*#nvim &#p' | sh
 
 fc: 
-	@for i in `find ~/Project/rasp/pico-sdk/src -name $(pat)` \
+	@for i in `find $(word $(idx),$(path)) -name $(pat)` \
 		;do if [[ -z $$i ]] ;then continue;fi; \
 			mkdir -p $$(sed -En 's#.*(include|src)(.*)/.*#\1\2#gp' <<< $$i);\
 			if [[ $$i =~ .*\.h ]] ;then cp $$i `sed -En 's#.*(include/.*\.h)$$#\1#p' <<< $$i`;tree include \

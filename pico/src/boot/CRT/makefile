@@ -8,7 +8,6 @@ OBJDUMP := arm-none-eabi-objdump
 PAD_CHECKSUM := ~/Project/rasp/bin/pad_checksum
 
 MCU := -mcpu=cortex-m0plus -mthumb
-
 BUILD_DIR := $(shell sed -En 's#src#build#p' <<< `pwd`)
 
 SRCS  := Crt0.S
@@ -53,7 +52,7 @@ path := ~/Project/rasp/pico-sdk/src \
 
 idx := 1 # line number
 
-port := $(if $(filter Darwin,$(shell uname -s)),/dev/usb.,/dev/ttyACM0)
+port := $(if $(filter Darwin,$(shell uname -s)),/dev/$(shell ls /dev | grep 'cu\.usb'),/dev/ttyACM0)
 
 screen:
 	screen $(port)
@@ -92,7 +91,7 @@ vi:
 	nvim $(word 1,$(SRCS))
 
 echo:
-	echo $(BUILD_DIR)
+	echo $(port)
 	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
 
 ld:

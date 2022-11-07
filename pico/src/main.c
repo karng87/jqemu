@@ -1,5 +1,4 @@
 /* SPDX-License-Identifier: MIT */
-#include "regs.h"
 #include <stdint.h>
 
 uint32_t read_reg(uint32_t addr) {

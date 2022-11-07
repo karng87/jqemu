@@ -81,7 +81,7 @@ path := ~/Project/rasp/pico-sdk/src \
 
 idx := 1 # line number
 
-port := $(if $(filter Darwin,$(shell uname -s)),/dev/usb.,/dev/ttyACM0)
+port := $(if $(filter Darwin,$(shell uname -s)),/dev/$(shell ls /dev | grep 'cu\.usb') ,/dev/ttyACM0)
 
 screen:
 	screen $(port)
@@ -118,6 +118,7 @@ gv:
 
 vi:
 	nvim $(filter %$(addsuffix .c,$(TARGET)), $(SRCS))
+
 crt: 
 	nvim $(CRT0_SRC)
 
