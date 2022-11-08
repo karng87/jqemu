@@ -9,7 +9,8 @@ AS := arm-none-eabi-as
 
 OBJCOPY := arm-none-eabi-objcopy
 OBJDUMP := arm-none-eabi-objdump
-PAD_CHECKSUM := ~/Project/rasp/bin/pad_checksum
+PAD_CHECKSUM := ~/.config/nvim/bin/pad_checksum
+ELF2UF2 := ~/.config/nvim/bin/elf2uf2
 
 INCLUDES := -I include
 
@@ -21,9 +22,7 @@ CFLAGS += $(MCU) $(INCLUDES) $(DEFINE)
 ld_crt0 := Crt0.ld
 LDFLAGS = -nostdlib -T$(ld_crt0)
 
-SRCS := $(if $(filter Darwin,$(shell uname -s)), \
-			$(shell find -E src -regex '.*\.[cS]$$'), \
-			$(shell find src -regextype posix-extended -regex '.*\.[cS]$$'))
+SRCS := $(shell find src -regextype posix-extended -regex '.*\.[cS]$$')
 
 BOOT2_SRC  := $(filter %boot2.S,$(SRCS))
 BOOT2_CRC := $(patsubst src/%.S,build/%_crc.S.o.elf.bin.S,$(BOOT2_SRC))
@@ -70,7 +69,7 @@ build/$(TARGET): $(DEPS)
 	$(LD) $(LDFLAGS) $^ -o$@
 
 build/$(TARGET).uf2 : build/$(TARGET)
-	elf2uf2 $< $@
+	$(ELF2UF2) $< $@
 
 .PHONY: f fv fc g gv vi
 
