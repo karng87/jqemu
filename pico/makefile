@@ -83,7 +83,7 @@ idx := 1 # line number
 port := $(if $(filter Darwin,$(shell uname -s)),/dev/$(shell ls /dev | grep 'cu\.usb') ,/dev/ttyACM0)
 
 screen:
-	screen $(port)
+	screen $(port) 115200
 	# screen -ls
 	# screen -r ...; <c-a,c>
 
@@ -91,6 +91,25 @@ radare2:
 	radare2 -w arm -b 16 $(word 1, $(shell find build/ -name '*.elf'))
 	# ? 0xf00
 	# q!
+ocd:
+	cd $(RASP)/openocd
+	src/openocd -f interface/picoprobe.cfg -f target/rp2040.cfg -s tcl
+
+gdb:
+	arm-none-eabi-gdb build-cmake/dron.elf
+	# target extended-remote localhost:3333
+	# load
+	# monitor reset init
+	# b main
+	# run
+	# disassemble
+	#  ...
+
+tmux:
+	tmux new-session -s pico
+	tmux new-window -n build
+	tmux split-window -h
+	tmux split-window -v -h
 
 f: 
 	@find $(word $(idx),$(path)) -name "$(pat)" | grep -E -n --color=always '^/|/|[^/]*$$'
@@ -127,6 +146,7 @@ echo:
 	echo $(filter a b c, "xaz bcd")
 
 	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
+
 ld:
 	nvim $(ld_script)
 clean:
