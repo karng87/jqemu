@@ -1,8 +1,8 @@
 #include <stdio.h>
+#include <dron/print.h>
+
 #include <dron/input.h>
 
-#include <dron/print.h>
-#include <pico/stdlib.h>
 
 #define RETURN 0x0d
 

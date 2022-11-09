@@ -2,7 +2,7 @@
 #include <string.h>
 #include <dron/input.h>
 
-#include <pico/stdlib.h>
+extern int getchar_timeout_us(int);
 
 #define ZERO 0x30
 #define NINE 0x39
