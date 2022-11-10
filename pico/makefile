@@ -9,8 +9,8 @@ AS := arm-none-eabi-as
 
 OBJCOPY := arm-none-eabi-objcopy
 OBJDUMP := arm-none-eabi-objdump
-PAD_CHECKSUM := ~/.config/nvim/bin/pad_checksum
-ELF2UF2 := ~/.config/nvim/bin/elf2uf2
+PAD_CHECKSUM := ${RASP}/bin/pad_checksum
+ELF2UF2 := ${RASP}/bin/elf2uf2
 
 INCLUDES := -I include
 
@@ -19,8 +19,8 @@ ASFLAGS := $(MCU) -g
 CFLAGS +=  -ffreestanding -g -O0 -std=gnu11 -fpic
 CFLAGS += $(MCU) $(INCLUDES) $(DEFINE)
 
-ld_crt0 := Crt0.ld
-LDFLAGS = -nostdlib -T$(ld_crt0)
+LD_SCRIPT := src/boot/crt0/Crt0.ld
+LDFLAGS = -nostdlib -T$(LD_SCRIPT)
 
 SRCS := $(shell find src -regextype posix-extended -regex '.*\.[cS]$$')
 
@@ -38,10 +38,13 @@ DEPS :=  $(addsuffix .o,$(BOOT2_CRC)) \
 		 $(CRT0_OBJ) \
 		 $(patsubst %,build/%.c.o,$(TARGET))
 
-all: boot_stage2 build/$(TARGET).uf2
+all: boot_stage2 crt0 build/$(TARGET).uf2
 
 boot_stage2:
 	make -C src/boot/stage2
+
+crt0:
+	make -C src/boot/crt0
 
 build/%.c.o: src/%.c
 	@if [[ ! -d $(patsubst src%,build%,$(dir $<)) ]];then mkdir -p $(patsubst src%,build%,$(dir $<)) ;fi
@@ -65,18 +68,18 @@ build/%.elf.bin: build/%.elf
 	$(OBJDUMP) -d $< >> $(patsubst %,%.dis,$<)
 
 
-build/$(TARGET): $(DEPS)
+build/$(TARGET).elf: $(DEPS)
 	$(LD) $(LDFLAGS) $^ -o$@
 
-build/$(TARGET).uf2 : build/$(TARGET)
+build/$(TARGET).uf2 : build/$(TARGET).elf
 	$(ELF2UF2) $< $@
 
 .PHONY: f fv fc g gv vi
 
 path := ~/Project/rasp/pico-sdk/src \
 		src \
-		build \
-		~/Project/rasp/pico-sdk
+		~/Project/rasp/pico-sdk \
+		build 
 
 idx := 1 # line number
 
@@ -135,7 +138,7 @@ gv:
 		| sed -En -e '$(idx)s#([^:]+):([0-9]+):.*#nvim +\2 \1#p' | sh
 
 vi:
-	nvim $(filter %$(addsuffix .c,$(TARGET)), $(SRCS))
+	nvim $(filter %$(TARGET).c, $(SRCS))
 
 crt: 
 	nvim $(CRT0_SRC)
@@ -143,7 +146,8 @@ crt:
 b2:
 	nvim $(BOOT2_SRC)
 echo:
-	echo $(filter a b c, "xaz bcd")
+	echo $(PAD_CHECKSUM)
+	#echo $(filter a b c, "xaz bcd")
 
 	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
 

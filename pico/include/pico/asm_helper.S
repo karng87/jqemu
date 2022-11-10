@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
 #include "pico.h"
 
 // do not put align in here as it is used mid function sometimes
@@ -19,6 +13,7 @@
     regular_func \x
 .endm
 
+#define WRAPPER_FUNC_NAME(x) __wrap_##x
 // do not put align in here as it is used mid function sometimes
 .macro wrapper_func x
 regular_func WRAPPER_FUNC_NAME(\x)

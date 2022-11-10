@@ -8,7 +8,7 @@ LD := arm-none-eabi-ld
 AS := arm-none-eabi-as
 OBJCOPY := arm-none-eabi-objcopy
 OBJDUMP := arm-none-eabi-objdump
-PAD_CHECKSUM := ~/.config/nvim/bin/pad_checksum
+PAD_CHECKSUM := ${RASP}/bin/pad_checksum
 
 MCU := -mcpu=cortex-m0plus -mthumb
 

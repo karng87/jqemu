@@ -16,25 +16,20 @@ pico_sdk_init()
 #add_executable(0x02_hello_world src/0x02_hello_world.c)
 #add_executable(0x03_char src/0x03_char.c)
 #add_executable(0x06_double src/0x06_double.c)
-add_executable(dron 
-    src/dron.c)
+
 
 add_library(dronlib OBJECT
-    src/dron/input.c
-    src/dron/print.c)
-#pico_enable_stdio_usb(0x02_hello_world 1)
-#pico_enable_stdio_usb(0x06_double 1)
+    src/sdk/dron/input.c
+    src/sdk/dron/print.c)
+add_executable(dron 
+    src/sdk/dron.c)
+
 pico_enable_stdio_usb(dron 1)
-
 pico_enable_stdio_uart(dron 0)
-
-#pico_add_extra_outputs(0x02_hello_world)
-#pico_add_extra_outputs(0x06_double)
 pico_add_extra_outputs(dron)
 
 target_include_directories(dronlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(dron PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-#target_link_libraries(0x02_hello_world pico_stdlib)
 
 target_link_libraries(dron dronlib pico_stdlib hardware_i2c)
 

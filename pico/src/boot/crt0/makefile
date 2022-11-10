@@ -5,32 +5,20 @@ LD := arm-none-eabi-ld
 AS := arm-none-eabi-as
 OBJCOPY := arm-none-eabi-objcopy
 OBJDUMP := arm-none-eabi-objdump
-PAD_CHECKSUM := ~/Project/rasp/bin/pad_checksum
 
 MCU := -mcpu=cortex-m0plus -mthumb
+
+BASE_DIR := $(shell sed -En 's#/src.*##p' <<< `pwd`)
 BUILD_DIR := $(shell sed -En 's#src#build#p' <<< `pwd`)
 
 SRCS  := Crt0.S
 OBJS := $(patsubst %,$(BUILD_DIR)/%.o,$(SRCS))
 
-INCLUDES := -I ../../../include
+INCLUDES := $(BASE_DIR)/include
 D :=
 
 CFLAGS := -ffreestanding -g -O0
-CFLAGS += $(MCU) $(INCLUDES) $(D)
-
-ld_script := Crt0.ld
-LDFLAGS := -T$(ld_script)
-LDFLAGS += -nostdlib
-### --specs=nosys.specs
-### 	newlib does not by default provide implementations for the functions
-### 		that make only sense on a system with a console and an hard drive,
-### 		basically system calls such as read/write/open/close/...
-### 		if don't need to those functions,
-### 	using --specs=nosys.specs: make the app link with default
-### 		when called, the linker will return an error code
-
-#LDFLAGS += -Wl,-Map=$(patsubst %,%.map,$@)
+CFLAGS += $(MCU) $(D)
 
 all: $(OBJS)
 
@@ -91,7 +79,7 @@ vi:
 	nvim $(word 1,$(SRCS))
 
 echo:
-	echo $(port)
+	@echo $(INCLUDES)
 	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
 
 ld:

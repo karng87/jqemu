@@ -219,6 +219,7 @@
 //
 // Details:     * Check status register 2 to determine if QSPI mode is enabled,
 //                and perform an SR2 programming cycle if necessary.
+                // QSPI SR2
 //              * Use SSI to perform a dummy 0xEB read command, with the mode
 //                continuation bits set, so that the flash will not require
 //                0xEB instruction prefix on subsequent reads.
