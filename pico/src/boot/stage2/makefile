@@ -1,6 +1,51 @@
 ## cmake -Dmake_verbose_makefile:bool=1 -Dcmake_rule_messages:bool=0 
 ## make VERBOSE=1 -no-print-directory
 
+#-------- boot stage 1 ------------
+# ROM(16k) SRAM(256k)
+# stage 1
+#	  bootrom in factory rom
+#		: what ARM cores alwas boot
+#		: searchs for a flash(0x10000000) by copying the 1st 256-bytes to SRAM
+#		: use crc32 to verify the data
+#		: it repeats many times until it finds something or fails
+#---------------------------------------------------------------
+#-------- boot stage 2 ------------
+# ROM(16k)  <=> 0x0000_0000
+# XIP(Flash Memory)  <=> 0x1000_0000
+# SRAM(256k) <=> 0x2000_0000
+# stage 2
+#		: our code needs to finish mapping the flash into 0x_1000_0000
+#		: extract and use the flash
+#		: run it or copy and jump
+#		: leaves 252-byte(crc 4byte)
+#		: bs2 needs to be PIC, so that it can run from SRAM
+#---------------------------------------------------------------
+#-------- uf2 [Usb Flashing Format] ------------
+# consist of 512 byte chunks
+# magic number at the beginnig and at the end
+# address where the data should be flashed
+# ```c
+#	 struct UF2_Block {
+#		 // 32 byte header
+#		 uint32_t magicStart0;
+#		 uint32_t magicStart1;
+#		 uint32_t flags;
+#		 uint32_t targetAddr;
+#		 uint32_t payloadSize;
+#		 uint32_t blockNo;
+#		 uint32_t numBlocks;
+#		 uint32_t fileSize; // or familyID;
+#		 uint8_t  data[476];
+#		 uint32_t magicEnd;
+#	 } UF2_Block;
+#
+#    UF2_Block[3] = 0x10000000
+# ```
+# up to 476 byte of data (512 - 476 = 36 == 4 x 9(magic num))
+# support loading into ram, 
+#       you can change UF2_Block[3]=0x10000000 to UF2_Block[3]0x20000000
+#---------------------------------------------------------------
 SHELL := /bin/bash
 
 CC := arm-none-eabi-gcc
@@ -27,11 +72,11 @@ D += -DPICO_ON_DEVICE=1
 CFLAGS +=  -ffunction-sections -fdata-sections
 CFLAGS += $(MCU) $(INCLUDES) $(D)
 
-ld_script := boot2.ld
+LD_SCRIPT := boot2.ld
 
 LDFLAGS += -O3 -DNDEBUG
 LDFLAGS += -Wl,--build-id=none --specs=nosys.specs -nostartfiles
-LDFLAGS += -Wl,--script=$(ld_script)
+LDFLAGS += -Wl,--script=$(LD_SCRIPT)
 ### --specs=nosys.specs
 ### 	newlib does not by default provide implementations for the functions
 ### 		that make only sense on a system with a console and an hard drive,
