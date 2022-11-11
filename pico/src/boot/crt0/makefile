@@ -8,8 +8,8 @@ OBJDUMP := arm-none-eabi-objdump
 
 MCU := -mcpu=cortex-m0plus -mthumb
 
-BASE_DIR := $(shell sed -En 's#/src.*##p' <<< `pwd`)
-BUILD_DIR := $(shell sed -En 's#src#build#p' <<< `pwd`)
+BASE_DIR := $(shell sed -En 's/(.*)\/src.*/\1/p' <<< `pwd`)
+BUILD_DIR := $(shell sed -En 's/src/build/p' <<< `pwd`)
 
 SRCS  := Crt0.S
 OBJS := $(patsubst %,$(BUILD_DIR)/%.o,$(SRCS))
@@ -79,6 +79,7 @@ vi:
 	nvim $(word 1,$(SRCS))
 
 echo:
+	@echo $(BASE_DIR)
 	@echo $(INCLUDES)
 	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
 

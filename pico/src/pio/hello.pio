@@ -1,0 +1,68 @@
+/** State Machine **/
+    // Register: 
+        ; PC 
+        ; X 
+        ; Y
+
+    // Shift Register(SR):
+         ; ISR In   <- GP1 GP0
+         ; OSR  Out -> GP0 GP1
+         //  GP0 GP1 ->-> RX FIFO |ISR In ... OSR Out|TX FIFO ->-> GP0 GP1
+
+    // Clock Divder
+
+    // IRG
+
+    // GPIOs
+        ; input pin
+        ; output pin
+        ; Set: max 5pin GP19 GP20  GP21 GP22 GP23
+        ; Sideset: GP5 GP6 GP7 GP8 
+
+/** Instruction Memory **/
+    // set destiname, data
+        ; write 
+            ; data[5-bit:0~31]
+            ; destinationa<PINS PINDIRS X Y>
+        ; set pins,1 // trun on the 1st mapped IO
+        ; set pindirs,1 // set it into an output
+        ; set pindirs,0 // set it into an input
+        ; jmp (condition) Label // Label[5bit:0~31]
+            // condition: 
+                ; !x !y 
+                ; x-- y-- 
+                ; x!=y ;
+                ; pin  // sm_config_set_jmp_pin
+                ;!OSRE // not Output Shift Register Empty
+    // mov destination, source
+        ; copy from src to dest
+        ; destinationa<PINS X Y EXEC PC ISR OSR>
+        ; source <PINS X Y NULL STATUS ISR OSR>
+        ;; ~, ! == invert
+        ;; :: == revert value
+
+    // in soruce, bitcount
+        ; shift data from source into ISR
+        ; source <PINS X Y NULL ISR OSR>
+        ; bitcount 5-bit:1~32
+    // out destnation, bitcount
+        ; shift data from OSR into destination
+
+    // push (iffull) block/noblock
+        ; push ISR into the RX FIFO and clear ISR
+    // pull (ifempty) block/noblock
+        ; pull from TX FIFO into OSR
+
+/** IRG **/
+    // 0 ~ 8
+
+/** FIFO (RX TX) **/
+    ; 4 stages
+        ; CPU - |32-bit word|32-bit word|32-bit word|32-bit word| - SM(state machine)
+    
+.prgram hello
+
+lp:
+    pull
+    out pins, 1
+    jmp lp

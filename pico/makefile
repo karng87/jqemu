@@ -38,7 +38,7 @@ DEPS :=  $(addsuffix .o,$(BOOT2_CRC)) \
 		 $(CRT0_OBJ) \
 		 $(patsubst %,build/%.c.o,$(TARGET))
 
-all: boot_stage2 crt0 build/$(TARGET).uf2
+all: boot_stage2 crt0 #build/$(TARGET).uf2
 
 boot_stage2:
 	make -C src/boot/stage2
