@@ -23,5 +23,5 @@ SECTIONS
         KEEP (*(.text*))
     } > FLASH
 
-    __StackTop__ = ORIGIN(RAM_BANK4) + LENGTH(RAM_BANK5);
+    __StackTop__ = ORIGIN(RAM_BANK5) + LENGTH(RAM_BANK5);
 }

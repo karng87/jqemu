@@ -1,9 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<stdint.h>
 #include<string.h>
-
-#include"crcpico.h"
-
+#include<crcpico.h>
 struct UF2_Block {
     // 32 byte header
     uint32_t magicStart0;
@@ -24,6 +23,7 @@ unsigned int usbformat2[128]; // 128-word * 4 = 512-byte
 unsigned char data[512]; // 512-byte = 128-word
 
 int main(int argc, char* argv[]){
+    printf("=========== UF2_Block.targetAddr = [ %x ] ==========\n",UF2_Block.targetAddr);
     unsigned int len;
     unsigned int ra;
     unsigned int rb;
@@ -68,7 +68,13 @@ int main(int argc, char* argv[]){
     UF2_Block.magicStart0 =0x0A324655;
     UF2_Block.magicStart1 =0x9E5D5157;
     UF2_Block.flags       =0x00002000;
+
+#ifdef FLASH
     UF2_Block.targetAddr  =0x10000000;
+#else
+    UF2_Block.targetAddr  =0x20000000;
+#endif
+    printf("=========== UF2_Block.targetAddr = [ %x ] ==========\n",UF2_Block.targetAddr);
     UF2_Block.payloadSize =0x00000100;
     UF2_Block.blockNo     =0x00000000;
     UF2_Block.numBlocks   =0x00000001;
