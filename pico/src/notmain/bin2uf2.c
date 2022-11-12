@@ -67,7 +67,7 @@ int main(int argc, char* argv[]){
     memset(&UF2_Block,0x00,sizeof(UF2_Block));
     UF2_Block.magicStart0 =0x0A324655;
     UF2_Block.magicStart1 =0x9E5D5157;
-    UF2_Block.flags       =0x00002000;
+    UF2_Block.flags       =0x00002000; // familyID present
 
 #ifdef FLASH
     UF2_Block.targetAddr  =0x10000000;
@@ -79,8 +79,8 @@ int main(int argc, char* argv[]){
     UF2_Block.blockNo     =0x00000000;
     UF2_Block.numBlocks   =0x00000001;
     UF2_Block.fileSize    =0xE48BFF56;
-    memset(&UF2_Block.data,0x0,sizeof(UF2_Block.data));
-    memcpy(&UF2_Block.data,data,256);
+    memset(UF2_Block.data,0x0,sizeof(UF2_Block.data));
+    memcpy(UF2_Block.data,data,256);
     UF2_Block.magicEnd    =0x0AB16F30;
     fp=fopen(argv[2],"wb");
     if(fp==NULL){

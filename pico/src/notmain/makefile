@@ -2,7 +2,7 @@
 BDIR := $(shell sed -En 's/src/build/p' <<< `pwd`)
 SRCS := $(wildcard *.c) $(wildcard *.s) $(wildcard *.ld)
 INC := -I include
-
+OS := $(shell uname -s)
 ARMGNU ?= arm-none-eabi
 XCPU := -mcpu=cortex-m0plus
 
@@ -11,7 +11,7 @@ COPS := -Wall -ffreestanding $(XCPU)
 LOPS := -nostdlib
 
 LD_SCRIPTS := flash_memmap.ld sram_memmap.ld
-ld := flash
+ld := sram
 TARGET := notmain
 
 DEPS :=  $(shell for i in start.s.o $(TARGET).c.o \
@@ -20,7 +20,7 @@ DEPS :=  $(shell for i in start.s.o $(TARGET).c.o \
 
 all : $(BDIR)/$(TARGET).uf2
 
-$(BDIR)/bin2uf2: bin2uf2.c include/crcpico.h
+$(BDIR)/bin2uf2: bin2uf2.c
 	@$(eval CFLAGS += $(shell if [[ "$(ld)x" =~ sram ]]; then echo "-DSRAM"; fi))
 	@$(eval CFLAGS += $(shell if [[ "$(ld)x" =~ flash ]]; then echo "-DFLASH"; fi))
 	gcc $(CFLAGS) $(INC) -O2 $^ -o$@
@@ -44,15 +44,16 @@ $(BDIR)/%.c.o: %.c
 	$(ARMGNU)-gcc $(COPS) -mthumb -c $< -o $@ 
 
 dev :=$(if $(filter Linux,$(shell uname -s)),\
-	        $(shell lsblk | sed -En '/^└─.*t *$$/{s/[^a-z]*([a-z1]*).*/\/dev\/\1/p}'),\
-			/Volumn/RP-1)
+	        $(shell lsblk | sed -En '/^└─.*t *$$/{s/[^a-z]*([a-z1]*).*/\/dev\/\1/p}'),/Volumes/RPI-RP2)
 
 flash: all
-	if [[ "X$(dev)" != "X " ]]; 				\
+	@if [[ "$(dev)" != "" ]] && [[ "$(OS)" =~ Linux ]];\
 		then if [[ -n $$(find /mnt -empty) ]]; 	\
 				then sudo mount $(dev) /mnt; 	\
 			 fi; 								\
 			 sudo cp $(BDIR)/$(TARGET).uf2 /mnt;\
+	elif [[ "$(OS)" =~ Darwin && $(dev) =~ "RPI-RP2" ]]; \
+		then cp $(BDIR)/$(TARGET).uf2 $(dev);\
 	fi
 
 vi:
