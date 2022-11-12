@@ -43,17 +43,18 @@ $(BDIR)/%.c.o: %.c
 	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
 	$(ARMGNU)-gcc $(COPS) -mthumb -c $< -o $@ 
 
-dev :=$(if $(filter Linux,$(shell uname -s)),\
+dev :=$(if $(filter Linux,$(OS)),\
 	        $(shell lsblk | sed -En '/^└─.*t *$$/{s/[^a-z]*([a-z1]*).*/\/dev\/\1/p}'),/Volumes/RPI-RP2)
 
 flash: all
-	@if [[ "$(dev)" != "" ]] && [[ "$(OS)" =~ Linux ]];\
-		then if [[ -n $$(find /mnt -empty) ]]; 	\
+	@if [[ "$(dev)" =~ "/dev" && "$(OS)" =~ Linux ]];\
+		then if [[ -n `find /mnt -empty` ]]; 	\
 				then sudo mount $(dev) /mnt; 	\
 			 fi; 								\
 			 sudo cp $(BDIR)/$(TARGET).uf2 /mnt;\
-	elif [[ "$(OS)" =~ Darwin && $(dev) =~ "RPI-RP2" ]]; \
+	elif [[ "$(OS)" =~ Darwin && "$(dev)" =~ "RPI-RP2" ]]; \
 		then cp $(BDIR)/$(TARGET).uf2 $(dev);\
+	else echo "NO flash!";\
 	fi
 
 vi:

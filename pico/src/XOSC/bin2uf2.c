@@ -266,16 +266,16 @@ static unsigned int crc_pico[256]=
 /* << 512 byte : 128 word >> 9x 4byte(meta data) + 476 byte == 36+476 == 512-byte == 0x200 */
 struct UF2_Block {
     // 32 byte header
-    uint32_t magicStart0;
-    uint32_t magicStart1;
-    uint32_t flags;
-    uint32_t targetAddr;
-    uint32_t payloadSize;
-    uint32_t blockNo;
-    uint32_t numBlocks;
-    uint32_t fileSize; // or familyID;
-    uint8_t data[476]; // 476 /4 == 119-word(data) + 9-word(meta) == 128 == 0~127
-    uint32_t magicEnd;
+    unsigned int magicStart0;
+    unsigned int magicStart1;
+    unsigned int flags;
+    unsigned int targetAddr;
+    unsigned int payloadSize;
+    unsigned int blockNo;
+    unsigned int numBlocks;
+    unsigned int fileSize; // or familyID;
+    unsigned char data[476]; // 476 /4 == 119-word(data) + 9-word(meta) == 128 == 0~127
+    unsigned int magicEnd;
 } __attribute__((packed)) uf2; //unsigned int wdata[128];
 
 #define DSIZE 0x10000 // 0x1000 == 2^{4*4} == 2^{16} = 2^{6} * 2^{10} == 2^{6}*1k == 64k

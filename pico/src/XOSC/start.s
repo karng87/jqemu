@@ -49,11 +49,13 @@ loop:
 .balign 0x100 ;@ align b(byte number) cf)p2aling ( power of 2 align: 2^num align)
 
 .thumb_func
-put32:
+.global PUT32
+PUT32:
     str r1,[r0]
     bx lr
 
 .thumb_func
-get32:
+.global GET32
+GET32:
     ldr r0,[r0]
     bx lr
