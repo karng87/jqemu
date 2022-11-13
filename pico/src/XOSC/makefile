@@ -1,6 +1,7 @@
 ARM := arm-none-eabi
 XCPU := -mcpu=cortex-m0plus -mthumb
 
+
 AOPT := --warn --fatal-warnings $(XCPU)
 COPT := -Wall -O2 -ffreestanding $(XCPU)
 LOPT := -nostdlib
@@ -13,6 +14,9 @@ PROJECT := $(BDIR)/notmain
 TARGET_uf2 = $(BDIR)/makeuf2
 TARGET_uf2 = $(BDIR)/bin2uf2
 
+LDSCRIPT := memmap_sram.ld memmap_flash.ld
+ld := sram
+
 .PHONY: all echo clean tree
 
 all: $(PROJECT).uf2
@@ -20,7 +24,7 @@ all: $(PROJECT).uf2
 #$(TARGET_uf2): makeuf2.c
 $(TARGET_uf2): bin2uf2.c
 	[[ ! -d $(@D) ]]; mkdir -p $(@D)
-	gcc  $< -o$@
+	gcc  -D $(shell x=$(ld);echo $${x^^}) $< -o$@
 
 $(BDIR)/%.c.o: %.c
 	[[ ! -d $(@D) ]]; mkdir -p $(@D)
@@ -31,7 +35,7 @@ $(BDIR)/%.s.o: %.s
 	$(ARM)-as $(AOPT) $< -o$@
 
 $(PROJECT).elf: $(BDIR)/start.s.o $(BDIR)/notmain.c.o
-	$(ARM)-ld $(LOPT) -T memmap.ld $^ -o$@
+	$(ARM)-ld $(LOPT) -T $(filter %$(ld).ld,$(LDSCRIPT)) $^ -o$@
 
 $(PROJECT).bin: $(PROJECT).elf
 	$(ARM)-objcopy --srec-forceS3 $< -O srec $(PROJECT).srec

@@ -11,7 +11,7 @@ COPS := -Wall -ffreestanding $(XCPU)
 LOPS := -nostdlib
 
 LD_SCRIPTS := flash_memmap.ld sram_memmap.ld
-ld := sram
+ld := flash
 TARGET := notmain
 
 DEPS :=  $(shell for i in start.s.o $(TARGET).c.o \
@@ -21,9 +21,9 @@ DEPS :=  $(shell for i in start.s.o $(TARGET).c.o \
 all : $(BDIR)/$(TARGET).uf2
 
 $(BDIR)/bin2uf2: bin2uf2.c
-	@$(eval CFLAGS += $(shell if [[ "$(ld)x" =~ sram ]]; then echo "-DSRAM"; fi))
-	@$(eval CFLAGS += $(shell if [[ "$(ld)x" =~ flash ]]; then echo "-DFLASH"; fi))
-	gcc $(CFLAGS) $(INC) -O2 $^ -o$@
+	@$(eval D += $(shell if [[ "$(ld)x" =~ sram ]]; then echo "-DSRAM"; fi))
+	@$(eval D += $(shell if [[ "$(ld)x" =~ flash ]]; then echo "-DFLASH"; fi))
+	gcc $(D) $(INC) -O2 $^ -o$@
 
 $(BDIR)/$(TARGET).uf2: $(BDIR)/$(TARGET).bin $(BDIR)/bin2uf2
 	$(word 2,$^) $(word 1,$^) $@

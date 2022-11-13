@@ -278,7 +278,7 @@ struct UF2_Block {
     unsigned int magicEnd;
 } __attribute__((packed)) uf2; //unsigned int wdata[128];
 
-#define DSIZE 0x10000 // 0x1000 == 2^{4*4} == 2^{16} = 2^{6} * 2^{10} == 2^{6}*1k == 64k
+#define DSIZE 0x10000 // 0x10000 == 2^{4*4} == 2^{16} = 2^{6} * 2^{10} == 2^{6}*1k == 64k
 unsigned char data[DSIZE<<1]; // 0x100000 == 2^(4*5) = 2^20 == 1*2^10*2^10 = 1M byte
 FILE *fp;
 
@@ -332,7 +332,15 @@ int main(int argc, char* argv[]){
         printf("Error creating file [%s]\n",argv[2]);
         return 4;
     }
+#ifdef SRAM
     address = hex(2000,0000);
+#else
+    #ifdef FLASH
+        address = hex(1000,0000);
+    #else
+        address = hex(1000,0000);
+    #endif
+#endif
     unsigned int doff=0;
     for(unsigned int i=0;i<blocks;i++){
         memset(&uf2, 0x00,sizeof(uf2));

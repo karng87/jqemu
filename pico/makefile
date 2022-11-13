@@ -118,10 +118,10 @@ tmux:
 	tmux split-window -v -h
 
 f: 
-	@find $(word $(idx),$(path)) -name "$(pat)" | grep -E -n --color=always '^/|/|[^/]*$$'
+	@find $(word $(idx),$(path)) -regextype posix-extended -regex '$(pat)' | grep -E -n --color=always '^/|/|[^/]*$$'
 
 fv: 
-	@find $(path) -name "$(pat)" \
+	@find $(path) -regextype posix-extended -regex '$(pat)' \
 		| sed -En '$(idx)s#.*#nvim &#p' | sh
 
 fc: 
@@ -158,3 +158,4 @@ ld:
 	nvim $(ld_script)
 clean:
 	rm -rf build/*
+

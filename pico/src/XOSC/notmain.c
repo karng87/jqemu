@@ -6,7 +6,7 @@ unsigned int GET32(unsigned int);
         #define CLR 0x3000
 
 #define hex(x,y) (0x ## x ## y)
-#define PPB_BASE hex(E000,0000) // Processor Peripheral Bus
+#define PPB_BASE hex(E000,0000) // Pirvate Peripheral Bus
         // [31:17| 16:<COUNTFLAG> | 15:3 | 2:<CLKSOURCE> | 1:<TICKINT> | 0:<ENABLE> ]
     #define SYST_CSR  0xE010 // SysTic Control and Status Register
         #define flag_count_flag 16 // return 0 if timer counted to 0
