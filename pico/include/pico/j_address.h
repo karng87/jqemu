@@ -6,6 +6,23 @@
     #define ROM hex(0000,0000, ROM:Ready Only Memory,16k,flash boot sequence)
 
     #define XIP hex(1000,0000, XIP:eXecute In Place,2M)
+        #define XIP_SSI hex(1800,0000, Serial Interface)
+            #define XIP_SSI_CTRL0 hex(1800,0000, Control register0)
+            #define XIP_SSI_CTRL1 hex(1800,0004, Control register1)
+            #define XIP_SSI_ENR hex(1800,0008, Enable register0)
+            #define XIP_SSI_MWCR hex(1800,000c, Microwire Control)
+            #define XIP_SSI_SENR hex(1800,0010, Slave Enable)
+            #define XIP_SSI_BAUDR hex(1800,0014, Baud Rate)
+            #define XIP_SSI_TXFTLR hex(1800,0018, TX FIFO Threshold level)
+            #define XIP_SSI_RXFTLR hex(1800,001c, RX FIFO Threshold level)
+            #define XIP_SSI_TXFLR hex(1800,0020, TX FIFO level)
+            #define XIP_SSI_RXFLR hex(1800,0024, RX FIFO level)
+            #define XIP_SSI_SR hex(1800,0028, Status)
+            #define XIP_SSI_IMR hex(1800,002c, Interrupt Mask)
+            #define XIP_SSI_ISR hex(1800,0030, Interrupt Status)
+
+            #define XIP_SPI_CTRL0 hex(1800,0030, SPI Control)
+
 
     #define RAM hex(2000,0000, RAM:Random Access Memory,264k, 6-bank, 64k * 4, 4k * 2)
         #define SRAM    hex(2000,0000, 256k==0x40000)

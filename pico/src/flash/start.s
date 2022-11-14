@@ -1,11 +1,14 @@
 .cpu cortex-m0plus
 .thumb
-    ldr r0,=0x18000008 // SSI_SSIENR [0:SSI_EN]
+    ldr r0,=0x20040000
+    mov sp, r0
+
+    ldr r0,=0x18000008 // XIP_SSI_ENR[0:SSI_EN]
     ldr r1,=0x0
     str r1,[r0]
     
-    ldr r0,=0x18000014 // SSI_BAUDR[15:0:SSI_clock divider]
-    ldr r1,=0x0
+    ldr r0,=0x18000014 // XIP_SSI_BAUDR[15:0:SSI_clock divider]
+    ldr r1,=0x8
     str r1,[r0]
 
     ldr r0,=0x18000000 // SSI_CTRL0
@@ -33,11 +36,11 @@
     ldr r1,=0x03000218 // 0b_0000_0011_0000_0000_0000_0010_0001_1000
     str r1,[r0]
 
-    ldr r0,=0x18000004 // SSI_CTRL1 register
-    ldr r0,=0x00000000 // 15:0 NDF number of data frames
+    ldr r0,=0x18000004 // XIP_SSI_CTRL1 register
+    ldr r1,=0x00000000 // 15:0 NDF number of data frames
     str r1, [r0]
 
-    ldr r0,=0x18000008 // SSI_ENR register
+    ldr r0,=0x18000008 // XIP_SSI_ENR register
     ldr r1,=0x00000001 // 0: SSI_EN
     str r1,[r0]
 
@@ -53,5 +56,35 @@ copy_loop:
     sub r2,#1    // 
     bne copy_loop
 
-    ldr r0,=0x20000101
+    ldr r0,=0x20000100 // 257 XIP
     bx r0
+
+pool0:
+    .align
+    .ltorg // literal pool
+
+;@---------------------------
+.balign 0x100 // 256
+
+.thumb_func
+reset:
+    bl notmain
+    b loop
+
+.thumb_func
+loop:
+    b loop
+
+.thumb_func
+.global put32
+put32:
+    str r1,[r0]
+    bx lr
+
+.thumb_func
+.global get32
+get32:
+    ldr r0,[r0]
+    bx lr
+
+

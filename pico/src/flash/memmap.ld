@@ -1,0 +1,15 @@
+MEMORY
+{
+    ROM : ORIGIN = 0x00000000, LENGTH = 16k
+    XIP_FLASH : ORIGIN = 0x10000000, LENGTH = 2048k
+    SRAM : ORIGIN = 0x20000000, LENGTH = 256k /* 0x40000 == 256k */
+    SRAM_X : ORIGIN = 0x20040000, LENGTH = 4k
+    SRAM_Y : ORIGIN = 0x20041000, LENGTH = 4k /* 0x1000 == 4k*/
+}
+SECTIONS
+{
+    .text :
+    {
+        *(.data*)
+    } > XIP_FLASH
+}
