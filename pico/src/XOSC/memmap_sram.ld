@@ -7,7 +7,8 @@ MEMORY
     /* SRAM total 264k{ 256k(64k x 8) + 8k(4k x 2) }*/
     SRAM(rwx)   : ORIGIN = 0x20000000, LENGTH = 256k/* 0x_4000 == 256k + (2 x 4K) == 264K */
     SRAM_X(rwx) : ORIGIN = 0x20040000, LENGTH = 4k 
-    SRAM_Y(rwx) : ORIGIN = 0x20041000, LENGTH = 4k/* 0x1000 = 4k */
+    SRAM_Y(rwx) : ORIGIN = 0x20041000, LENGTH = 4k /* ~ 0x4200 */
+    SRAM_BT2(rwx) : ORIGIN = 0x20041f00, LENGTH = 252 /* 0x4200 - 256 = 0x41f00 */
 }
 
 SECTIONS

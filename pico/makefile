@@ -39,10 +39,14 @@ DEPS :=  $(addsuffix .o,$(BOOT2_CRC)) \
 		 $(CRT0_OBJ) \
 		 $(patsubst %,build/%.c.o,$(TARGET))
 
-all: notmain #boot_stage2 crt0 #build/$(TARGET).uf2
+all: notmain XOSC #boot_stage2 crt0 #build/$(TARGET).uf2
 
 notmain:
 	make -C src/notmain
+
+XOSC:
+	make -C src/XOSC
+
 boot_stage2:
 	make -C src/boot/stage2
 

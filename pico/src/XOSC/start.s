@@ -30,7 +30,7 @@ centry:
 
 .thumb_func
 reset:
-    ldr r1, =0xE000ED08;@VTOR Vector Table Offset Register
+    ldr r1, =0xE000ED08 ;@ VTOR Vector Table Offset Register
     ldr r0, =vector_table
     str r0, [r1]
 

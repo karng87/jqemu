@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 ARM := arm-none-eabi
 XCPU := -mcpu=cortex-m0plus -mthumb
 
@@ -24,7 +25,7 @@ all: $(PROJECT).uf2
 #$(TARGET_uf2): makeuf2.c
 $(TARGET_uf2): bin2uf2.c
 	[[ ! -d $(@D) ]]; mkdir -p $(@D)
-	gcc  -D $(shell x=$(ld);echo $${x^^}) $< -o$@
+	gcc  -D $(shell echo $(ld)|tr [:lower:] [:upper:]) $< -o$@
 
 $(BDIR)/%.c.o: %.c
 	[[ ! -d $(@D) ]]; mkdir -p $(@D)
