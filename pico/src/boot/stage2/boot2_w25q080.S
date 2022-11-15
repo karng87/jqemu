@@ -1,58 +1,17 @@
-// ----------------------------------------------------------------------------
-// Second stage boot code
-// Copyright (c) 2019-2021 Raspberry Pi (Trading) Ltd.
-// SPDX-License-Identifier: BSD-3-Clause
-//
-// Device:      Winbond W25Q080
-//              Also supports W25Q16JV (which has some different SR instructions)
-//              Also supports AT25SF081
-//              Also supports S25FL132K0
-//
-// Description: Configures W25Q080 to run in Quad I/O continuous read XIP mode
-//
-// Details:     * Check status register 2 to determine if QSPI mode is enabled,
-//                and perform an SR2 programming cycle if necessary.
-//              * Use SSI to perform a dummy 0xEB read command, with the mode
-//                continuation bits set, so that the flash will not require
-//                0xEB instruction prefix on subsequent reads.
-//              * Configure SSI to write address, mode bits, but no instruction.
-//                SSI + flash are now jointly in a state where continuous reads
-//                can take place.
-//              * Jump to exit pointer passed in via lr. Bootrom passes null,
-//                in which case this code uses a default 256 byte flash offset
-//
-// Building:    * This code must be position-independent, and use stack only
-//              * The code will be padded to a size of 256 bytes, including a
-//                4-byte checksum. Therefore code size cannot exceed 252 bytes.
-// ----------------------------------------------------------------------------
-
-#include "pico/asm_helper.S"
-#include "hardware/regs/addressmap.h"
-#include "hardware/regs/ssi.h"
-#include "hardware/regs/pads_qspi.h"
-
-// ----------------------------------------------------------------------------
-// Config section
-// ----------------------------------------------------------------------------
-// It should be possible to support most flash devices by modifying this section
-
-// The serial flash interface will run at clk_sys/PICO_FLASH_SPI_CLKDIV.
-// This must be a positive, even integer.
-// The bootrom is very conservative with SPI frequency, but here we should be
-// as aggressive as possible.
+#include "pico/j_address.h"
 
 #ifndef PICO_FLASH_SPI_CLKDIV
-#define PICO_FLASH_SPI_CLKDIV 4
+    #define PICO_FLASH_SPI_CLKDIV 4
 #endif
 #if PICO_FLASH_SPI_CLKDIV & 1
-#error PICO_FLASH_SPI_CLKDIV must be even
+    #error PICO_FLASH_SPI_CLKDIV must be even
 #endif
 
 // Define interface width: single/dual/quad IO
-#define FRAME_FORMAT SSI_CTRLR0_SPI_FRF_VALUE_QUAD
+#define FRAME_FORMAT SSI_CTRLR0_SPI_FRF_VALUE_QUAD // XIP_SSI_CTRL0<22:21> 2=quad-spi frame format
 
 // For W25Q080 this is the "Read data fast quad IO" instruction:
-#define CMD_READ 0xeb
+#define CMD_READ 0xeb // QUAD I/O Fast Read on Winbond devices
 
 // "Mode bits" are 8 special bits sent immediately after
 // the address bits in a "Read Data Fast Quad I/O" command sequence. 
@@ -80,6 +39,8 @@
 #define CMD_READ_STATUS 0x05
 #define CMD_READ_STATUS2 0x35
 #define CMD_WRITE_STATUS 0x01
+
+// #define f_xsc0_SPI_FRF     fset(21,:22, SPI FRame Format, 0<<(1-bit per SCK), 1<<(2-bit per SCK), 2<<(4-bit per SCK), frame format)
 #define SREG_DATA 0x02  // Enable quad-SPI mode
 
 // ----------------------------------------------------------------------------
@@ -107,8 +68,12 @@ _stage2_boot:
     // - SCLK 8mA drive, no slew limiting
     // - SDx disable input Schmitt to reduce delay
 
-    ldr r3, =PADS_QSPI_BASE
-    movs r0, #(2 << PADS_QSPI_GPIO_QSPI_SCLK_DRIVE_LSB | PADS_QSPI_GPIO_QSPI_SCLK_SLEWFAST_BITS)
+//#define APB_PADS_QSPI   hex(4002,0000, APB)
+//#define f_apqs_slew  fset(0, :0, 0->slow, 1->fast,Slew rate control)
+//#define f_apqs_drive fset(4, :5, 0->2mA, 1->4mA, 2->8mA, 3->12mA>,,Drive strength)
+    ldr r3, =APB_PADS_QSPI
+    movs r0, #(2 << f_apqs_drive | 1 << f_apqs_slew)
+/*
     str r0, [r3, #PADS_QSPI_GPIO_QSPI_SCLK_OFFSET]
     ldr r0, [r3, #PADS_QSPI_GPIO_QSPI_SD0_OFFSET]
     movs r1, #PADS_QSPI_GPIO_QSPI_SD0_SCHMITT_BITS
@@ -144,7 +109,7 @@ _stage2_boot:
 #ifdef PROGRAM_STATUS_REG
 program_sregs:
 #define CTRL0_SPI_TXRX \
-    (7 << SSI_CTRLR0_DFS_32_LSB) | /* 8 bits per data frame */ \
+    (7 << SSI_CTRLR0_DFS_32_LSB) |  \
     (SSI_CTRLR0_TMOD_VALUE_TX_AND_RX << SSI_CTRLR0_TMOD_LSB)
 
     ldr r1, =(CTRL0_SPI_TXRX)
@@ -204,10 +169,10 @@ skip_sreg_programming:
 
 dummy_read:
 #define CTRLR0_ENTER_XIP \
-    (FRAME_FORMAT                          /* Quad I/O mode */                \
+    (FRAME_FORMAT                                         \
         << SSI_CTRLR0_SPI_FRF_LSB) |                                          \
-    (31 << SSI_CTRLR0_DFS_32_LSB)  |       /* 32 data bits */                 \
-    (SSI_CTRLR0_TMOD_VALUE_EEPROM_READ     /* Send INST/ADDR, Receive Data */ \
+    (31 << SSI_CTRLR0_DFS_32_LSB)  |                        \
+    (SSI_CTRLR0_TMOD_VALUE_EEPROM_READ      \
         << SSI_CTRLR0_TMOD_LSB)
 
     ldr r1, =(CTRLR0_ENTER_XIP)
@@ -217,11 +182,11 @@ dummy_read:
     str r1, [r3, #SSI_CTRLR1_OFFSET]
 
 #define SPI_CTRLR0_ENTER_XIP \
-    (ADDR_L << SSI_SPI_CTRLR0_ADDR_L_LSB) |     /* Address + mode bits */ \
-    (WAIT_CYCLES << SSI_SPI_CTRLR0_WAIT_CYCLES_LSB) | /* Hi-Z dummy clocks following address + mode */ \
+    (ADDR_L << SSI_SPI_CTRLR0_ADDR_L_LSB) |      \
+    (WAIT_CYCLES << SSI_SPI_CTRLR0_WAIT_CYCLES_LSB) |  \
     (SSI_SPI_CTRLR0_INST_L_VALUE_8B \
-        << SSI_SPI_CTRLR0_INST_L_LSB) |        /* 8-bit instruction */ \
-    (SSI_SPI_CTRLR0_TRANS_TYPE_VALUE_1C2A      /* Send Command in serial mode then address in Quad I/O mode */ \
+        << SSI_SPI_CTRLR0_INST_L_LSB) |         \
+    (SSI_SPI_CTRLR0_TRANS_TYPE_VALUE_1C2A       \
         << SSI_SPI_CTRLR0_TRANS_TYPE_LSB)
 
     ldr r1, =(SPI_CTRLR0_ENTER_XIP)
@@ -252,13 +217,12 @@ dummy_read:
 //      Anything else   {XIP_CMD[7:0],ADDR[23:0]}       Load SPI command into XIP_CMD
 configure_ssi:
 #define SPI_CTRLR0_XIP \
-    (MODE_CONTINUOUS_READ                      /* Mode bits to keep flash in continuous read mode */ \
+    (MODE_CONTINUOUS_READ                       \
         << SSI_SPI_CTRLR0_XIP_CMD_LSB) | \
-    (ADDR_L << SSI_SPI_CTRLR0_ADDR_L_LSB) |    /* Total number of address + mode bits */ \
-    (WAIT_CYCLES << SSI_SPI_CTRLR0_WAIT_CYCLES_LSB) |    /* Hi-Z dummy clocks following address + mode */ \
-    (SSI_SPI_CTRLR0_INST_L_VALUE_NONE          /* Do not send a command, instead send XIP_CMD as mode bits after address */ \
+    (ADDR_L << SSI_SPI_CTRLR0_ADDR_L_LSB) |        (WAIT_CYCLES << SSI_SPI_CTRLR0_WAIT_CYCLES_LSB) |     \
+    (SSI_SPI_CTRLR0_INST_L_VALUE_NONE           \
         << SSI_SPI_CTRLR0_INST_L_LSB) | \
-    (SSI_SPI_CTRLR0_TRANS_TYPE_VALUE_2C2A      /* Send Address in Quad I/O mode (and Command but that is zero bits long) */ \
+    (SSI_SPI_CTRLR0_TRANS_TYPE_VALUE_2C2A       \
         << SSI_SPI_CTRLR0_TRANS_TYPE_LSB)
 
     ldr r1, =(SPI_CTRLR0_XIP)
@@ -285,3 +249,5 @@ literals:
 .ltorg
 
 .end
+
+*/

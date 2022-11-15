@@ -1,51 +1,3 @@
-## cmake -Dmake_verbose_makefile:bool=1 -Dcmake_rule_messages:bool=0 
-## make VERBOSE=1 -no-print-directory
-
-#-------- boot stage 1 ------------
-# ROM(16k) SRAM(256k)
-# stage 1
-#	  bootrom in factory rom
-#		: what ARM cores alwas boot
-#		: searchs for a flash(0x10000000) by copying the 1st 256-bytes to SRAM
-#		: use crc32 to verify the data
-#		: it repeats many times until it finds something or fails
-#---------------------------------------------------------------
-#-------- boot stage 2 ------------
-# ROM(16k)  <=> 0x0000_0000
-# XIP(Flash Memory)  <=> 0x1000_0000
-# SRAM(256k) <=> 0x2000_0000
-# stage 2
-#		: our code needs to finish mapping the flash into 0x_1000_0000
-#		: extract and use the flash
-#		: run it or copy and jump
-#		: leaves 252-byte(crc 4byte)
-#		: bs2 needs to be PIC, so that it can run from SRAM
-#---------------------------------------------------------------
-#-------- uf2 [Usb Flashing Format] ------------
-# consist of 512 byte chunks
-# magic number at the beginnig and at the end
-# address where the data should be flashed
-# ```c
-#	 struct UF2_Block {
-#		 // 32 byte header
-#		 uint32_t magicStart0;
-#		 uint32_t magicStart1;
-#		 uint32_t flags;
-#		 uint32_t targetAddr;
-#		 uint32_t payloadSize;
-#		 uint32_t blockNo;
-#		 uint32_t numBlocks;
-#		 uint32_t fileSize; // or familyID;
-#		 uint8_t  data[476];
-#		 uint32_t magicEnd;
-#	 } UF2_Block;
-#
-#    UF2_Block[3] = 0x10000000
-# ```
-# up to 476 byte of data (512 - 476 = 36 == 4 x 9(magic num))
-# support loading into ram, 
-#       you can change UF2_Block[3]=0x10000000 to UF2_Block[3]0x20000000
-#---------------------------------------------------------------
 SHELL := /bin/bash
 
 CC := arm-none-eabi-gcc
@@ -59,8 +11,7 @@ MCU := -mcpu=cortex-m0plus -mthumb
 
 BUILD_DIR :=$(shell sed -En 's/src/build/p' <<< `pwd`)
 
-SRCS  := boot2.S
-TARGET := $(patsubst %.S,$(BUILD_DIR)/%_crc.S.o.elf.bin.S,$(SRCS))
+LD_SCRIPT := boot2.ld
 
 INCLUDES := -I ../../../include
 
@@ -69,10 +20,12 @@ D += -DPICO_BUILD=1
 D += -DPICO_NO_HARDWARE=0
 D += -DPICO_ON_DEVICE=1
 
-CFLAGS +=  -ffunction-sections -fdata-sections
+### -ffunction-sections -fdata-sections
+### 	each symbol has a section, function == .text.<func> ;  data == .data.<var>
+### 		e.g) .text.put32 .text.pin5 .bss.cpuirq
+#CFLAGS +=  -ffunction-sections -fdata-sections
 CFLAGS += $(MCU) $(INCLUDES) $(D)
 
-LD_SCRIPT := boot2.ld
 
 LDFLAGS += -O3 -DNDEBUG
 LDFLAGS += -Wl,--build-id=none --specs=nosys.specs -nostartfiles
@@ -87,15 +40,17 @@ LDFLAGS += -Wl,--script=$(LD_SCRIPT)
 
 #LDFLAGS += -Wl,-Map=$(patsubst %,%.map,$@)
 
+SRCS  := boot2.s
+TARGET := $(patsubst %.s,$(BUILD_DIR)/%.s.o.elf.bin.S,$(SRCS))
 
-all: $(TARGET)
+all: $(BUILD_DIR)/boot2.s.o
 
 $(BUILD_DIR)/%.c.o: %.c
-	@if [[ ! -d $(BUILD_DIR) ]];then mkdir -p $(BUILD_DIR) ;fi
+	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
 	$(CC) -c $(CFLAGS) $< -o $@ 
 
-$(BUILD_DIR)/%.S.o: %.S
-	@if [[ ! -d $(BUILD_DIR) ]];then mkdir -p $(BUILD_DIR) ;fi
+$(BUILD_DIR)/%.s.o: %.s
+	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 $(BUILD_DIR)/%.S.o: $(BUILD_DIR)/%.S
@@ -163,11 +118,14 @@ gv:
 vi: 
 	nvim $(SRC)
 
+tree:
+	tree $(BUILD_DIR)
 echo:
 	echo $(BUILD_DIR)
 
 	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
 ld:
 	nvim $(ld_script)
+
 clean:
-	rm -rf build
+	rm -rf $(BUILD_DIR)

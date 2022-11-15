@@ -1,6 +1,17 @@
+.include "pico/j_address.h"
+
+.syntax unfied
 .cpu cortex-m0plus
 .thumb
-    ldr r0,=0x20040000
+
+.section .text
+.global _stage2_boot 
+.type _stage2_boot, %function
+.thumb_func
+_stage2_boot:
+    push {lr}
+
+    ldr r0,=SRAM_X
     mov sp, r0
 
     ldr r0,=0x18000008 // XIP_SSI_ENR[0:SSI_EN]

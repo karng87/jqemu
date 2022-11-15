@@ -3,12 +3,15 @@ OS := $(shell uname -s)
 MACH = cortex-m0plus
 ARM := arm-none-eabi
 
-COPT := -c -Wall -O0 -ffreestanding -mcpu=$(MACH) -mthumb
-AOPT := --warn --fatal-warnings -mcpu=$(MACH)
-LOPT := -nostdlib
-LSCRIPT := memmap.ld
+INCLUDE := $(shell pwd | sed -En 's/(.*)\/src\/.*/-I\1\/include/p')
 
+COPT := -c -Wall -O0 -ffreestanding -mcpu=$(MACH) -mthumb $(INCLUDE)
+AOPT := --warn --fatal-warnings -mcpu=$(MACH) $(INCLUDE) 
+LOPT := -nostdlib
+
+LSCRIPT := memmap.ld
 BDIR := $(shell sed -En 's/src/build/p' <<< $$(pwd))
+
 TARGET := $(BDIR)/flash
 UF2 := $(BDIR)/bin2uf2
 
@@ -52,7 +55,7 @@ flash: all
 	fi
 
 echo:
-	echo $(dev)
+	echo $(INCLUDE)
 
 clean:
 	rm -rf $(BDIR)/*
