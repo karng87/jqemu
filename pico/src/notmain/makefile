@@ -10,11 +10,11 @@ AOPS := --warn --fatal-warnings $(XCPU)
 COPS := -Wall -ffreestanding $(XCPU)
 LOPS := -nostdlib
 
-LD_SCRIPTS := flash_memmap.ld sram_memmap.ld
+LD_SCRIPTS := memmap_flash.ld memmap_sram.ld
 ld := flash
 TARGET := notmain
 
-DEPS :=  $(shell for i in start.s.o $(TARGET).c.o \
+DEPS :=  $(shell for i in start.S.o $(TARGET).c.o \
 				;do echo $(BDIR)/$$i \
 				;done)
 
@@ -31,11 +31,11 @@ $(BDIR)/$(TARGET).uf2: $(BDIR)/$(TARGET).bin $(BDIR)/bin2uf2
 $(BDIR)/$(TARGET).bin: $(BDIR)/$(TARGET).elf
 	$(ARMGNU)-objcopy -O binary $^ $@
 
-$(BDIR)/$(TARGET).elf: $(DEPS) $(filter $(ld)%,$(LD_SCRIPTS))
-	$(ARMGNU)-ld $(LOPS) -T $(filter $(ld)%, $(LD_SCRIPTS))  $(DEPS) -o$@
+$(BDIR)/$(TARGET).elf: $(DEPS) $(filter %$(ld).ld,$(LD_SCRIPTS))
+	$(ARMGNU)-ld $(LOPS) -T $(filter %$(ld).ld, $(LD_SCRIPTS))  $(DEPS) -o$@
 	$(ARMGNU)-objdump -D $@ > $@.lst
 
-$(BDIR)/%.s.o: %.s
+$(BDIR)/%.S.o: %.S
 	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
 	$(ARMGNU)-as $(AOPS) $< -o $@ 
 

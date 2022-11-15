@@ -1,4 +1,4 @@
-#include "pico/j_address.h"
+.include "pico/j_address.h"
 
 #ifndef PICO_FLASH_SPI_CLKDIV
     #define PICO_FLASH_SPI_CLKDIV 4
@@ -72,12 +72,23 @@ _stage2_boot:
 //#define f_apqs_slew  fset(0, :0, 0->slow, 1->fast,Slew rate control)
 //#define f_apqs_drive fset(4, :5, 0->2mA, 1->4mA, 2->8mA, 3->12mA>,,Drive strength)
     ldr r3, =APB_PADS_QSPI
-    movs r0, #(2 << f_apqs_drive | 1 << f_apqs_slew)
-/*
-    str r0, [r3, #PADS_QSPI_GPIO_QSPI_SCLK_OFFSET]
-    ldr r0, [r3, #PADS_QSPI_GPIO_QSPI_SD0_OFFSET]
-    movs r1, #PADS_QSPI_GPIO_QSPI_SD0_SCHMITT_BITS
+    //movs r0, #(2 << f_apqs_drive | 1 << f_apqs_slew)
+    movs r0,#2  // 8mA
+    ldr r1, =f_apqs_drive // drive strength fbit<4:5>
+    lsls r0, r0, r1
+    movs r1,#1 // fast
+    orrs r0, r0, r1 // slew rate control fbit<0:0>
+    ldr r1, =APB_PADS_QSPI_SCLK
+    str r0, [r1]
+
+    ldr r1, =APB_PADS_QSPI_SD0
+    ldr r0, [r1]
+    //ldr r0, [r3, #PADS_QSPI_GPIO_QSPI_SD0_OFFSET]
+
+    movs r1, #1 //f_apqs_SCHMITT
     bics r0, r1
+
+/*
     str r0, [r3, #PADS_QSPI_GPIO_QSPI_SD0_OFFSET]
     str r0, [r3, #PADS_QSPI_GPIO_QSPI_SD1_OFFSET]
     str r0, [r3, #PADS_QSPI_GPIO_QSPI_SD2_OFFSET]
@@ -114,7 +125,6 @@ program_sregs:
 
     ldr r1, =(CTRL0_SPI_TXRX)
     str r1, [r3, #SSI_CTRLR0_OFFSET]
-
      // Enable SSI and select slave 0
     movs r1, #1
     str r1, [r3, #SSI_SSIENR_OFFSET]
@@ -219,7 +229,7 @@ configure_ssi:
 #define SPI_CTRLR0_XIP \
     (MODE_CONTINUOUS_READ                       \
         << SSI_SPI_CTRLR0_XIP_CMD_LSB) | \
-    (ADDR_L << SSI_SPI_CTRLR0_ADDR_L_LSB) |        (WAIT_CYCLES << SSI_SPI_CTRLR0_WAIT_CYCLES_LSB) |     \
+    (ADDR_L << SSI_SPI_CTRLR0_ADDR_L_LSB) |  (WAIT_CYCLES << SSI_SPI_CTRLR0_WAIT_CYCLES_LSB) |     \
     (SSI_SPI_CTRLR0_INST_L_VALUE_NONE           \
         << SSI_SPI_CTRLR0_INST_L_LSB) | \
     (SSI_SPI_CTRLR0_TRANS_TYPE_VALUE_2C2A       \
@@ -249,5 +259,4 @@ literals:
 .ltorg
 
 .end
-
 */

@@ -13,7 +13,7 @@ BUILD_DIR :=$(shell sed -En 's/src/build/p' <<< `pwd`)
 
 LD_SCRIPT := boot2.ld
 
-INCLUDES := -I ../../../include
+INCLUDES := $(shell pwd | sed -En 's/(.*)\/src\/.*/-I \1\/include/p')
 
 D := -DPICO_BOARD=\"pico\"
 D += -DPICO_BUILD=1
@@ -40,16 +40,16 @@ LDFLAGS += -Wl,--script=$(LD_SCRIPT)
 
 #LDFLAGS += -Wl,-Map=$(patsubst %,%.map,$@)
 
-SRCS  := boot2.s
-TARGET := $(patsubst %.s,$(BUILD_DIR)/%.s.o.elf.bin.S,$(SRCS))
+SRCS  := boot2.S
+TARGET := $(patsubst %.S,$(BUILD_DIR)/%.S.o.elf.bin.S,$(SRCS))
 
-all: $(BUILD_DIR)/boot2.s.o
+all: $(BUILD_DIR)/boot2.S.o
 
 $(BUILD_DIR)/%.c.o: %.c
 	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
 	$(CC) -c $(CFLAGS) $< -o $@ 
 
-$(BUILD_DIR)/%.s.o: %.s
+$(BUILD_DIR)/%.S.o: %.S
 	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
 	$(CC) $(CFLAGS) -o $@ -c $<
 

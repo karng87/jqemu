@@ -18,6 +18,6 @@ SECTIONS
 {
     .text
     {
-        *(.data*)
+        *(.text*)
     } > SRAM
 }

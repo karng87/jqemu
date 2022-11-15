@@ -96,6 +96,12 @@
             #define APB_PADS_QSPI_SCLK hex(4002,0004, Serial CLOCK)
                 #define f_apqs_slew  fset(0, :0, 0->slow, 1->fast,Slew rate control)
                 #define f_apqs_drive fset(4, :5, 0->2mA, 1->4mA, 2->8mA, 3->12mA>,,Drive strength)
+            #define APB_PADS_QSPI_SD0 hex(4002,0008, Serial Data 0)
+                #define apqs_SLEW fset(0, :0, 1->fast,0->slow)
+                #define apqs_SCHMITT fset(1, :1, Enable schmitt trigger)
+            #define APB_PADS_QSPI_SD1 hex(4002,000c, Serial Data 1)
+            #define APB_PADS_QSPI_SD2 hex(4002,0010, Serial Data 2)
+            #define APB_PADS_QSPI_SD3 hex(4002,0014, Serial Data 3)
 
         #define XOSC        hex(4002,4000, APB)
         #define PLL_SYS     hex(4002,8000, APB)
