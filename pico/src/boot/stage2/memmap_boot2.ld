@@ -14,7 +14,7 @@ MEMORY {
 
             - 0xf00 + 256(0x100) = 0x1000 :: BANK5_END
      */
-    BOOT_ROM(rx) : ORIGIN = 0x00000002, LENGTH = 16k
+    BOOT_ROM(rx) : ORIGIN = 0x00000000, LENGTH = 16k
     XIP_FLASH(rx) : ORIGIN = 0x10000000, LENGTH = 2048k /* 2M */
 
     SRAM(rwx) : ORIGIN = 0x20000000, LENGTH = 256k  /* 0x10000*/

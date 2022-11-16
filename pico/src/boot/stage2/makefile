@@ -11,20 +11,15 @@ MCU := -mcpu=cortex-m0plus -mthumb
 
 BUILD_DIR :=$(shell sed -En 's/src/build/p' <<< `pwd`)
 
-LD_SCRIPT := boot2.ld
+LD_SCRIPT := memmap_boot2.ld
 
 INCLUDES := $(shell pwd | sed -En 's/(.*)\/src\/.*/-I \1\/include/p')
-
-D := -DPICO_BOARD=\"pico\"
-D += -DPICO_BUILD=1
-D += -DPICO_NO_HARDWARE=0
-D += -DPICO_ON_DEVICE=1
 
 ### -ffunction-sections -fdata-sections
 ### 	each symbol has a section, function == .text.<func> ;  data == .data.<var>
 ### 		e.g) .text.put32 .text.pin5 .bss.cpuirq
-#CFLAGS +=  -ffunction-sections -fdata-sections
-CFLAGS += $(MCU) $(INCLUDES) $(D)
+
+CFLAGS += $(MCU) $(INCLUDES)
 
 
 LDFLAGS += -O3 -DNDEBUG
@@ -43,7 +38,7 @@ LDFLAGS += -Wl,--script=$(LD_SCRIPT)
 SRCS  := boot2.S
 TARGET := $(patsubst %.S,$(BUILD_DIR)/%.S.o.elf.bin.S,$(SRCS))
 
-all: $(BUILD_DIR)/boot2.S.o
+all: $(TARGET)
 
 $(BUILD_DIR)/%.c.o: %.c
 	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
@@ -67,8 +62,12 @@ $(BUILD_DIR)/%.elf.bin: $(BUILD_DIR)/%.elf
 $(TARGET): $(patsubst %,$(BUILD_DIR)/%.o.elf.bin,$(SRCS))
 	$(PAD_CHECKSUM) -s 0xffffffff $< $@
 
+.PHONY: map dis screen radare2 vi echo ld clean
+map:
+	nvim `sed -En 's/\.elf.*/.map/p' <<< $(TARGET)`
 
-.PHONY: f fv fc g gv vi
+dis:
+	nvim `sed -En 's/\.bin.*/.dis/p' <<< $(TARGET)`
 
 path := ~/Project/rasp/pico-sdk/src \
 		src \
@@ -92,28 +91,8 @@ radare2:
 	# ? 0xf00
 	# q!
 
-f: 
-	@find $(word $(idx),$(path)) -name "$(pat)" | grep -E -n --color=always '^/|/|[^/]*$$'
-
-fv: 
-	@find $(word $(idx),$(path)) -name "$(pat)" \
-		| sed -En '$(idx)s#.*#nvim &#p' | sh
-
-fc: 
-	@for i in `find $(word $(idx),$(path)) -name $(pat)` \
-		;do if [[ -z $$i ]] ;then continue;fi; \
-			mkdir -p $$(sed -En 's#.*(include|src)(.*)/.*#\1\2#gp' <<< $$i);\
-			if [[ $$i =~ .*\.h ]] ;then cp $$i `sed -En 's#.*(include/.*\.h)$$#\1#p' <<< $$i`;tree include \
-			;elif [[ $$i =~ .*\.[cS] ]] ;then cp $$i `sed -En 's#.*(src/.*\.[cS])$$#\1#p' <<< $$i`; tree src \
-			;else cp $$i .; tree . \
-			;fi \
-		;done
-g:
-	@grep --color=always -ERHn '$(pat)' $(word $(idx), $(path))
-
-gv:
-	@grep -ERHn $(pat) $(word $(idx),$(path)) \
-		| sed -En -e '$(idx)s#([^:]+):([0-9]+):.*#nvim +\2 \1#p' | sh 
+MK_files ?= $(shell find `git rev-parse --show-toplevel` -name '*.mk')
+include $(filter %grep.mk,$(MK_files))
 
 vi: 
 	nvim $(SRC)
@@ -128,4 +107,4 @@ ld:
 	nvim $(ld_script)
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR)/*

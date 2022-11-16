@@ -6,14 +6,12 @@
 .align 2
 .global __vectors
 __vectors:
-    .word 0x20042000
+    .word __StackTop__
     .word reset
 
 .thumb_func
 .global reset
 reset:
-    ldr r0, =0x20042000
-    mov sp, r0
     bl main
     b hang
 
