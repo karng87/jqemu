@@ -121,28 +121,7 @@ tmux:
 	tmux split-window -h
 	tmux split-window -v -h
 
-f: 
-	@find $(word $(idx),$(path)) -regextype posix-extended -regex '$(pat)' | grep -E -n --color=always '^/|/|[^/]*$$'
-
-fv: 
-	@find $(path) -regextype posix-extended -regex '$(pat)' \
-		| sed -En '$(idx)s#.*#nvim &#p' | sh
-
-fc: 
-	@for i in `find ~/Project/rasp/pico-sdk/src -name $(pat)` \
-		;do if [[ -z $$i ]] ;then continue;fi; \
-			mkdir -p $$(sed -En 's#.*(include|src)(.*)/.*#\1\2#gp' <<< $$i);\
-			if [[ $$i =~ .*\.h ]] ;then cp $$i `sed -En 's#.*(include/.*\.h)$$#\1#p' <<< $$i`;tree include \
-			;elif [[ $$i =~ .*\.[cS] ]] ;then cp $$i `sed -En 's#.*(src/.*\.[cS])$$#\1#p' <<< $$i`; tree src \
-			;else cp $$i .; tree . \
-			;fi \
-		;done
-g:
-	@grep --color=always -ERHn '$(pat)' $(word $(idx), $(path))
-
-gv:
-	@grep -ERHn '$(pat)' $(word $(idx),$(path)) \
-		| sed -En -e '$(idx)s#([^:]+):([0-9]+):.*#nvim +\2 \1#p' | sh
+include $(filter %grep.mk, $(shell find `git rev-parse --show-toplevel` -name "*.mk" ))
 
 vi:
 	nvim $(filter %$(TARGET).c, $(SRCS))
@@ -154,9 +133,6 @@ b2:
 	nvim $(BOOT2_SRC)
 echo:
 	echo $(PAD_CHECKSUM)
-	#echo $(filter a b c, "xaz bcd")
-
-	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
 
 ld:
 	nvim $(ld_script)

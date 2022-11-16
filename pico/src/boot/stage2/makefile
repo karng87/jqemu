@@ -7,22 +7,19 @@ OBJCOPY := arm-none-eabi-objcopy
 OBJDUMP := arm-none-eabi-objdump
 PAD_CHECKSUM := ${RASP}/bin/pad_checksum
 
-MCU := -mcpu=cortex-m0plus -mthumb
+ARCH := -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG
 
 BUILD_DIR :=$(shell sed -En 's/src/build/p' <<< `pwd`)
 
 LD_SCRIPT := memmap_boot2.ld
 
-INCLUDES := $(shell pwd | sed -En 's/(.*)\/src\/.*/-I \1\/include/p')
-
 ### -ffunction-sections -fdata-sections
 ### 	each symbol has a section, function == .text.<func> ;  data == .data.<var>
 ### 		e.g) .text.put32 .text.pin5 .bss.cpuirq
 
-CFLAGS += $(MCU) $(INCLUDES)
+CFLAGS += $(ARCH)
 
-
-LDFLAGS += -O3 -DNDEBUG
+LDFLAGS += $(ARCH)
 LDFLAGS += -Wl,--build-id=none --specs=nosys.specs -nostartfiles
 LDFLAGS += -Wl,--script=$(LD_SCRIPT)
 ### --specs=nosys.specs
@@ -38,7 +35,7 @@ LDFLAGS += -Wl,--script=$(LD_SCRIPT)
 SRCS  := boot2.S
 TARGET := $(patsubst %.S,$(BUILD_DIR)/%.S.o.elf.bin.S,$(SRCS))
 
-all: $(TARGET)
+all: $(TARGET) $(TARGET).o
 
 $(BUILD_DIR)/%.c.o: %.c
 	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
@@ -62,6 +59,9 @@ $(BUILD_DIR)/%.elf.bin: $(BUILD_DIR)/%.elf
 $(TARGET): $(patsubst %,$(BUILD_DIR)/%.o.elf.bin,$(SRCS))
 	$(PAD_CHECKSUM) -s 0xffffffff $< $@
 
+$(TARGET).o: $(TARGET)
+	$(CC) $(CFLAGS) -o $@ -c $<
+
 .PHONY: map dis screen radare2 vi echo ld clean
 map:
 	nvim `sed -En 's/\.elf.*/.map/p' <<< $(TARGET)`
@@ -69,42 +69,20 @@ map:
 dis:
 	nvim `sed -En 's/\.bin.*/.dis/p' <<< $(TARGET)`
 
-path := ~/Project/rasp/pico-sdk/src \
-		src \
-		build \
-		~/Project/rasp/pico-sdk
-
-idx := 1 # line number
-
-port := $(if \
-		$(filter Darwin,$(shell uname -s))\
-		,/dev/$(shell ls /dev | grep 'cu\.usb')\
-		,/dev/ttyACM0)
-
-screen:
-	screen $(port)
-	# screen -ls
-	# screen -r ...; <c-a,c>
-
-radare2:
-	radare2 -w arm -b 16 $(word 1, $(shell find build/ -name '*.elf'))
-	# ? 0xf00
-	# q!
-
 MK_files ?= $(shell find `git rev-parse --show-toplevel` -name '*.mk')
 include $(filter %grep.mk,$(MK_files))
 
-vi: 
-	nvim $(SRC)
-
 tree:
 	tree $(BUILD_DIR)
+
 echo:
 	echo $(BUILD_DIR)
 
-	#sed -En '1p' <<< `grep --color=always -ERn $(pat) ~/Project/rasp/pico-sdk/src`
+src: 
+	nvim $(SRCS)
+
 ld:
-	nvim $(ld_script)
+	nvim $(LD_SCRIPT)
 
 clean:
 	rm -rf $(BUILD_DIR)/*

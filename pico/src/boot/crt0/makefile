@@ -6,14 +6,12 @@ AS := arm-none-eabi-as
 OBJCOPY := arm-none-eabi-objcopy
 OBJDUMP := arm-none-eabi-objdump
 
-MCU := -mcpu=cortex-m0plus -mthumb
+ARCH := -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG
 
-BASE_DIR := $(shell sed -En 's/(.*)\/src.*/\1/p' <<< `pwd`)
-BUILD_DIR := $(shell sed -En 's/src/build/p' <<< `pwd`)
+BUILD_DIR := $(shell pwd | sed -En 's/src/build/p')
 
 SRCS  := Crt0.S
-
-Crt0_OBJ:= $(patsubst %,$(BUILD_DIR)/%.o,$(SRCS))
+Crt0_OBJ:= $(shell for i in $(SRCS);do find `pwd` -name $$i | sed -En -e 's/src/build/' -e 's/.*/&.o/p'; done )
 
 INCLUDES := $(BASE_DIR)/include
 
@@ -23,13 +21,12 @@ CFLAGS += $(MCU)
 all: $(Crt0_OBJ)
 
 $(BUILD_DIR)/%.c.o: %.c
-	@if [[ ! -d $(BUILD_DIR) ]];then mkdir -p $(BUILD_DIR) ;fi
+	@if [[ ! -d $(@D) ]];then mkdir -p $(i@D) ;fi
 	$(CC) -c $(CFLAGS) $< -o $@ 
 
 $(BUILD_DIR)/%.S.o: %.S
-	@if [[ ! -d $(BUILD_DIR) ]];then mkdir -p $(BUILD_DIR) ;fi
-	$(CC) $(CFLAGS) -o $@ -c $<
-
+	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
+	$(CC) $(CFLAGS) -c $< -o$@ 
 
 .PHONY: f fv fc g gv vi
 
@@ -56,14 +53,17 @@ MK_files ?= $(shell find `git rev-parse --show-toplevel` -name '*.mk')
 
 include $(filter %grep.mk,$(MK_files))
 
-vi: 
-	nvim $(word 1,$(SRCS))
+tree:
+	@tree $(BUILD_DIR)
 
-echo:
-	@echo $(MK_files)
+vi: 
+	@nvim $(word 1,$(SRCS))
 
 ld:
-	nvim $(ld_script)
+	@nvim $(LD_SCRIPT)
+
+echo:
+	@echo $(Crt0_OBJ)
 
 clean:
-	@rm $(BUILD_DIR)/*
+	@rm -rf $(BUILD_DIR)/*

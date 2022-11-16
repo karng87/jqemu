@@ -5,7 +5,7 @@ int main(){
         #define RESET_REG (0x0)
             #define io_bank0_bit (5) // RESET_REG[5-bit:-<io_bank0>] = 
         #define ATOMIC_CLR (0x3000)
-    *(volatile uint32_t*)(APB_SEG+RESETS_BASE+RESET_REG | ATOMIC_CLR) = (1<<io_bank0_bit);
+    *((volatile uint32_t*)(APB_SEG+RESETS_BASE+RESET_REG | ATOMIC_CLR)) = (1<<io_bank0_bit);
     while(1){
             #define RESET_DONE_REG (0x08)
         if((*(volatile uint32_t*)(APB_SEG+RESETS_BASE+RESET_DONE_REG)) & (1<<io_bank0_bit)) break;
@@ -36,7 +36,7 @@ int main(){
     pad25pin_reg &= ~(1<<input_enable_bit);
 
             #define ATOMIC_XOR (0x1000)
-    *(volatile uint32_t*)(APB_SEG+PADS_BANK0_BASE+PADS_BANK0_25PIN_REG | ATOMIC_XOR) = pad25pin_reg;
+    *((volatile uint32_t*)(APB_SEG+PADS_BANK0_BASE+PADS_BANK0_25PIN_REG | ATOMIC_XOR)) = pad25pin_reg;
 
             #ifndef IO_BANK0_BASE
             #define IO_BANK0_BASE (0x14000)
@@ -45,7 +45,6 @@ int main(){
                 #define funcsel_bit (0b11111) // [4:0-<FUNCSEL>]
                     #define sio_func (5)
     *(volatile uint32_t*)(APB_SEG+IO_BANK0_BASE+IO_BANK0_25PIN_CTRL_REG) = sio_func;
-    uint32_t v = *(volatile uint32_t*)(APB_SEG+IO_BANK0_BASE+IO_BANK0_25PIN_CTRL_REG);
 
             #ifndef SIO_SEG
                 #define SIO_SEG (0xd0000000)

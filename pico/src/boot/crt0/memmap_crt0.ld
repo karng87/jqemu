@@ -20,6 +20,7 @@ SECTIONS
     .text :
     {
         KEEP (*(.vectors))
+        KEEP (*(.reset))
         KEEP (*(.text*))
     } > FLASH
 

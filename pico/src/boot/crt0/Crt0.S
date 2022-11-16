@@ -2,11 +2,12 @@
 .cpu cortex-m0plus
 .thumb
 
+
 .section .vectors, "ax" // alocatable excutable
 .align 2
 .global __vectors
 __vectors:
-    .word __StackTop__
+    .word 0x20042000
     .word reset
 
 .thumb_func

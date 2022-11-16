@@ -1,6 +1,7 @@
 MEMORY {
-    /* We are loaded to the top 256 bytes of SRAM, which is above the bootrom
-       stack. Note 4 bytes occupied by checksum. 
+    /* We are loaded to the top 256 bytes of SRAM,
+        which is above the bootrom stack. 
+            Note 4 bytes occupied by checksum. 
 
        VMA BASE : 0x_2000_0000 + 264K(0x_4_2000) = 0x2004_2000 
        Total SRAM : 264K (0x_4_2000)
@@ -28,7 +29,7 @@ MEMORY {
 }
 
 SECTIONS {
-    . = ORIGIN(SRAM);
+    . = ORIGIN(SRAM5_END);
     .text : {
         *(.entry)
         *(.text)
