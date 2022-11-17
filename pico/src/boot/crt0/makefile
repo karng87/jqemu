@@ -7,6 +7,7 @@ OBJCOPY := arm-none-eabi-objcopy
 OBJDUMP := arm-none-eabi-objdump
 
 ARCH := -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG
+D := -DPICO_NO_FLASH=0 -DPICO_COPY_TO_RAM=0
 
 BUILD_DIR := $(shell pwd | sed -En 's/src/build/p')
 
@@ -16,7 +17,7 @@ Crt0_OBJ:= $(shell for i in $(SRCS);do find `pwd` -name $$i | sed -En -e 's/src/
 INCLUDES := $(BASE_DIR)/include
 
 CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += $(MCU)
+CFLAGS += $(MCU) $(D)
 
 all: $(Crt0_OBJ)
 

@@ -193,6 +193,7 @@ binary_info_header:
 .global _entry_point
 _entry_point:
 
+
 #if PICO_NO_FLASH
     // Vector through our own table (SP, VTOR will not have been set up at
     // this point). Same path for debugger entry and bootloader entry.
@@ -269,10 +270,10 @@ platform_entry: // symbol for stack traces
     blx r1
     // exit should not return.  If it does, hang the core.
     // (fall thru into our hang _exit impl
-.weak _exit
-.type _exit,%function
+.weak exit
+.type exit,%function
 .thumb_func
-_exit:
+exit:
 1: // separate label because _exit can be moved out of branch range
     bkpt #0
     b 1b
@@ -291,12 +292,13 @@ data_cpy:
 // we skip the copy, because it is listed in binary info
 
 .align 2
+//#define PICO_COPY_TO_RAM=0
 data_cpy_table:
-#if PICO_COPY_TO_RAM
-.word __ram_text_source__
-.word __ram_text_start__
-.word __ram_text_end__
-#endif
+//#if PICO_COPY_TO_RAM
+//.word __ram_text_source__
+//.word __ram_text_start__
+//.word __ram_text_end__
+//#endif
 .word __etext
 .word __data_start__
 .word __data_end__
@@ -329,7 +331,7 @@ runtime_init:
 
 hold_non_core0_in_bootrom:
     ldr r0, = 'W' | ('V' << 8)
-    bl rom_func_lookup
+    //bl rom_func_lookup
     bx r0
 
 .global __get_current_exception

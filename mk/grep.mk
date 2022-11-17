@@ -35,5 +35,5 @@ g:
 
 gv:
 	@grep -ERHn '$(pat)' $(word $(pn),$(path)) \
-		| sed -En -e '$(fn)s#([^:]+):([0-9]+):.*#nvim +\2 \1#p' | sh
+		| sed -En -e '$(fn)s%([^:]+):([0-9]+):.*%nvim +\2 \1%p' | sh
 
