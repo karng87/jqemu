@@ -10,7 +10,7 @@ ARCH := -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG
 
 BUILD_DIR := $(shell pwd | sed -En 's/src/build/p')
 
-SRCS  := Crt0.S
+SRCS  := crt0.s
 Crt0_OBJ:= $(shell for i in $(SRCS);do find `pwd` -name $$i | sed -En -e 's/src/build/' -e 's/.*/&.o/p'; done )
 
 INCLUDES := $(BASE_DIR)/include
@@ -24,18 +24,11 @@ $(BUILD_DIR)/%.c.o: %.c
 	@if [[ ! -d $(@D) ]];then mkdir -p $(i@D) ;fi
 	$(CC) -c $(CFLAGS) $< -o $@ 
 
-$(BUILD_DIR)/%.S.o: %.S
+$(BUILD_DIR)/%.s.o: %.s
 	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
 	$(CC) $(CFLAGS) -c $< -o$@ 
 
 .PHONY: f fv fc g gv vi
-
-path := ~/Project/rasp/pico-sdk/src \
-		src \
-		build \
-		~/Project/rasp/pico-sdk
-
-idx := 1 # line number
 
 port := $(if $(filter Darwin,$(shell uname -s)),/dev/$(shell ls /dev | grep 'cu\.usb'),/dev/ttyACM0)
 

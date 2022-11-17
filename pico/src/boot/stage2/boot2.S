@@ -186,7 +186,7 @@ dummy_read:
                // #define f_xssc_SPI_RXDS_EN fset(18, :18, Read Data Strobe Enable) 
                // #define f_xssc_XIP_CMD fset(24, :31, SPI Command to send in XIP mode (INST_L = 8-bit) or to append to Address (INST_L = 0-bit))
 #define SPI_CTRLR0_ENTER_XIP (8 << 2) | (4 << 11) | (2 << 8) | (1 << 0)
-    ldr r1, =(SPI_CTRLR0_ENTER_XIP)
+    ldr r1, =((8 << 2) | (4 << 11) | (2 << 8) | (1 << 0))
     ldr r0, =(0x180000f4)  // SPI_CTRL0 Register
     str r1, [r0]
 
@@ -230,7 +230,7 @@ dummy_read:
                 //#define f_xssc_XIP_CMD fset(24, :31, SPI Command to send in XIP mode (INST_L = 8-bit) or to append to Address (INST_L = 0-bit))
 configure_ssi:
 #define SPI_CTRLR0_XIP (0xa0 << 24) | (8 << 2) | (4 << 11) | (0x0 << 8) | (0x02 << 0)
-    ldr r1, =(SPI_CTRLR0_XIP)
+    ldr r1, =((0xa0 << 24) | (8 << 2) | (4 << 11) | (0x0 << 8) | (0x02 << 0))
     ldr r0, =0x180000f4 //(XIP_SSI_BASE + SSI_SPI_CTRLR0_OFFSET)
     str r1, [r0]
 
@@ -268,8 +268,8 @@ check_return:
     beq vector_into_flash
     bx r0
 vector_into_flash:
-    ldr r0, =(XIP_BASE + 0x100) // 0x100 == 256
-    ldr r1, =(PPB_BASE + M0PLUS_VTOR_OFFSET)
+    ldr r0, =(0x10000000 + 0x100) // 0x100 == 256
+    ldr r1, =(0xe0000000 + 0xed08) //M0PLUS_VTOR_OFFSET)
     str r0, [r1]
 
     ldmia r0, {r0, r1}  // r0 = stack pointer, r1 = reset handler

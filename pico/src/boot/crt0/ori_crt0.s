@@ -1,24 +1,27 @@
+/*
+ * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include "pico.h"
+#include "hardware/regs/m0plus.h"
+#include "hardware/regs/addressmap.h"
+#include "hardware/regs/sio.h"
+#include "pico/binary_info/defs.h"
+
+#ifdef NDEBUG
+#ifndef COLLAPSE_IRQS
+#define COLLAPSE_IRQS
+#endif
+#endif
+
 .syntax unified
 .cpu cortex-m0plus
 .thumb
 
-/*
-.section .vectors, "ax" // alocatable excutable
+.section .vectors, "ax"
 .align 2
-.global __vectors
-__vectors:
-    .word 0x20042000
-    .word reset
-
-.thumb_func
-.global reset
-reset:
-    bl main
-    b hang
-
-.thumb_func
-hang: b .
-*/
 
 .global __vectors, __VECTOR_TABLE
 __VECTOR_TABLE:
@@ -158,17 +161,14 @@ unhandled_user_irq_num_in_r0:
 // For flash builds we put it immediately after vector table; for NO_FLASH the
 // vectors are at a +0x100 offset because the bootrom enters RAM images directly
 // at their lowest address, so we put the header in the VTOR alignment hole.
-#define PICO_NO_BINARY_INFO 0
-#define BINARY_INFO_MARKER_START 0x7188ebf2
-#define BINARY_INFO_MARKER_END 0xe71aa390
 
 #if !PICO_NO_BINARY_INFO
 binary_info_header:
-.word 0x7188ebf2
+.word BINARY_INFO_MARKER_START
 .word __binary_info_start
 .word __binary_info_end
 .word data_cpy_table // we may need to decode pointers that are in RAM at runtime.
-.word 0xe71aa390
+.word BINARY_INFO_MARKER_END
 #endif
 
 // ----------------------------------------------------------------------------
@@ -202,14 +202,10 @@ _entry_point:
     // Go back through bootrom + boot2 to properly initialise flash.
     movs r0, #0
 #endif
-
-#define PPB_BASE (0xe0000000)
-#define M0PLUS_VTOR_OFFSET (0x0000ed08)
-
-    ldr r1, =(0xe0000000 + 0x0000ed08)
-    str r0, [r1] 
-    ldmia r0!, {r1, r2} // ! allocate result register to r0 loade multiple inc r0 after alocate to r1 ,r2
-    msr msp, r1 // msr: move to status register msp: master stack pointer
+    ldr r1, =(PPB_BASE + M0PLUS_VTOR_OFFSET)
+    str r0, [r1]
+    ldmia r0!, {r1, r2}
+    msr msp, r1
     bx r2
 
 // Reset handler:
@@ -224,9 +220,7 @@ _entry_point:
 _reset_handler:
     // Only core 0 should run the C runtime startup code; core 1 is normally
     // sleeping in the bootrom at this point but check to be sure
-        //#define SIO_BASE _u(0xd0000000)
-        //#define SIO_CPUID_OFFSET _u(0x00000000)
-    ldr r0, =(0xd0000000 + 0x0000)
+    ldr r0, =(SIO_BASE + SIO_CPUID_OFFSET)
     ldr r0, [r0]
     cmp r0, #0
     bne hold_non_core0_in_bootrom
@@ -234,12 +228,11 @@ _reset_handler:
     // In a NO_FLASH binary, don't perform .data copy, since it's loaded
     // in-place by the SRAM load. Still need to clear .bss
 #if !PICO_NO_FLASH
-    adr r4, data_cpy_table // adress register
+    adr r4, data_cpy_table
 
     // assume there is at least one entry
 1:
-    ldmia r4!, {r1-r3} // load multiple inc r4 after allocating r1-r3 
-                        // ! : auto update base regiter
+    ldmia r4!, {r1-r3}
     cmp r1, #0
     beq 2f
     bl data_cpy
@@ -253,7 +246,7 @@ _reset_handler:
     movs r0, #0
     b bss_fill_test
 bss_fill_loop:
-    stm r1!, {r0} // stm: store multiple !: auto update index 
+    stm r1!, {r0}
 bss_fill_test:
     cmp r1, r2
     bne bss_fill_loop
@@ -339,19 +332,16 @@ __get_current_exception:
     uxtb r0, r0
     bx   lr
 
-
 // ----------------------------------------------------------------------------
 // Stack/heap dummies to set size
 
 .section .stack
 // align to allow for memory protection (although this alignment is pretty much ignored by linker script)
 .align 5
-    //#define PICO_STACK_SIZE _u(0x800)
-    .equ StackSize, 0x800 
+    .equ StackSize, PICO_STACK_SIZE
 .space StackSize
 
 .section .heap
 .align 2
-    //#define PICO_HEAP_SIZE _u(0x800)
-    .equ HeapSize, 0x800 
+    .equ HeapSize, PICO_HEAP_SIZE
 .space HeapSize

@@ -17,11 +17,16 @@ LD_SCRIPT := memmap_boot2.ld
 ### 	each symbol has a section, function == .text.<func> ;  data == .data.<var>
 ### 		e.g) .text.put32 .text.pin5 .bss.cpuirq
 
-CFLAGS += $(ARCH)
+CFLAGS := $(ARCH)
+
+AOPT := $(ARCH)
+
+LOPT := -nostdlib
+LOPT += -T $(LD_SCRIPT)
 
 LDFLAGS += $(ARCH)
-LDFLAGS += -Wl,--build-id=none --specs=nosys.specs -nostartfiles
 LDFLAGS += -Wl,--script=$(LD_SCRIPT)
+LDFLAGS += -Wl,--build-id=none --specs=nosys.specs -nostartfiles
 ### --specs=nosys.specs
 ### 	newlib does not by default provide implementations for the functions
 ### 		that make only sense on a system with a console and an hard drive,
@@ -32,23 +37,28 @@ LDFLAGS += -Wl,--script=$(LD_SCRIPT)
 
 #LDFLAGS += -Wl,-Map=$(patsubst %,%.map,$@)
 
-SRCS  := boot2.S
-TARGET := $(patsubst %.S,$(BUILD_DIR)/%.S.o.elf.bin.S,$(SRCS))
 
-all: $(TARGET) $(TARGET).o
 
-$(BUILD_DIR)/%.c.o: %.c
+SRCS  := boot2.s
+TARGET := $(patsubst %,$(BUILD_DIR)/%.obj,$(SRCS))
+TARGETS := $(shell echo $(TARGET){,.elf{,.bin{,.S{,.o}}}})
+
+all: $(TARGETS)
+
+$(BUILD_DIR)/%.c.obj: %.c
 	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
 	$(CC) -c $(CFLAGS) $< -o $@ 
 
-$(BUILD_DIR)/%.S.o: %.S
+$(BUILD_DIR)/%.s.obj: %.s
 	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 $(BUILD_DIR)/%.S.o: $(BUILD_DIR)/%.S
 	$(CC) $(CFLAGS) -o $@ -c $<
+	$(eval export lib_stage2 := $@)
+	echo $(lib_stage2)
 
-$(BUILD_DIR)/%.o.elf: $(BUILD_DIR)/%.o
+$(BUILD_DIR)/%.obj.elf: $(BUILD_DIR)/%.obj
 	$(CC) $(LDFLAGS) -Wl,-Map=$(patsubst %,%.map,$<) $< -o $@
 
 $(BUILD_DIR)/%.elf.bin: $(BUILD_DIR)/%.elf
@@ -56,11 +66,9 @@ $(BUILD_DIR)/%.elf.bin: $(BUILD_DIR)/%.elf
 	$(OBJDUMP) -h $< > $(patsubst %,%.dis,$<)
 	$(OBJDUMP) -d $< >> $(patsubst %,%.dis,$<)
 
-$(TARGET): $(patsubst %,$(BUILD_DIR)/%.o.elf.bin,$(SRCS))
+$(BUILD_DIR)/%.bin.S: $(BUILD_DIR)/%.bin
 	$(PAD_CHECKSUM) -s 0xffffffff $< $@
 
-$(TARGET).o: $(TARGET)
-	$(CC) $(CFLAGS) -o $@ -c $<
 
 .PHONY: map dis screen radare2 vi echo ld clean
 map:
@@ -76,7 +84,7 @@ tree:
 	tree $(BUILD_DIR)
 
 echo:
-	echo $(BUILD_DIR)
+	@echo $(TARGETS)
 
 src: 
 	nvim $(SRCS)
