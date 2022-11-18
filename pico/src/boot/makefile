@@ -1,3 +1,4 @@
+
 ARM := arm-none-eabi
 CC := $(ARM)-gcc
 AS := $(ARM)-as
@@ -77,6 +78,9 @@ $(BDIR)/%.elf.uf2: $(BDIR)/%.elf
 	$(ELF2UF2) $< $@
 
 include $(shell find `git rev-parse --show-toplevel` -name '*.mk' | sed -En '/grep\.mk/p')
+
+nano_specs:
+	nvim /Applications/ArmGNUToolchain/11.3.rel1/arm-none-eabi/arm-none-eabi/lib/nano.specs
 
 dev :=$(if $(filter Linux,$(shell uname -s)),\
 	        $(shell lsblk | sed -En '/^└─.*t *$$/{s/[^a-z]*([a-z1]*).*/\/dev\/\1/p}'),/Volumes/RPI-RP2)
