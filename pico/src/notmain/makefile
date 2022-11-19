@@ -115,6 +115,7 @@ flash: all
 		then cp $(filter %uf2,$(TARGETS)) $(dev);\
 	else echo "NO flash!";\
 	fi
+
 tree:
 	tree $(BDIR)
 vi:

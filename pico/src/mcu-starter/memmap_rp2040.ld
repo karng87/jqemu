@@ -2,8 +2,8 @@ MEMORY
 {
     ROM        (rx)  : ORIGIN = 0x00000000, LENGTH = 16k
     FLASH_BOOT (rx)  : ORIGIN = 0x10000000, LENGTH = 256
-    FLASH_C      (rx)  : ORIGIN = 0x10000100, LENGTH = 2048 - 256
-    SRAM        (rxw) : ORIGIN = 0x20000000, LENGTH = 264k
+    FLASH_C    (rx)  : ORIGIN = 0x10000100, LENGTH = 2048k - 256
+    SRAM       (rxw) : ORIGIN = 0x20000000, LENGTH = 264k
 }
 
 ENTRY(boot_entry)
@@ -14,9 +14,9 @@ SECTIONS
     {
         KEEP(*(boot.entry))
         *(.boot*)
-        . = 256 -4
+        . = 256-4;
         LONG(0xcccccccc) /* CRC */
-    }
+    } > FLASH_BOOT
 
     .text : ALIGN(4)
     {
@@ -32,7 +32,7 @@ SECTIONS
     .data : ALIGN(4) /* has a initialized symbol */
     {
         _data = .;
-        *(.ramfunc .ramfunc.*);
+        *(.ramfunc .ramfunc.*)
         *(vtable)
         *(.data*)
         . = ALIGN(4);
@@ -44,7 +44,7 @@ SECTIONS
         _bss = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4)
+        . = ALIGN(4);
         _ebss = .;
     } > SRAM
 
