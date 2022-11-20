@@ -8,23 +8,23 @@
     #define XIP hex(1000,0000, XIP:eXecute In Place,2M)
         #define XIP_SSI hex(1800,0000, Serial Interface)
             #define XIP_SSI_CTRLR0 hex(1800,0000, Control register0)
-                #define posi_xsc0_DFS         posib( 0,:3,  Data Frame Size)
-                #define posi_xsc0_FRF         posib( 4,:5,  FRame Format)
-                #define posi_xsc0_SCPH        posib( 6,:6,  Serial Clock PHase)
-                #define posi_xsc0_SCPOL       posib( 7,:7,  Serial Clock POLatiry)
-                #define posi_xsc0_TMOD        posib( 8,:9,  Transfer MODe, 0<<(both),1<<(tr only), 2<<(re only),3<<(EEPROM rad mode))
-                #define posi_xsc0_SLV_OE      posib(10,:10, SLaVe Output Enable)
-                #define posi_xsc0_SLR         posib(11,:11, Shift Register Loop)
-                #define posi_xsc0_CFS         posib(12,:15, Control Frame Size, n+1 clocks per frame)
-                #define posi_xsc0_DFS_32      posib(16,:20, Data Frame Size in 32b transfer mode, n+1 clocks per frame)
-                #define posi_xsc0_SPI_FRF     posib(21,:22, SPI FRame Format, 0<<(1-bit per SCK), 1<<(2-bit per SCK), 2<<(4-bit per SCK), frame format)
+                #define posi_xsc0_DFS         posib( 0,:3,Data Frame Size)
+                #define posi_xsc0_FRF         posib( 4,:5,FRame Format)
+                #define posi_xsc0_SCPH        posib( 6,:6,Serial Clock PHase)
+                #define posi_xsc0_SCPOL       posib( 7,:7,Serial Clock POLatiry)
+                #define posi_xsc0_TMOD        posib( 8,<~9><Transfer MODE|<0:both><1:tr only><2:re only><3:EEPROM read mode)>)
+                #define posi_xsc0_SLV_OE      posib(10,:10,SLaVe Output Enable)
+                #define posi_xsc0_SLR         posib(11,:11,Shift Register Loop)
+                #define posi_xsc0_CFS         posib(12,:15,Control Frame Size, n+1 clocks per frame)
+                #define posi_xsc0_DFS_32      posib(16,<~20><Data Frame Size in 32b transfer mode><n+1 clocks per frame>)
+                #define posi_xsc0_SPI_FRF     posib(21,<~22><SPI FRame Format, 0<<(1-bit per SCK), 1<<(2-bit per SCK), 2<<(4-bit per SCK), frame format>)
                 #define posi_xsc0_SSTE        posib(24,:24, Slave select toggle enable)
 
             #define XIP_SSI_CTRLR1 hex(1800,0004, Control register1)
-                #define posi_xsc1_NDF posib( 0,:15, Number of data frames)
+                #define posi_xsc1_NDF posib( 0,<~15><Number of data frames>)
 
             #define XIP_SSI_ENR hex(1800,0008, Enable register0)
-                #define posi_xse_SSI_EN posib(0,:0, SSI Enable)
+                #define posi_xse_SSI_EN posib(0,<~0><SSI Enable>)
 
             #define XIP_SSI_MWCR hex(1800,000c, Microwire Control)
 
@@ -68,14 +68,14 @@
                 #define posi_xsrsd_RSD posib(0, :7, SSI RX Sample Delay flag)
 
             #define XIP_SSI_SPI_CTRLR0 hex(1800,00f4, SPI Control r 0)
-                #define posi_xssc_TRANS_TYPE posib(0, :1, TRANS_TYPE)
-                #define posi_xssc_ADDR_L     posib(2, :5, ADDRess Length)
+                #define posi_xssc_TRANS_TYPE posib(0,<~1><TRANS_TYPE>)
+                #define posi_xssc_ADDR_L     posib(2,<~5><ADDRess Length>)
                 #define posi_xssc_INST_L     posib(8, :9, INSTtruction Length)
                 #define posi_xssc_WAIT_CYCLES posib(11, :15, Wait cycles between control frame transmit and data reception)
                 #define posi_xssc_DDR_EN posib(16, :16, SPI DDR transfer enable) 
                 #define posi_xssc_INST_DDR_EN posib(17, :17, Instrcution DDR transfer enable) 
                 #define posi_xssc_SPI_RXDS_EN posib(18, :18, Read Data Strobe Enable) 
-                #define posi_xssc_XIP_CMD posib(24, :31, SPI Command to send in XIP mode (INST_L = 8-bit) or to append to Address (INST_L = 0-bit))
+                #define posi_xssc_XIP_CMD posib(24,<~31><SPI Command to send in XIP mode><INST_L = 8-bit or to append to Address (INST_L = 0-bit)>)
 
 
         #define RAM hex(2000,0000, RAM:Random Access Memory,264k, 6-bank, 64k * 4, 4k * 2)
@@ -92,21 +92,30 @@
             #define SYSCFG      hex(4000,4000, APB)
             #define CLOCKS      hex(4000,8000, APB)
 
-            #define RESETS      hex(4000,c000, APB)
+            #define RESETS      hex(4000,c000, APB, BASE)
                 #define RESETS_RESET hex(4000,c000, 0:(ADC),1:(BUSCTRL),2:(DMA),3:(I2C0),4:(I2C1),5:(IO_BANK0),6:(IO_QSPI),7:(JTAG),8:(PADS_BNAK0),9:(PADS_QSPI),10:(PIO0),11:(PIO1),12:(PLL_SYS),13:(PLL_USB),14:(PWM),15:(RTC),16:(SPI0),17:(SPI1),18:(SYSCFG),19:(SYSINFO),20:(TBMAN),21:(TIMER),22:(UART0),23:(UART1),24:(USB_CTRL))
+                    #define posib_arr_IO_BANK0 5
+                    #define posib_arr_PADS_BANK0 8
                 #define RESETS_WDSEL hex(4000,c004, 0:(ADC)...)
                 #define RESETS_DONE  hex(4000,c008, 0:(ADC)...)
+                    #define posib_ard_IO_BANK0 5
+                    #define posib_ard_PADS_BANK0 8
 
-            #define PSM         hex(4001,0000, APB)
-            #define IO_BANK0   hex(4001,4000, APB)
-                #define IO_BANK0_STATUS_0_29 hex(4001,4000, inc +8,)
-                #define IO_BANK0_CTRL_0_29 hex(4001,4004, inc +8, 4:0<FUNCSEL>,sio_func == 5)
+            #define PSM         hex(4000,10000, APB)
+            #define IO_BANK0    hex(4000,14000, APB)
+                #define IO_BANK0_STATUS_0_29 hex(4000,14000, inc +8,)
+                #define IO_BANK0_CTRL_0_29 hex(4000,14004, inc +8, sio_func == 5)
+                    #define posib_FUNCSEL posib(0,~4, Functon select 31==NULL)
                 
-            #define APB_IO_QSPI     hex(4001,8000, APB)
-            #define APB_PADS_BNAK0  hex(4001,c000, APB)
-                #define APB_PADS_BNAK0_VSEL hex(4001,c000, 0:<0x0=3.3v ,0x1=1.8v>)
-                #define APB_PADS_BNAK0_CRTL_0_29 hex(4001,c004, 7:OD(output disable),6:IE(input enable)
-                #define APB_PADS_BNAK0_SWCLK hex(4001,c07c)
+            #define APB_IO_QSPI     hex(4000,18000, APB)
+            #define APB_PADS_BNAK0  hex(4000,1c000, APB)
+                #define APB_PADS_BNAK0_VSEL hex(4000,1c000, Voltage Select reg,0:<0x0=3.3v ,0x1=1.8v>)
+
+                #define APB_PADS_BNAK0_GPIO_0_29 hex(4000,1c004, 7:OD(output disable),6:IE(input enable)
+                    #define posib_apbgpio_IE posib(6, Input Enable)
+                    #define posib_apbgpio_OD posib(7, Output Disable)
+
+                #define APB_PADS_BNAK0_SWCLK hex(4000,1c07c)
 
             #define APB_PADS_QSPI   hex(4002,0000, APB)
                 #define APB_PADS_QSPI_VOLTAGE hex(4002,0000,VOLTAGE SELECT R, 0:<0=2V5,1=1V8>)

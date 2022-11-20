@@ -41,22 +41,49 @@
 #-------------------------------------------
 BDIR := $(shell pwd | sed -En 's;src;build;p')
 
-#target := notmain.c
-#deps := start.s notmain.c
+target := notmain.c
 target := led25.c
-deps := $(target)
+TARGETS := $(shell echo $(shell \
+		find `pwd` -name '$(target)' \
+		| sed -En -e 's%src%build%' -e 's%.*%&.o{,.elf{,.bin{,.uf2}}}%p'))
+
 prerequisite:= bin2uf2.c
+PREREQUISITE := $(shell \
+				for i in $(prerequisite) \
+				;do find `pwd` -name $$i \
+				| sed -En -e 's%src%build%' -e 's%.*%&.out%p' \
+				;done)
+
+objs := start.s notmain.c
+objs := $(target)
+OBJS :=  $(shell \
+		for i in $(objs) \
+		;do find `pwd` -name $$i | sed -En -e 's%src%build%' -e 's%.*%&.o%p' \
+		;done)
+
+
+INCLUDES := 
+COPTS += $(INCLUDES)
+
+LIBS :=
+LOPTS += $(LIBS)
+CLOPTS += $(LIBS)
+
+defines := sram
 defines := flash
-ld_scripts := $(shell find `pwd` -name '*.ld')
-INCLUDE_DIR := $(shell pwd | sed -En 's%.*%&/include%p') 
 
 DEFINES := -D$(shell sed -En 's%.*%\U&%p' <<< $(defines))
-LD_SCRIPT := $(filter %$(defines).ld,$(ld_scripts)) 
-INCLUDES := -I$(INCLUDE_DIR)
+COPTS += $(DEFINES)
 
-OS := $(shell uname -s)
+ld_scripts := $(shell find `pwd` -name '*.ld')
+LD_SCRIPT := $(filter %flash.ld,$(ld_scripts)) 
+LOPTS += -T $(LD_SCRIPT)
+CLOPTS += -Wl,--script= $(LD_SCRIPT)
+
+
 ARM := arm-none-eabi
 ARCH := -mcpu=cortex-m0plus
+COPTS += $(ARCH)
 
 AOPTS := --warn --fatal-warnings $(ARCH)
 
@@ -65,34 +92,14 @@ COPTS += -ffreestanding
 COPTS += -fno-diagnostics-show-caret
 COPTS += -fdata-sections -ffunction-sections
 COPTS += -funsigned-char -funsigned-bitfields
-COPTS += $(ARCH)
 COPTS += -MD -MP -MT $@ -MF $@.d
-INCLUDES += -I includes
-DEFINES += 
-COPTS += $(INCLUDES) $(DEFINES)
-
-LOPTS += -nostdlib 
-LOPTS += -T $(LD_SCRIPT)
 
 CLOPTS += -nostdlib 
 CLOPTS += -Wl,--gc-sections
-CLOPTS += -T $(LD_SCRIPT)
 CLOPTS += -Wl,-Map=$@.map
 
-TARGETS := $(shell echo $(shell \
-		find `pwd` -name '$(target)' \
-		| sed -En -e 's%src%build%' -e 's%.*%&.o{,.elf{,.bin{,.uf2}}}%p'))
+LOPTS += -nostdlib 
 
-DEPS :=  $(shell \
-		for i in $(deps) \
-		;do find `pwd` -name $$i | sed -En -e 's%src%build%' -e 's%.*%&.o%p' \
-		;done)
-
-PREREQUISITE := $(shell \
-				for i in $(prerequisite) \
-				;do find `pwd` -name $$i \
-				| sed -En -e 's%src%build%' -e 's%.*%&.out%p' \
-				;done)
 
 all : $(PREREQUISITE) $(TARGETS)
 
@@ -106,7 +113,7 @@ $(filter %uf2,$(TARGETS)): $(filter %bin,$(TARGETS))
 $(filter %bin,$(TARGETS)): $(filter %elf,$(TARGETS))
 	$(ARM)-objcopy -O binary $^ $@
 
-$(filter %elf,$(TARGETS)): $(DEPS)
+$(filter %elf,$(TARGETS)): $(OBJS)
 	$(ARM)-ld $(LOPTS)  $^ -o$@
 	$(ARM)-objdump -D $@ > $@.lst
 
@@ -122,31 +129,34 @@ $(BDIR)/%.cc.o: %.cc
 	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
 	$(ARM)-gcc -c $(COPTS) $< -o$@ 
 
-dev :=$(if $(filter Linux,$(OS)) \
+dev :=$(if $(filter Linux,$(shell uname -s)) \
 	       ,$(shell lsblk | sed -En '/^└─.*t *$$/{s/[^a-z]*([a-z1]*).*/\/dev\/\1/p}') \
 		   ,/Volumes/RPI-RP2)
 
 flash: all
-	@if [[ "$(dev)" =~ "/dev" && "$(OS)" =~ Linux ]];\
+	@if [[ "$(dev)" =~ "/dev" && `uname -s` =~ Linux ]];\
 		then if [[ -n `find /mnt -empty` ]]; 	\
 				then sudo mount $(dev) /mnt; 	\
 			 fi; 								\
 			 sudo cp $(filter %uf2,$(TARGETS)) /mnt;\
-	elif [[ "$(OS)" =~ Darwin && "$(dev)" =~ "RPI-RP2" ]]; \
+	elif [[ `uname -s` =~ Darwin && "$(dev)" =~ "RPI-RP2" ]]; \
 		then cp $(filter %uf2,$(TARGETS)) $(dev);\
 	else echo "NO flash!";\
 	fi
 
 tree:
-	tree $(BDIR)
+	@tree $(BDIR)
+src:
+	@nvim $(target)
+
 vi:
-	nvim $(target)
+	@nvim $(BDIR)
 
 clean:
 	@rm -rf $(BDIR)/*
 
 echo:
-	echo $(TARGETS)
+	@echo $(BDIR)
 
 -include $(BDIR)/%.d 
 include $(filter %grep.mk,$(shell find `git rev-parse --show-toplevel` -name '*.mk'))

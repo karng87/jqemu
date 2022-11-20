@@ -24,18 +24,18 @@ COPT += $(INCLUDES) $(DEFINES)
 
 
 LOPT += $(ARCH)
-LOPT += -nostdlib -nostartfiles
+LOPT += -nostartfiles
 LOPT += -Wl,--gc-sections
 LOPT += -Wl,--script=$(SCRIPT)
 LOPT += -Wl,-Map=$@.map
 
 SRCS := \
 		startup_rp2040.c\
-		main.c
+		led25.c
 
 OBJS += $(addprefix $(BDIR)/,$(patsubst %,%.o,$(SRCS)))
 
-BIN += main
+BIN += led25 
 TARGETS := $(shell\
 		sed -E 's;.*;echo $(BDIR)/&.elf{,.hex,.bin{,.uf2}};e' <<< $(BIN))
 
