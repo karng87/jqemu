@@ -1,8 +1,6 @@
 #ifndef J_PICO_DEFINE_H
 #define J_PICO_DEFINE_H
 
-#include<stdint.h>
-
 #define REG(x)
 
 #define posib(x, args...) (x) // position bit set
@@ -10,15 +8,20 @@
 
 #define hadd(x, y) (x+y)
 #define hex(x, y, args...) hadd(0x ## x ## 0000 , 0x ## y)
-#define phex(x, y, args...) *((volatile unsigned int*)hadd(0x ## x ## 0000, 0x ## y))
+#define phex(x, y, args...) *((volatile unsigned int*)hex(x,y))
 
-#define haddr3(x, y, z) (x+y+z)
-#define phexa(x, y, atomic, args...) *((volatile unsigned int*)(hadd3(0x ## x ## 0000, 0x ## y , 0x ## atomic)))
-#define pahex(x, atomic, y, args...) *((volatile unsigned int*)(hadd3(0x ## x ## 0000, 0x ## atomic ## 0000, 0x ## y)))
+#define had3(x, y, z) (x+y+z)
+#define hex3(x, y, z,args...) had3(0x ## x ## 0000 , 0x ## y, 0x ## z)
+#define phex3(x, y, z,args...) *((volatile unsigned int*)hex3(x,y,z))
 
+#define p0x(x,args...) *((volatile unsigned int*)(x))
+#define p0x_a(x,y,args...) p0x(hadd(x,y))
+#define p0x_xor(x,args...) p0x_a(x,0x1000)
+#define p0x_set(x,args...) p0x_a(x,0x2000)
+#define p0x_clr(x,args...) p0x_a(x,0x3000)
 
-typedef volatile uint32_t io_rw_32;
-typedef const volatile uint32_t io_ro_32;
-typedef volatile uint32_t io_wo_32;
+typedef volatile unsigned int io_rw_32;
+typedef const volatile unsigned int io_ro_32;
+typedef volatile unsigned int io_wo_32;
 
 #endif // end of J_DEFINE_H

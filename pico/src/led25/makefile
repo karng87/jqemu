@@ -1,3 +1,100 @@
+BDIR := $(shell pwd | sed -En 's;src;build;p')
+target := led25.c
+TARGETS := $(shell echo $(shell \
+		find `pwd` -name '$(target)' \
+		| sed -En -e 's;src;build;' -e 's;.*;&.o{,.elf{,.bin{,.uf2}}};p'))
+
+TOOL := $(shell find `git rev-parse --show-toplevel` -regextype posix-extended -regex '.*src/tools/.*bin2uf2\.c' | sed -En -e 's;src;build;' -e 's;.*;&.out;p')
+
+objs := startup_rp2040.c $(target) \
+		clock_init.c
+
+OBJS :=  $(shell \
+		for i in $(objs) \
+		;do find `pwd` -name $$i | sed -En -e 's;src;build;' -e 's;.*;&.o;p' \
+		;done)
+
+ld_scripts := $(shell find `pwd` -name '*.ld')
+LD_SCRIPT := $(filter %memmap_rp2040.ld,$(ld_scripts)) 
+
+ARM := arm-none-eabi
+ARCH := -mcpu=cortex-m0plus
+
+AOPTS := --warn --fatal-warnings $(ARCH)
+
+
+CFLAGS += $(ARCH) 
+CFLAGS += -W -Wall --std=gnu11 -Os
+CFLAGS += -ffreestanding
+CFLAGS += -fno-diagnostics-show-caret
+CFLAGS += -fdata-sections -ffunction-sections
+CFLAGS += -funsigned-char -funsigned-bitfields
+CFLAGS += -MD -MP -MT $@ -MF $@.d
+
+LDFLAGS += $(ARCH)
+LDFLAGS += -nostartfiles
+LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,--script=$(LD_SCRIPT)
+LDFLAGS += -Wl,-Map=$@.map 
+
+all : tools $(TARGETS)
+
+tools:
+	make -C ../tools $(TOOL)
+
+$(filter %uf2,$(TARGETS)): $(filter %bin,$(TARGETS))
+	$(TOOL) $< $@
+
+$(filter %bin,$(TARGETS)): $(filter %elf,$(TARGETS))
+	$(ARM)-objcopy -O binary $^ $@
+
+$(filter %elf,$(TARGETS)): $(OBJS)
+	$(ARM)-gcc $(LDFLAGS)  $^ -o$@
+	$(ARM)-objdump -D $@ > $@.lst
+	$(ARM)-objdump -h $@ > $@.header
+
+$(BDIR)/%.s.o: %.s
+	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
+	$(ARM)-as $(AOPTS) $< -o $@ 
+
+$(BDIR)/%.c.o: %.c
+	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
+	$(ARM)-gcc -c $(CFLAGS) $< -o$@ 
+
+
+dev :=$(if $(filter Linux,$(shell uname -s)) \
+	       ,$(shell lsblk | sed -En '/^└─.*t *$$/{s/[^a-z]*([a-z1]*).*/\/dev\/\1/p}') \
+		   ,/Volumes/RPI-RP2)
+
+flash: all
+	@if [[ "$(dev)" =~ "/dev" && `uname -s` =~ Linux ]];\
+		then if [[ -n `find /mnt -empty` ]]; 	\
+				then sudo mount $(dev) /mnt; 	\
+			 fi; 								\
+			 sudo cp $(filter %uf2,$(TARGETS)) /mnt;\
+	elif [[ `uname -s` =~ Darwin && "$(dev)" =~ "RPI-RP2" ]]; \
+		then cp $(filter %uf2,$(TARGETS)) $(dev);\
+	else echo "NO flash!";\
+	fi
+
+tree:
+	@tree $(BDIR)
+
+vis:
+	@nvim $(target)
+
+vib:
+	@nvim $(BDIR)
+
+clean:
+	@rm -rf $(BDIR)/*
+
+echo:
+	@echo $(TOOL)
+
+-include $(BDIR)/%.d 
+include $(filter %grep.mk,$(shell find `git rev-parse --show-toplevel` -name '*.mk'))
+
 #------------------------------------------
 # freestanding: https://gcc.gnu.org/onlinedocs/gcc/Standards.html
 # 	by default 
@@ -39,106 +136,3 @@
 # 		used to ensure C++ constructors are called;
 # 			see collect2 in GNU Compiler Collection (GCC) Internals.)
 #-------------------------------------------
-BDIR := $(shell pwd | sed -En 's;src;build;p')
-
-target := led25.c
-TARGETS := $(shell echo $(shell \
-		find `pwd` -name '$(target)' \
-		| sed -En -e 's;src;build;' -e 's;.*;&.o{,.elf{,.bin{,.uf2}}};p'))
-
-TOOL := $(shell find `git rev-parse --show-toplevel` -regextype posix-extended -regex '.*src/tools/.*bin2uf2\.c' | sed -En -e 's;src;build;' -e 's;.*;&.out;p')
-
-objs := startup_rp2040.c $(target)
-OBJS :=  $(shell \
-		for i in $(objs) \
-		;do find `pwd` -name $$i | sed -En -e 's;src;build;' -e 's;.*;&.o;p' \
-		;done)
-
-
-INCLUDES := 
-LIBS :=
-
-#defines := sram
-defines := flash
-DEFINES := -D$(shell sed -En 's%.*%\U&%p' <<< $(defines))
-
-ld_scripts := $(shell find `pwd` -name '*.ld')
-LD_SCRIPT := $(filter %memmap_rp2040.ld,$(ld_scripts)) 
-
-
-ARM := arm-none-eabi
-ARCH := -mcpu=cortex-m0plus
-
-AOPTS := --warn --fatal-warnings $(ARCH)
-
-
-CFLAGS += $(ARCH) 
-CFLAGS += -W -Wall --std=gnu11 -Os
-CFLAGS += -ffreestanding
-CFLAGS += -fno-diagnostics-show-caret
-CFLAGS += -fdata-sections -ffunction-sections
-CFLAGS += -funsigned-char -funsigned-bitfields
-CFLAGS += -MD -MP -MT $@.o -MF $@.d
-
-LDFLAGS += $(ARCH)
-LDFLAGS += -nostartfiles
-LDFLAGS += -Wl,--gc-sections
-LDFLAGS += -Wl,--script=$(LD_SCRIPT)
-
-
-
-all : tools $(TARGETS)
-
-tools:
-	make -C ../tools $(TOOL)
-
-$(filter %uf2,$(TARGETS)): $(filter %bin,$(TARGETS))
-	$(TOOL) $< $@
-
-$(filter %bin,$(TARGETS)): $(filter %elf,$(TARGETS))
-	$(ARM)-objcopy -O binary $^ $@
-
-$(filter %elf,$(TARGETS)): $(OBJS)
-	$(ARM)-gcc $(LDFLAGS)  $^ -o$@
-	$(ARM)-objdump -D $@ > $@.lst
-
-$(BDIR)/%.s.o: %.s
-	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
-	$(ARM)-as $(AOPTS) $< -o $@ 
-
-$(BDIR)/%.c.o: %.c
-	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
-	$(ARM)-gcc -c $(CFLAGS) $< -o$@ 
-
-
-dev :=$(if $(filter Linux,$(shell uname -s)) \
-	       ,$(shell lsblk | sed -En '/^└─.*t *$$/{s/[^a-z]*([a-z1]*).*/\/dev\/\1/p}') \
-		   ,/Volumes/RPI-RP2)
-
-flash: all
-	@if [[ "$(dev)" =~ "/dev" && `uname -s` =~ Linux ]];\
-		then if [[ -n `find /mnt -empty` ]]; 	\
-				then sudo mount $(dev) /mnt; 	\
-			 fi; 								\
-			 sudo cp $(filter %uf2,$(TARGETS)) /mnt;\
-	elif [[ `uname -s` =~ Darwin && "$(dev)" =~ "RPI-RP2" ]]; \
-		then cp $(filter %uf2,$(TARGETS)) $(dev);\
-	else echo "NO flash!";\
-	fi
-
-tree:
-	@tree $(BDIR)
-src:
-	@nvim $(target)
-
-vi:
-	@nvim $(BDIR)
-
-clean:
-	@rm -rf $(BDIR)/*
-
-echo:
-	@echo $(TOOL)
-
--include $(BDIR)/%.d 
-include $(filter %grep.mk,$(shell find `git rev-parse --show-toplevel` -name '*.mk'))
