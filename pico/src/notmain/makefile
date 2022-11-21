@@ -48,11 +48,11 @@ deps := $(target)
 prerequisite:= bin2uf2.c
 defines := flash
 ld_scripts := $(shell find `pwd` -name '*.ld')
-INCLUDE_DIR := $(shell pwd | sed -En 's%.*%&/include%p') 
+INCLUDE:= $(shell pwd | sed -En 's%.*%&/include%p') 
 
 DEFINES := -D$(shell sed -En 's%.*%\U&%p' <<< $(defines))
-LD_SCRIPT := $(filter %$(defines).ld,$(ld_scripts)) 
-INCLUDES := -I$(INCLUDE_DIR)
+LD_SCRIPT := $(filter %sram.ld,$(ld_scripts)) 
+INCLUDES := -I$(INCLUDE)
 
 OS := $(shell uname -s)
 ARM := arm-none-eabi

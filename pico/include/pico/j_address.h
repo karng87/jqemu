@@ -12,19 +12,19 @@
                 #define posi_xsc0_FRF         posib( 4,:5,FRame Format)
                 #define posi_xsc0_SCPH        posib( 6,:6,Serial Clock PHase)
                 #define posi_xsc0_SCPOL       posib( 7,:7,Serial Clock POLatiry)
-                #define posi_xsc0_TMOD        posib( 8,<~9><Transfer MODE|<0:both><1:tr only><2:re only><3:EEPROM read mode)>)
+                #define posi_xsc0_TMOD        posib( 8,<TRANSFER MODE:8>|<0:both><1:tr only><2:re only><3:EEPROM read mode)>)
                 #define posi_xsc0_SLV_OE      posib(10,:10,SLaVe Output Enable)
                 #define posi_xsc0_SLR         posib(11,:11,Shift Register Loop)
                 #define posi_xsc0_CFS         posib(12,:15,Control Frame Size, n+1 clocks per frame)
-                #define posi_xsc0_DFS_32      posib(16,<~20><Data Frame Size in 32b transfer mode><n+1 clocks per frame>)
-                #define posi_xsc0_SPI_FRF     posib(21,<~22><SPI FRame Format, 0<<(1-bit per SCK), 1<<(2-bit per SCK), 2<<(4-bit per SCK), frame format>)
+                #define posi_xsc0_DFS_32      posib(16,<DATA FRAME SIZE in 32b:16~20>|<transfer mode:n+1 clocks per frame>)
+                #define posi_xsc0_SPI_FRF     posib(21,<SPI FRame Format:21>, 0<<(1-bit per SCK), 1<<(2-bit per SCK), 2<<(4-bit per SCK), frame format>)
                 #define posi_xsc0_SSTE        posib(24,:24, Slave select toggle enable)
 
             #define XIP_SSI_CTRLR1 hex(1800,0004, Control register1)
-                #define posi_xsc1_NDF posib( 0,<~15><Number of data frames>)
+                #define posi_xsc1_NDF posib( 0,<NUMBER of DATA FRAMES:0~15>)
 
-            #define XIP_SSI_ENR hex(1800,0008, Enable register0)
-                #define posi_xse_SSI_EN posib(0,<~0><SSI Enable>)
+            #define XIP_SSI_SSIENR hex(1800,0008, Enable register0)
+                #define posi_xss_SSI_EN posib(0,<SSI Enable:0>)
 
             #define XIP_SSI_MWCR hex(1800,000c, Microwire Control)
 
@@ -32,7 +32,7 @@
                 #define posi_xss_SEL posib(0, :0, Slave Select, 0<<(not selected), 1<<(slave selected))
 
             #define XIP_SSI_BAUDR hex(1800,0014, Baud Rate)
-                #define posi_xsb_SCKDV posib(0, :15, SSI ClocK DiVider)
+                #define posi_xsb_SCKDV posib(0,<ClocK DiVider:0~15>)
 
             #define XIP_SSI_TXFTLR hex(1800,0018, TX FIFO Threshold level)
                 #define posi_xst_TFT posib(0, :7, Transmit FIFO Threshold)
@@ -68,14 +68,14 @@
                 #define posi_xsrsd_RSD posib(0, :7, SSI RX Sample Delay flag)
 
             #define XIP_SSI_SPI_CTRLR0 hex(1800,00f4, SPI Control r 0)
-                #define posi_xssc_TRANS_TYPE posib(0,<~1><TRANS_TYPE>)
-                #define posi_xssc_ADDR_L     posib(2,<~5><ADDRess Length>)
+                #define posi_xssc_TRANS_TYPE posib(0,<Address and Instruction transfer format:0~1>|<0x0,0x1,0x2>)
+                #define posi_xssc_ADDR_L     posib(2,<ADDRESS_LENGTH:2~5>)
                 #define posi_xssc_INST_L     posib(8, :9, INSTtruction Length)
                 #define posi_xssc_WAIT_CYCLES posib(11, :15, Wait cycles between control frame transmit and data reception)
                 #define posi_xssc_DDR_EN posib(16, :16, SPI DDR transfer enable) 
                 #define posi_xssc_INST_DDR_EN posib(17, :17, Instrcution DDR transfer enable) 
                 #define posi_xssc_SPI_RXDS_EN posib(18, :18, Read Data Strobe Enable) 
-                #define posi_xssc_XIP_CMD posib(24,<~31><SPI Command to send in XIP mode><INST_L = 8-bit or to append to Address (INST_L = 0-bit)>)
+                #define posi_xssc_XIP_CMD posib(24,<XIP COMMAND to send in XIP mode:24~31><INST_L = 8-bit or to append to Address (INST_L = 0-bit)>)
 
 
         #define RAM hex(2000,0000, RAM:Random Access Memory,264k, 6-bank, 64k * 4, 4k * 2)

@@ -1,7 +1,12 @@
 MEMORY
 {
-    SRAM : ORIGIN = 0x2000000, LENGTH = 0xfc /* 252  = 256 -4*/
+    FLASH_BOOT : ORIGIN = 0x20000000, LENGTH = 256 /* 252  = 256 -4*/
+    FLASH_CODE : ORIGIN = 0x20000100, LENGTH = 2048k-256 /* 252  = 256 -4*/
+    SRAM : ORIGIN = 0x20000000, LENGTH = 264k-8k/* 252  = 256 -4*/
+    SRAM_X : ORIGIN = 0x20040000, LENGTH = 4k/* 252  = 256 -4*/
+    SRAM_Y : ORIGIN = 0x20041000, LENGTH = 4k/* 252  = 256 -4*/
 }
+
 SECTIONS
 {
     .text : { *(.text*) } > SRAM

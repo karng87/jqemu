@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define hadd(x,y) (x+y)
-#define hex(w,y,args...) hadd(0x ## w ## 0000, 0x ## y)
-//#include "crcpico.h"
+#define hex(x,y,args...) (0x ## x ## y)
+
 static unsigned int crc_pico[256];
 
-/* << 512 byte : 128 word >> 9x 4byte(meta data) + 476 byte == 36+476 == 512-byte == 0x200 */
 struct UF2_Block {
     // 32 byte header
     unsigned int magicStart0;
@@ -14,9 +12,12 @@ struct UF2_Block {
     unsigned int flags;
     unsigned int targetAddr;
     unsigned int payloadSize;
-    unsigned int blockNo;
-    unsigned int numBlocks;
-    unsigned int fileSize; // or familyID;
+    unsigned int indexBlock;
+    unsigned int totalBlocks;
+    union{
+        unsigned int fileSize; // or familyID;
+        unsigned int familyID; // or familyID;
+    };
     unsigned char data[476]; // 476 /4 == 119-word(data) + 9-word(meta) == 128 == 0~127
     unsigned int magicEnd;
 } __attribute__((packed)) uf2; //unsigned int wdata[128];
@@ -26,6 +27,12 @@ unsigned char data[DSIZE<<1]; // 1M, 0x100000 == 2^(4*5) = 2^20 == 1*2^10*2^10 =
 FILE *fp;
 
 int main(int argc, char* argv[]){
+    unsigned int len;
+    unsigned int blocks;
+    unsigned int crc;
+    unsigned int ra;
+    unsigned int address;
+
     if(argc<3){
         printf("input/output files not specified\n");
         return 1;
@@ -37,7 +44,7 @@ int main(int argc, char* argv[]){
     }
 
     memset(data, 0x00,sizeof(data));
-    unsigned int len= fread(data,1,sizeof(data),fp);
+    len= fread(data,1,sizeof(data),fp);
     fclose(fp);
     printf("%u bytes read (0x%x)\n",len,len);
     if(len>DSIZE){
@@ -49,39 +56,40 @@ int main(int argc, char* argv[]){
         return 3;
     }
 
-    unsigned int blocks = (len+0xff)>>8; //  [round(len) / 256]; 2^8 == 256 byte(1 block) round 
+    blocks = (len+0xff)>>8; //  round(len / 256); 2^8 == 256 byte(1 block) round 
     printf("blocks 0x%x (0x%x)\n",blocks,len);
 
-    unsigned int crc=hex(ffff,ffff, CHECKSUMMED);
-    for(int i=0; i<(256-4); i++){ // ~ 251 payload
+    crc=hex(ffff,ffff, CHECKSUMMED);
+    for(ra=0; ra<(256-4); ra++){ // ~ 251 payload
         unsigned char tableoff;
         tableoff = (crc >> 24) & 0xff;
-        tableoff ^= data[i];
+        tableoff ^= data[ra];
         crc <<= 8;
         crc ^= crc_pico[tableoff];
     }
-    // 4-byte LONG append
-    data[252] = (crc >>  0) & 0xff; // 252
-    data[253] = (crc >>  8) & 0xff; // 253
-    data[254] = (crc >> 16) & 0xff; // 254
-    data[255] = (crc >> 24) & 0xff; // 255
+    printf("=== << CRC : 0x%x >> ===\n",crc);
+    data[ra++] = (crc >>  0) & 0xff; // 252
+    data[ra++] = (crc >>  8) & 0xff; // 253
+    data[ra++] = (crc >> 16) & 0xff; // 254
+    data[ra++] = (crc >> 24) & 0xff; // 255
     fp = fopen(argv[2],"wb");
     if(fp==NULL){
         printf("Error creating file [%s]\n",argv[2]);
         return 4;
     }
-
-    unsigned int address;
+    char* mem;
 #ifdef SRAM
     address = hex(2000,0000);
+    mem = "SRAM";
 #else
     #ifdef FLASH
         address = hex(1000,0000);
+        mem = "FLASH";
     #else
         address = hex(1000,0000);
+        mem = "default FLASH";
     #endif
 #endif
-
     unsigned int offset=0;
     for(unsigned int i=0;i<blocks;i++){
         memset(&uf2, 0x00,sizeof(uf2));
@@ -90,14 +98,14 @@ int main(int argc, char* argv[]){
         uf2.flags       =0x00002000; // familyID present
         uf2.targetAddr  =address;
         uf2.payloadSize =0x00000100;
-        uf2.blockNo     =i;
-        uf2.numBlocks   =blocks;
-printf("===== uf2.targetAddr = [ %x ]: [ %d / %d ] = blockdNO+1/numBlocks =====\n",uf2.targetAddr,uf2.blockNo+1,uf2.numBlocks);
-        uf2.fileSize    =0xE48BFF56; // or familyID
+        uf2.indexBlock =i;
+        uf2.totalBlocks =blocks;
+        uf2.familyID =0xE48BFF56; // or fileSize
         memset(uf2.data,0x0,sizeof(uf2.data));
         memcpy(uf2.data,&data[offset],256); // maxmum 256 byte
         uf2.magicEnd    =0x0AB16F30;
         fwrite(&uf2,1,sizeof(uf2),fp);
+        printf("==== uf2.targetAddr = %s[ %x ] [ %d / %d ] = (block index+1) / (total blocks) ====\n",mem,uf2.targetAddr,uf2.indexBlock+1,uf2.totalBlocks);
         address += 0x100; // 256
         offset +=0x100;
     }

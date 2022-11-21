@@ -133,38 +133,20 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
   //XIP_SSI->SSIENR = 0;
   p0x(1800,0008,<XIP_SSI_ENR reg>) = bshift(0,0,<disable:0<<posib_xse_EN:0>);
 
-  //XIP_SSI->BAUDR = 2; // Must be even
-  p0x(1800,0014,<XIP_SSI_BAUDR reg>) = bshift(2,0,<divider:2 << posib_xsb_SCKDV:0~15>); // /2
+  XIP_SSI->BAUDR = 2; // Must be even
 
-  //XIP_SSI->CTRLR0 = (XIP_SSI_CTRLR0_SPI_FRF_STD << XIP_SSI_CTRLR0_SPI_FRF_Pos) |
-      //(XIP_SSI_CTRLR0_TMOD_EEPROM_READ << XIP_SSI_CTRLR0_TMOD_Pos) |
-      //((32-1) << XIP_SSI_CTRLR0_DFS_32_Pos);
+  XIP_SSI->CTRLR0 = (XIP_SSI_CTRLR0_SPI_FRF_STD << XIP_SSI_CTRLR0_SPI_FRF_Pos) |
+      (XIP_SSI_CTRLR0_TMOD_EEPROM_READ << XIP_SSI_CTRLR0_TMOD_Pos) |
+      ((32-1) << XIP_SSI_CTRLR0_DFS_32_Pos);
 
-  p0x(1800,0000,<XIP_SSI_CTRLR0>) =   bshift(0,21,<SPI_FRAME_FORMAT:0=1bit per SCK>,<posib SPI_FRF:21>)
-                                    | bshift(3,8,<EEPROM_READ MODE:3>,<TMOD:8=TRANSFER MODE>)
-                                    | bshift(32-1,16,<DATA FRAME SIZE:16~20>);
+  XIP_SSI->CTRLR1 = (0 << XIP_SSI_CTRLR1_NDF_Pos);
 
-  //XIP_SSI->CTRLR1 = (0 << XIP_SSI_CTRLR1_NDF_Pos);
-  p0x(1800,0004,<XIP_SSI_CTRLR1>) = bshift(0,0,<NDF=NUMBER of DATA FRAME:0~15>);
+  XIP_SSI->SPI_CTRLR0 = (0x03/*READ_DATA*/ << XIP_SSI_SPI_CTRLR0_XIP_CMD_Pos) |
+    ((24 / 4) << XIP_SSI_SPI_CTRLR0_ADDR_L_Pos) |
+    (XIP_SSI_SPI_CTRLR0_INST_L_8B << XIP_SSI_SPI_CTRLR0_INST_L_Pos) |
+    (XIP_SSI_SPI_CTRLR0_TRANS_TYPE_1C1A << XIP_SSI_SPI_CTRLR0_TRANS_TYPE_Pos);
 
-
-
-
-
-  //XIP_SSI->SPI_CTRLR0 = 
-    //(0x03/*READ_DATA*/ << XIP_SSI_SPI_CTRLR0_XIP_CMD_Pos) |
-    //((24 / 4) << XIP_SSI_SPI_CTRLR0_ADDR_L_Pos) |
-    //(XIP_SSI_SPI_CTRLR0_INST_L_8B << XIP_SSI_SPI_CTRLR0_INST_L_Pos) |
-    //(XIP_SSI_SPI_CTRLR0_TRANS_TYPE_1C1A << XIP_SSI_SPI_CTRLR0_TRANS_TYPE_Pos);
-
-  p0x(1800,00f4,<XIP_SSI_SPI_CTRLR0>)
-                    = bshift(0x03, 24,<XIP_COMMAND:24~31|to send in XIP mode>)
-                     |bshift(24/4, 2 ,<ADDRESS LENGTH:2~5>)
-                     |bshift(2,    8 ,<INST_L=Instruction Length:8~9>|<0/4/8/16b>)
-                     |bshift(0,    0 ,<TRANS TYPE=Address and Instruction transfer format:0~1>|<0x0,0x1,0x2>);
-
-  //XIP_SSI->SSIENR = XIP_SSI_SSIENR_SSI_EN_Msk;
-  p0x(1800,0008,<XIP_SSI_SSIENR>) = bshift(1,0,<SSI ENABLE:0>|<0,1>);
+  XIP_SSI->SSIENR = XIP_SSI_SSIENR_SSI_EN_Msk;
 
   uint32_t *src = &_text_start;
   uint32_t *dst = &_text;
