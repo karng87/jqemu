@@ -1,11 +1,10 @@
 BDIR := $(shell pwd | sed -En 's;src;build;p')
+
+target := main.c
+objs := startup_rp2040.c $(target) \
+		sys_init.c
+
 target := led25.c
-TARGETS := $(shell echo $(shell \
-		find `pwd` -name '$(target)' \
-		| sed -En -e 's;src;build;' -e 's;.*;&.o{,.elf{,.bin{,.uf2}}};p'))
-
-TOOL := $(shell find `git rev-parse --show-toplevel` -regextype posix-extended -regex '.*src/tools/.*bin2uf2\.c' | sed -En -e 's;src;build;' -e 's;.*;&.out;p')
-
 objs := startup_rp2040.c $(target) \
 		clock_init.c
 
@@ -13,6 +12,13 @@ OBJS :=  $(shell \
 		for i in $(objs) \
 		;do find `pwd` -name $$i | sed -En -e 's;src;build;' -e 's;.*;&.o;p' \
 		;done)
+
+TARGETS := $(shell echo $(shell \
+		find `pwd` -name '$(target)' \
+		| sed -En -e 's;src;build;' -e 's;.*;&.o{,.elf{,.bin{,.uf2}}};p'))
+
+TOOL := $(shell find `git rev-parse --show-toplevel` -regextype posix-extended -regex '.*src/tools/.*bin2uf2\.c' | sed -En -e 's;src;build;' -e 's;.*;&.out;p')
+
 
 ld_scripts := $(shell find `pwd` -name '*.ld')
 LD_SCRIPT := $(filter %memmap_rp2040.ld,$(ld_scripts)) 
