@@ -1,4 +1,4 @@
-#define COMPILER_BARRIER() __ASM__volatile("":::"memory")
+#define COMPILER_BARRIER  __asm volatile ("":::"memory")
 
 #define hadd(x,y,z) (x+y+z)
 #define hex(x,y,args...) hadd(0x ## x ## 0000, 0x ## y, 0)
@@ -87,15 +87,13 @@ void nvic_enableIRQ(int IRQn){
         #define PPB_NVIC_ICER hex(e000,e180,<Interrupt Clear Enable Reg)
         #define PPB_NVIC_ISPR hex(e000,e200,<Interrupt Set-Pending Reg)
         #define PPB_NVIC_ICPR hex(e000,e280,<Interrupt Clear-Pending Reg)
-
         // __NVIC_EnableIRQ(IRQn);
-        p0x(PPB_NVIC_ISER) = bitshift(1,IRQn);
-        (void)0;
+        __asm volatile("":::"memory");
         p0x(PPB_NVIC_ISER) = bitshift(1,0,<TIMER_IRQ_0_IRQn>);
-        (void)0;
+        (void)0; // __asm volatile ("":::"memory");
     }
 }
-void timer_init(){
+void init_timer(){
 
         #define APB_RESETS_RESET hex(4000,c000,<0:(ADC),1:(BUSCTRL),2:(DMA),3:(I2C0),4:(I2C1),5:(IO_BANK0),6:(IO_QSPI),7:(JTAG),8:(PADS_BNAK0),9:(PADS_QSPI),10:(PIO0),11:(PIO1),12:(PLL_SYS),13:(PLL_USB),14:(PWM),15:(RTC),16:(SPI0),17:(SPI1),18:(SYSCFG),19:(SYSINFO),20:(TBMAN),21:(TIMER),22:(UART0),23:(UART1),24:(USB_CTRL)>)
             #define posib_arr_IO_BANK0 bitmask(5)
@@ -140,6 +138,9 @@ void timer_init(){
         #define APB_TIMER_INTE  hex3(4005,4000,38,<Interrupt ENABLE|0:alarm0,1:alram1...>)
 
     p0x(APB_TIMER_ALAM0) = p0x(APB_TIMER_TIMELR) + PERIOD_SLOW;
-    p0x(APB_TIMER_INTE) = bitshift(1,0);
+    p0x(APB_TIMER_INTE,<Interrupt Enable) = bitshift(1,0);
 
+     __asm volatile("":::"memory");
+     p0x(PPB_NVIC_ISER) = bitshift(1,0,<TIMER_IRQ_0_IRQn>);
+     (void)0; // __asm volatile ("":::"memory");
 }

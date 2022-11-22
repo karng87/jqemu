@@ -1,40 +1,38 @@
-#define posib(x, args...) (x) // position bit set
-#define bshift(x, y, args...) ((x) << (y))
+#define bitmask(x, args...) (x) // position bit set
+#define bitshift(x, y, args...) ((x) << (y))
 
-#define hadd(x, y) (x+y)
-#define hex(x, y, args...) hadd(0x ## x ## 0000 , 0x ## y)
-#define phex(x, y, args...) *((volatile unsigned int*)hex(x,y))
+#define hadd(x,y,z) (x+y+z)
+#define hex(x, y, args...) hadd(0x ## x ## 0000 , 0x ## y, 0)
+#define hex3(x, y, z, args...) hadd(0x ## x ## 0000 , 0x ## y, 0x ## z)
+#define phex(x, y, args...)     (*((volatile unsigned int*)hex(x,y)))
+#define phex3(x, y, z, args...) (*((volatile unsigned int*)hex3(x,y,z)))
 
-#define had3(x, y, z) (x+y+z)
-#define hex3(x, y, z,args...) had3(0x ## x ## 0000 , 0x ## y, 0x ## z)
-#define phex3(x, y, z,args...) *((volatile unsigned int*)hex3(x,y,z))
-
-#define p0x(x,args...) *((volatile unsigned int*)(x))
-#define p0x_a(x,y,args...) p0x(hadd(x,y))
+#define p0x(x,args...) (*((volatile unsigned int*)(x)))
+#define p0x_a(x,y,args...) p0x(hadd(x,y,0))
 #define p0x_xor(x,args...) p0x_a(x,0x1000)
 #define p0x_set(x,args...) p0x_a(x,0x2000)
 #define p0x_clr(x,args...) p0x_a(x,0x3000)
 
-void sys_init(void){
+void init_sys(void){
 
     // Enable XOSC external Oscillator
     #define APB_XOSC             hex(4002,4000,<EXTERNAL OSCILATOR COUNTER>)
         #define APB_XOSC_CTRL    hex(4002,4000)
-            #define posib_axc_FREQ_RANGE posib(0,~11<Frequency Range|0xaa0:1~15MHz>)
-            #define posib_axc_ENABLED posib(12,~23<>)
-                #define enable_ROSC bshift(0xfab,12,<Ring Oscillator Enable)
-                #define disable_ROSC bshift(0xdle,12,<Ring Oscillator Disable)
+            #define posib_axc_FREQ_RANGE bitmask(0,~11<Frequency Range|0xaa0:1~15MHz>)
+            #define posib_axc_ENABLED bitmask(12,~23<>)
+                #define enable_ROSC bitshift(0xfab,12,<Ring Oscillator Enable)
+                #define disable_ROSC bitshift(0xdle,12,<Ring Oscillator Disable)
 
         #define APB_XOSC_STATUS  hex(4002,4004)
-            #define posib_axs_STABLE posib(31,~31<Running and Stable>)
+            #define posib_axs_STABLE bitamsk(31,~31<Running and Stable>)
 
         #define APB_XOSC_STARTUP hex(4002,400C)
-            #define posib_axs_DELAY posib(0,~13<Delay>)
+            #define posib_axs_DELAY bitmask(0,~13<Delay>)
 
-    p0x(APB_XOSC_CTRL) = bshift(0xaa0,0,<1~15MHz|posib_axc FREQ_RANGE>); // 1 - 15MHz
-    p0x(APB_XOSC_STARTUP) =  bshift(47,0,<posib_axs DELAY>); // ~1ms @12MHz
-    p0x_set(APB_XOSC_CTRL,<+Atomic SET>) = bshift(0xfab,12,<Ring Oscillator Enaable>);
-    while(1) if(p0x(APB_XOSC_STATUS)&bshift(1,31,<posib_axs STABLE>)) break;
+    p0x(APB_XOSC_CTRL) = bitshift(0xaa0,0,<1~15MHz|posib_axc FREQ_RANGE>); // 1 - 15MHz
+    p0x(APB_XOSC_STARTUP) =  bitshift(47,0,<posib_axs DELAY>); // ~1ms @12MHz
+    p0x_set(APB_XOSC_CTRL,<+Atomic SET>) = bitshift(0xfab,12,<Ring Oscillator Enaable>);
+    while(1) if(p0x(APB_XOSC_STATUS) & bitshift(1,31,<posib_axs STABLE>)) break;
 
     // Setup SYS PLL for 12MHz * 40 / 4 / 1= 120MHz
     #define APB_RESETS  hex(4000,c000)
@@ -52,8 +50,8 @@ void sys_init(void){
             #define posib_ard_PLL_SYS posb(12)
             #define posib_ard_PLL_USB posb(13)
 
-    p0x_clr(APB_RESETS_RESET,<+CLR>) = bshift(1,12,<PLL_SYS:12-posib>);
-    while(1) if(p0x(APB_RESETS_DONE)&bshift(1,12,<PLL_SYS>)) break;
+    p0x_clr(APB_RESETS_RESET) = bitshift(1,12,<PLL_SYS:12-posib>);
+    while(1) if(p0x(APB_RESETS_DONE) & bitshift(1,12,<PLL_SYS>)) break;
    
     #define APB_PLL_SYS     hex(4002,8000, APB)
         #define APB_PLL_SYS_CS hex3(4002,8000,0,<CONTROL and STATUS reg>)
@@ -73,18 +71,20 @@ void sys_init(void){
             #define posibb_apsp_POSTDIV1 posb(12,<~14|divide by 1-7>)
             #define posibb_apsp_POSTDIV2 posb(16,<18|divide by 1-7>)
 
-    p0x(APB_PLL_SYS_CS) = bshift(1,0,<REFDIV:divides ref clock>);
+    p0x(APB_PLL_SYS_CS) = bitshift(1,0,<REFDIV:divides ref clock>);
         // 12Mh * 40
-    p0x(APB_PLL_SYS_FBDIV_INT)= bshift(40,0,<see ctrl reg with interrput>);
+    p0x(APB_PLL_SYS_FBDIV_INT,feedback divider)= bitshift(40,0,<see ctrl reg with interrput>);
         // (12Mhz *40)/4  /1  1
-    p0x(APB_PLL_SYS_PRIM) = bshift(4,12,<POSTDIV1>) | bshift(1,16,<POSTDIV2>);
-    p0x_clr(APB_PLL_SYS_PWR) = bshift(1,5,<VCOPD>) | bshift(1,0,<PD:power down>);
-    while(1) if(p0x(APB_PLL_SYS_CS)&bshift(1,31,<LOCK:PLL is locked>)) break;
-    p0x_clr(APB_PLL_SYS_PWR) = bshift(1,3,<POSTDIVPD>);
+    p0x(APB_PLL_SYS_PRIM) = bitshift(4,12,<POSTDIV1>) | bitshift(1,16,<POSTDIV2>);
+
+    p0x_clr(APB_PLL_SYS_PWR) = bitshift(1,5,<VCO PowerDown>) | bitshift(1,0,<PD:power down>);
+    while(1) if(p0x(APB_PLL_SYS_CS) & bitshift(1,31,<LOCK:PLL is locked>)) break;
+
+    p0x_clr(APB_PLL_SYS_PWR) = bitshift(1,3,<POSTDIVPD>);
 
     // Setup USB PLL for 12MHz *36/3/3 = 48MHz
-    p0x_clr(APB_RESETS_RESET,<+CLR>) = bshift(1,13,<PLL_USB:13-posib>);
-    while(1) if(p0x(APB_RESETS_DONE)&bshift(1,13,<PLL_USB>)) break;
+    p0x_clr(APB_RESETS_RESET,<+CLR>) = bitshift(1,13,<PLL_USB:13-posib>);
+    while(1) if(p0x(APB_RESETS_DONE)&bitshift(1,13,<PLL_USB>)) break;
 
     #define APB_PLL_USB     hex(4002,c000, APB)
         #define APB_PLL_USB_CS hex3(4002,c000,00,<CONTROL and STATUS reg>)
@@ -104,15 +104,16 @@ void sys_init(void){
             #define posibb_apup_POSTDIV1 posb(12,~14<divide by 1-7>)
             #define posibb_apup_POSTDIV2 posb(16,~18<divide by 1-7>)
 
-    p0x(APB_PLL_USB_CS) = bshift(1,0,<REFDIV:divides ref clock>);
+    p0x(APB_PLL_USB_CS) = bitshift(1,0,<REFDIV:divides ref clock>);
         // 12Mh *36 
-    p0x(APB_PLL_USB_FBDIV_INT)= bshift(36,0,<see ctrl reg with interrput>);
+    p0x(APB_PLL_USB_FBDIV_INT)= bitshift(36,0,<see ctrl reg with interrput>);
         // (12Mhz*36) /3 /3 = 48MHz 
-    p0x(APB_PLL_USB_PRIM) = bshift(3,12,<POSTDIV1>) | bshift(3,16,<POSTDIV2>);
+    p0x(APB_PLL_USB_PRIM) = bitshift(3,12,<POSTDIV1>) | bitshift(3,16,<POSTDIV2>);
 
-    p0x_clr(APB_PLL_USB_PWR) = bshift(1,5,<VCOPD>) | bshift(1,0,<PD:power down>);
-    while(1) if(p0x(APB_PLL_USB_CS)&bshift(1,31,<LOCK:PLL is locked>)) break;
-    p0x_clr(APB_PLL_USB_PWR) = bshift(1,3,<POSTDIVPD>);
+    p0x_clr(APB_PLL_USB_PWR) = bitshift(1,5,<VCOPD>) | bitshift(1,0,<PD:power down>);
+    while(1) if(p0x(APB_PLL_USB_CS) & bitshift(1,31,<LOCK:PLL is locked>)) break;
+
+    p0x_clr(APB_PLL_USB_PWR) = bitshift(1,3,<POSTDIVPD>);
 
     // Switch clock to their final sources
     #define APB_CLOCKS  hex(4000,8000)
@@ -156,16 +157,19 @@ void sys_init(void){
             #define posb_acr_FRCE posib(12,:8<Force resus>)
             #define posb_acr_CLEAR posib(16,:16<>)
 
-    p0x(APB_CLK_REF_CTRL) = bshift(2,0,<2:xosc_clk_src>|SRC);
-    p0x(APB_CLK_SYS_CTRL) = bshift(0,5,<0:clksrc_pll_sys|AUXSRC>);
-    p0x_set(APB_CLK_SYS_CTRL) = bshift(1,0,<1:clksrc_clk_sys_aux|SRC);
+    p0x(APB_CLK_REF_CTRL) = bitshift(2,0,<2:xosc_clk_src>|SRC);
 
-    p0x(APB_CLK_PERI_CTRL) = bshift(1,11,<ENABLE>) | bshift(0,5,<clk_sys|AUXSRC>);
-    p0x(APB_CLK_USB_CTRL) = bshift(1,11,<ENABLE>) | bshift(0,5,<clksrc_pll_usb|AUXSRC>);
-    p0x(APB_CLK_ADC_CTRL) = bshift(1,11,<ENABLE>) | bshift(0,5,<clksrc_pll_usb|AUXSRC>);
+    p0x(APB_CLK_SYS_CTRL) = bitshift(0,5,<0:clksrc_pll_sys|AUXSRC>);
+    p0x_set(APB_CLK_SYS_CTRL) = bitshift(1,0,<1:clksrc_clk_sys_aux|SRC);
 
-    p0x(APB_CLK_RTC_DIV) = bshift(255,8,<12MHz / 256 = 46875Hz|INT);
-    p0x(APB_CLK_RTC_CTRL) = bshift(1,11,<ENABLE>) | bshift(3,5,<xosc_clksrc|AUXSRC);
+    p0x(APB_CLK_PERI_CTRL) = bitshift(1,11,<ENABLE>) | bitshift(0,5,<clk_sys|AUXSRC>);
+
+    p0x(APB_CLK_USB_CTRL) = bitshift(1,11,<ENABLE>) | bitshift(0,5,<clksrc_pll_usb|AUXSRC>);
+
+    p0x(APB_CLK_ADC_CTRL) = bitshift(1,11,<ENABLE>) | bitshift(0,5,<clksrc_pll_usb|AUXSRC>);
+
+    p0x(APB_CLK_RTC_DIV) = bitshift(255,8,<12MHz / 256 = 46875Hz|INT);
+    p0x(APB_CLK_RTC_CTRL) = bitshift(1,11,<ENABLE>) | bitshift(3,5,<xosc_clksrc|AUXSRC);
 
     // Configure 1 us tick for watchdog and timer
     #define APB_WATCHDOG hex(4005,8000)
@@ -183,17 +187,18 @@ void sys_init(void){
 #define F_PER          120000000
 #define F_RTC          (F_REF / 256)
 #define F_TICK         1000000
-    p0x(APB_WATCHDOG_TICK) = bshift((F_REF/F_TICK),0,<CYCLES>) | bshift(1,9,<ENABLE>);
+
+    p0x(APB_WATCHDOG_TICK) = bitshift((F_REF/F_TICK),0,<CYCLES>) | bitshift(1,9,<ENABLE>);
 
     // Enable GPIOs
-    p0x_clr(APB_RESETS_RESET) = bshift(1,5,IO_BANK0)|bshift(1,8,<PADS_BNAK0);
-    while(1) if(p0x(APB_RESETS_DONE) & bshift(1,5) && p0x(APB_RESETS_DONE) & bshift(1,8)) break;
+    p0x_clr(APB_RESETS_RESET) = bitshift(1,5,IO_BANK0)|bitshift(1,8,<PADS_BNAK0);
+    while(1) if((p0x(APB_RESETS_DONE) & bitshift(1,5)) || (p0x(APB_RESETS_DONE) & bitshift(1,8))) break;
 }
 
 void delay(unsigned int t){
     for(unsigned int i=0; i<t;){
     #define PPB_STK_CSR hex(e000,e010,<Systic Control Status Reg)
         #define posib_psc_COUNT_FLAG posib(16,:16<return 1 if timer coounted to 0>)
-        if(p0x(PPB_STK_CSR) & bshift(1,16,<COUNTER FLAG>)) i++;
+        if(p0x(PPB_STK_CSR) & bitshift(1,16,<COUNTER FLAG>)) i++;
     }
 }

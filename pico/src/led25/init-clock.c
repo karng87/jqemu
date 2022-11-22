@@ -15,7 +15,7 @@
 #define p0x_set(x,args...) p0x_a(x,0x2000)
 #define p0x_clr(x,args...) p0x_a(x,0x3000)
 
-void clock_init(void){
+void init_clock(void){
     #define APB_CLOCKS  hex(4000,8000)
         #define APB_CLK_REF_CTRL hex(4000,8030,<REFERENCE CLOCK CTRL>)
             #define posib_acr_SRC posib(0,:1<Select SRC>)

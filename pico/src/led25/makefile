@@ -2,11 +2,22 @@ BDIR := $(shell pwd | sed -En 's;src;build;p')
 
 target := main.c
 objs := startup_rp2040.c $(target) \
-		sys_init.c
+		sys_init.c timer_init.c
 
-target := led25.c
+target := 01-led25.c
 objs := startup_rp2040.c $(target) \
-		clock_init.c
+
+target := 02-led25_macro.c
+objs := startup_rp2040.c $(target) \
+
+
+target := 03-led25-init_clock.c
+objs := startup_rp2040.c $(target) \
+		init-clock.c
+
+target := 04-led25-init_sys.c
+objs := startup_rp2040.c $(target) \
+		init-sys.c
 
 OBJS :=  $(shell \
 		for i in $(objs) \

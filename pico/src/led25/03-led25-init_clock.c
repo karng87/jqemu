@@ -15,11 +15,11 @@
 #define p0x_clr(x,args...)  *((volatile unsigned int*)(hex(x,3000)))
 
 #define bshift(x,y,args...) ((x) << (y))
-extern void clock_init(void);
+extern void init_clock(void);
 extern void delay(unsigned int);
 
 int main(){
-    clock_init();
+    init_clock();
     phexa(4000, c000, 3000,<APB|RESET|CLR>) = bshift(1,5,<posi_arr IO_BANK0>);
     while(1) if(phex(4000,c008,<APB|RESET DONE>) & bshift(1,5,<posi_ard IO_BANK0>)) break; 
 
@@ -55,7 +55,7 @@ int main(){
 
     for(unsigned int i=0;i<100;i++){
         phex(d000,1c,<SIO|OUT_XOR>) = bshift(1,25,<25 PIN>);
-        delay(10);
+        delay(1);
     }
     return 0;
 }
