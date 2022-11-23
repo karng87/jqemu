@@ -1,7 +1,8 @@
 #include<stdio.h>
 // argument: ... == args... expression:  __VA_ARGS__ == args
 
-#define add(x,y,args...) (x+y)
+#define toui(x) x ## U
+#define add(x,y,args...) toui(x+y)
 #define h0x(w,y,args...) add(0x ## w ## 0000 ,0x ## y, args...)
 #define phex(w, y, args...) ((volatile unsigned int)(hex(0x ## w ## 0000, 0x ## y)))
 
@@ -19,5 +20,16 @@ int main(){
     printf("bshift(1+2,1): 0x%x\n",bshift(1+2,1+1,!..));
 
     printf("hex(beae+1,deac+1): 0x%x\n",h0x(beae+1,deac+1,$...));
+    // 0xffffU == Max  0xffff == -1
+    printf("0xffffffffu: %ud\n",0xffffffff);
+    printf("0xffffffff : %d\n",0xffffffff);
+    printf("%lu\n",0xffffffffffffffffU + 0xffffffffffffffff);
+
+    printf("0xffffffff = %u\n",0xffffffff);
+    printf("0xffffffffU + 0xffffffff: %u\n",(0xffffffffU + 0xffffffff));
+    printf("0xffffffff + 0xffffffff: %u\n",0xffffffff + 0xffffffff);
+
+    char * ptr;
+    *ptr = 'a';
 
 }

@@ -17,12 +17,16 @@ objs := startup_rp2040.c $(target) \
 
 target := 04-led25-init_sys.c
 objs := startup_rp2040.c $(target) \
-		init-sys.c
+		init-sys.c \
+		init-timer.c \
+		nvic-enableIRQ.c \
 
 OBJS :=  $(shell \
 		for i in $(objs) \
 		;do find `pwd` -name $$i | sed -En -e 's;src;build;' -e 's;.*;&.o;p' \
 		;done)
+
+INCLUDE := -I ../../include
 
 TARGETS := $(shell echo $(shell \
 		find `pwd` -name '$(target)' \
@@ -40,7 +44,7 @@ ARCH := -mcpu=cortex-m0plus
 AOPTS := --warn --fatal-warnings $(ARCH)
 
 
-CFLAGS += $(ARCH) 
+CFLAGS += $(ARCH) $(INCLUDE)
 CFLAGS += -W -Wall --std=gnu11 -Os
 CFLAGS += -ffreestanding
 CFLAGS += -fno-diagnostics-show-caret
