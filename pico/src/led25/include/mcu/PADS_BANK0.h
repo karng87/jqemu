@@ -1,4 +1,6 @@
 // sed -En '/ PADS_BANK0/p' mcu-start/include/rp2040.h > PADS_BANK0.h
+#ifndef M_PADS_BANK0_H
+#define M_PADS_BANK0_H
 
 //  * @brief PADS_BANK0 (PADS_BANK0)
 
@@ -688,3 +690,4 @@ typedef enum {                                  /*!< PADS_BANK0_SWD_DRIVE */
   PADS_BANK0_SWD_DRIVE_8mA             = 2,     /*!< 8mA : 8mA */
   PADS_BANK0_SWD_DRIVE_12mA            = 3,     /*!< 12mA : 12mA */
 } PADS_BANK0_SWD_DRIVE_Enum;
+#endif

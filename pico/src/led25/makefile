@@ -19,6 +19,7 @@ target := 04-led25-init_sys.c
 objs := startup_rp2040.c $(target) \
 		init-sys.c \
 		init-timer.c \
+		init-uart.c \
 		nvic-enableIRQ.c \
 
 OBJS :=  $(shell \

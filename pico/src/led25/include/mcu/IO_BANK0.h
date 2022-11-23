@@ -1,7 +1,6 @@
 /* ================                                         IO_BANK0                                          ================ */
-  * @brief IO_BANK0 (IO_BANK0)
-typedef struct {                                /*!< (@ 0x40014000) IO_BANK0 Structure */
-} IO_BANK0_Type;                                /*!< Size = 400 (0x190) */
+#include  "IO_BANK0_Type.h"
+
 #define IO_BANK0_BASE               0x40014000UL
 #define IO_BANK0                    ((IO_BANK0_Type*)          IO_BANK0_BASE)
 #define IO_BANK0_XOR                ((IO_BANK0_Type*)          (IO_BANK0_BASE+0x1000))
