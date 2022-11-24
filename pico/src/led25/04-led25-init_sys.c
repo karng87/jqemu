@@ -2,13 +2,13 @@
 #include "include/j_address.h"
 
 extern void init_sys();
-extern void init_timer();
-extern void init_uart(unsigned int baud);
+//extern void init_timer();
+//extern void init_uart(unsigned int baud);
 
 int main(){
     init_sys();
-    init_timer();
-    init_uart(115200);
+    //init_timer();
+    //init_uart(115200);
     char* msg = "\nHello, Wolrd\n";
     while(*msg){
         while(p0x(APB_UART0_FR) & bitshift(1,posib_pu0f_TXFF,<TX FIFO FULL>));
@@ -17,7 +17,8 @@ int main(){
 
     // GPIO 25 OUTPUT ENABLE
     *phex(d000,24,<SIO|OE_SET>) = bitshift(1,25,<25GPIO>);
-    *phex_a(4000, 14000, cc,<APB|IO_BANK0|25GPIO<4+25*8=0xcc>>) = bitshift(5,0,<5:SIO FUNC|0:posib>);
+    *phex_r(4000, 14000, cc,<APB|IO_BANK0|25GPIO<4+25*8=0xcc>>)
+        = bitshift(5,0,<5:SIO FUNC|0:posib>);
     (void)main;
 
     // GPIO 25 OUTPUT CLEAR

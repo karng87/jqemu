@@ -13,7 +13,7 @@
 #define hex_r(x, y, z, args...) hadd(0x ## x ## 0000 , 0x ## y, 0x ## z)
 #define hex(x, y, args...) hadd(0x ## x ## 0000 , 0x ## y, 0)
 
-#define phex_a(x, y, z, args...) ((volatile unsigned int*)hex_r(x,y,z))
+#define phex_r(x, y, z, args...) ((volatile unsigned int*)hex_r(x,y,z))
 #define phex(x, y, args...) ((volatile unsigned int*)hex(x,y))
 #define phex_xor(x, y, args...) ((volatile unsigned int*)hex_r(x,y,1000))
 #define phex_set(x, y, args...) ((volatile unsigned int*)hex_r(x,y,2000))

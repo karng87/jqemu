@@ -1,16 +1,5 @@
 #include<stdint.h>
-
-#define hadd(x,y) (x+y)
-#define had3(x,y,z) (x+y+z)
-
-#define h0x(w,y,args...) hadd(0x ## w ## 0000, 0x ## y)
-#define h0xa(w,y,atomic,args...) had3(0x ## w ## 0000, 0x ## y, 0x ## atomic)
-
-
-#define p0x(x,y,args...) *(volatile unsigned int*)h0x(x,y)
-#define p0xa(x,y,atomic,args...) *(volatile unsigned int*)h0xa(x,y,atomic)
-
-#define bshift(x,y,args...) ((x) << (y))
+#include "include/j_address.h"
 
 //-----------------------------------------------------------------------------
 #define DUMMY __attribute__ ((weak, alias ("irq_handler_dummy")))
@@ -141,12 +130,12 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
                 //#define f_xse_SSI_EN fset(0,:0, SSI Enable)
           //XIP_SSI->SSIENR = 0;
           //*(volatile uint32_t *)(hex(1800,0008)) = 0;
-  p0x(1800,0008,<XIP_SSI_ENR reg>) = bshift(0,0,<disable:0<<posib_xse_EN:0>);
+  *phex(1800,0008,<XIP_SSI_ENR|ENABLE Reg>) = bitshift(0,0,<0:disable|0:posib_xse EN>);
 
       //#define XIP_SSI_BAUDR hex(1800,0014, Baud Rate)
                 //#define f_xsb_SCKDV fset(0, :15, SSI ClocK DiVider)
   //XIP_SSI->BAUDR = 2; // Must be even
-  p0x(1800,0014,<XIP_SSI_BAUDR reg>) = bshift(2,0,<divider:2 << posib_xsb_SCKDV:0~15>); // /2
+  *phex(1800,0014,<XIP_SSI_BAUDR| reg>) = bitshift(2,0,<2:divider|0:posib_xsb_SCKDV:0~15>); // /2
 
             //#define XIP_SSI_CTRL0 hex(1800,0000, Control register0)
                 //#define f_xsc0_DFS         fset( 0,:3,  Data Frame Size)
@@ -161,14 +150,14 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
                 //#define f_xsc0_SPI_FRF     fset(21,:22, SPI FRame Format, 0<<(1-bit per SCK), 1<<(2-bit per SCK), 2<<(4-bit per SCK), frame format)
                 //#define f_xsc0_SSTE        fset(24,:24, Slave select toggle enable)
   //XIP_SSI->CTRLR0 = (XIP_SSI_CTRLR0_SPI_FRF_STD << XIP_SSI_CTRLR0_SPI_FRF_Pos) | (XIP_SSI_CTRLR0_TMOD_EEPROM_READ << XIP_SSI_CTRLR0_TMOD_Pos) | ((32-1) << XIP_SSI_CTRLR0_DFS_32_Pos);
-  p0x(1800,0000,<XIP_SSI_CTRLR0>) =   bshift(0,21,<SPI_FRAME_FORMAT:0=1bit per SCK>,<posib SPI_FRF:21>)
-                                    | bshift(3,8,<EEPROM_READ MODE:3>,<TMOD:8=TRANSFER MODE>)
-                                    | bshift(32-1,16,<DATA FRAME SIZE:16~20>);
+  *phex(1800,0000,<XIP_SSI_CTRLR0>) =  bitshift(0,21,<0:1bit per SCK||21:posib SPI_FRF|FRAME FORMAT>)
+                                    | bitshift(3,8,<3:EEPROM_READ MODE||8:TMOD|TRANSFER MODE>)
+                                    | bitshift(32-1,16,<4byte?||16~20:DATA FRAME SIZE>);
 
             //#define XIP_SSI_CTRLR1 hex(1800,0004, Control register1)
                 //#define posi_xsc1_NDF posib( 0,:15, Number of data frames)
   //XIP_SSI->CTRLR1 = (0 << XIP_SSI_CTRLR1_NDF_Pos);
-  p0x(1800,0004,<XIP_SSI_CTRLR1>) = bshift(0,0,<NDF=NUMBER of DATA FRAME:0~15>);
+  *phex(1800,0004,<XIP_SSI_CTRLR1>) = bitshift(0,0,<||0~15:NDF|NUMBER of DATA FRAME>);
 
             //#define XIP_SSI_SPI_CTRLR0 hex(1800,00f4, SPI Control r 0)
                 //#define posi_xssc_TRANS_TYPE posib(0, :1, TRANS_TYPE)
@@ -184,16 +173,16 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
     //((24 / 4) << XIP_SSI_SPI_CTRLR0_ADDR_L_Pos) |
     //(XIP_SSI_SPI_CTRLR0_INST_L_8B << XIP_SSI_SPI_CTRLR0_INST_L_Pos) |
     //(XIP_SSI_SPI_CTRLR0_TRANS_TYPE_1C1A << XIP_SSI_SPI_CTRLR0_TRANS_TYPE_Pos);
-  p0x(1800,00f4,<XIP_SSI_SPI_CTRLR0>)
-                    = bshift(0x03, 24,<XIP_COMMAND:24~31|to send in XIP mode>)
-                     |bshift(24/4, 2 ,<ADDRESS LENGTH:2~5>)
-                     |bshift(2,    8 ,<INST_L=Instruction Length:8~9>|<0/4/8/16b>)
-                     |bshift(0,    0 ,<TRANS TYPE=Address and Instruction transfer format:0~1>|<0x0,0x1,0x2>);
+  *phex(1800,00f4,<XIP_SSI_SPI_CTRLR0>)
+                    = bitshift(0x03, 24,<0x03:read?||24~31:XIP_COMMAND|to send in XIP mode>)
+                     |bitshift(24/4, 2 ,<6:?||2~5:ADDRESS LENGTH>)
+                     |bitshift(2,    8 ,<2=8?|0/4/8/16b||8~9:INST_L=Instruction Length>)
+                     |bitshift(0,    0 ,<0x0,0x1,0x2||0~1:TRANS TYPE|Address and Instruction transfer format>);
 
             //#define XIP_SSI_SENR hex(1800,0010, Slave Enable)
                 //#define posi_xss_SEL posib(0, :0, Slave Select, 0<<(not selected), 1<<(slave selected))
   //XIP_SSI->SSIENR = XIP_SSI_SSIENR_SSI_EN_Msk;
-  p0x(1800,0008,<XIP_SSI_SSIENR>) = bshift(1,0,<SSI ENABLE:0>|<0,1>);
+  *phex(1800,0008,<XIP_SSI_ENR>) = bitshift(1,0,<||0:SSI ENABLE>);
 
   uint32_t *src = &_text_start; // _text_start -> flash mem
   uint32_t *dst = &_text;       // _text -> sram
@@ -208,7 +197,7 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
     //#define PPB hex(e000,0000, PPB:Private Peripheral Bus)
         //#define VTOR hex(e000,ed08,PPB)
   //SCB->VTOR = (uint32_t)vectors;
-  p0x(e000,ed08,<PPB|Vector Offset Register>) = (uint32_t)vectors;
+  *phex(e000,ed08,<PPB|Vector Offset Reg>) = (uint32_t)vectors;
 
   asm (R"asm(
     msr    msp, %[sp] // move status register <> master stack pointer <> &_stack_top

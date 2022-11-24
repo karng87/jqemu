@@ -11,9 +11,6 @@ target := 02-led25_macro.c
 objs := startup_rp2040.c $(target) \
 
 
-target := 03-led25-init_clock.c
-objs := startup_rp2040.c $(target) \
-		init-clock.c
 
 target := 04-led25-init_sys.c
 objs := startup_rp2040.c $(target) \
@@ -21,6 +18,18 @@ objs := startup_rp2040.c $(target) \
 		init-timer.c \
 		init-uart.c \
 		nvic-enableIRQ.c \
+
+target := main.c
+objs := startup_rp2040.c $(target) \
+
+target := 03-led25-init_clock.c
+objs := startup_rp2040.c $(target) \
+		init-clock.c
+
+target := 04-led25-init_sys.c
+objs := startup_rp2040.c $(target) \
+		init-sys.c \
+
 
 OBJS :=  $(shell \
 		for i in $(objs) \
@@ -33,7 +42,9 @@ TARGETS := $(shell echo $(shell \
 		find `pwd` -name '$(target)' \
 		| sed -En -e 's;src;build;' -e 's;.*;&.o{,.elf{,.bin{,.uf2}}};p'))
 
-TOOL := $(shell find `git rev-parse --show-toplevel` -regextype posix-extended -regex '.*src/tools/.*bin2uf2\.c' | sed -En -e 's;src;build;' -e 's;.*;&.out;p')
+TOOL := $(shell find `git rev-parse --show-toplevel`\
+		-regextype posix-extended -regex '.*src/tools/.*mcu2uf2\.c' |\
+		sed -En -e 's;src;build;' -e 's;.*;&.out;p')
 
 
 ld_scripts := $(shell find `pwd` -name '*.ld')
@@ -65,7 +76,7 @@ tools:
 	make -C ../tools $(TOOL)
 
 $(filter %uf2,$(TARGETS)): $(filter %bin,$(TARGETS))
-	$(TOOL) $< $@
+	$(TOOL) -i $< -o $@
 
 $(filter %bin,$(TARGETS)): $(filter %elf,$(TARGETS))
 	$(ARM)-objcopy -O binary $^ $@

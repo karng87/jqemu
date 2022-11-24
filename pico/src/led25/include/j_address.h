@@ -32,8 +32,8 @@
     #define XIP_SSI_CTRLR1 hex_r(1800,0004,00)
         #define posi_xsc1_NDF bitmask( 0,<~15|NUMBER of DATA FRAMES>)
 
-    #define XIP_SSI_SSIENR hex_r(1800,0000,08,<Synchronous Serial Interface Enable reg>)
-        #define posi_xss_SSI_EN bitmask(0,<~0|SSI Enable>)
+    #define XIP_SSI_ENR hex_r(1800,0000,08,<Synchronous Serial Interface Enable reg>)
+        #define posi_xss_EN bitmask(0,<~0|SSI Enable>)
 
     #define XIP_SSI_MWCR hex_r(1800,0000,0c, Microwire Control)
 
@@ -100,59 +100,70 @@
     #define APB_SYSINFO hex(4000,0000)
     #define APB_SYSCFG  hex(4000,4000)
 
-    #define APB_CLOCKS  hex(4000,8000)
-        #define APB_CLK_REF_CTRL hex_r(4000,8000,30,<REFERENCE CLOCK CTRL>)
-            #define posib_acr_SRC bitmask(0,<~1|SRC>)
-                #define sb_rosc_clksrc_ph 0
-                #define sb_clksrc_clk_ref_aux 1
-                #define sb_xosc_clk_src 2
+    #define APB_CLKS  hex(4000,8000,<CLOCKS>)
+        #define APB_CLKS_REF_CTRL hex_r(4000,8000,30,<REFERENCE CLOCK CTRL>)
+            #define posib_pcr_SRC bitmask(0,<~1|SRC>)
+                #define selb_pcrc_ROSC_CLKSRC_PH 0x0
+                #define selb_pcrc_CLKSRC_CLK_REF_AUX 0x1
+                #define selb_pcrc_XOSC_CLKSRC 0x2
 
-        #define APB_CLK_SYS_CTRL hex_r(4000,8000,3c,<SYSTEM CLOCK CTRL>)
-            #define posib_acs_SRC bitmask(0,<~0|SRC||0=clk_ref,1=clksrc_clk_sys_aux>)
-            #define posib_acs_AUXSRC bitmask(5,<~7|AUXSRC||0=clksrc_pll_sys,1=clksrc_pll_usb>)
+        #define APB_CLKS_SYS_CTRL hex_r(4000,8000,3c,<SYSTEM CLOCK CTRL>)
+            #define posib_pcs_SRC bitmask(0,<~0|SRC||0=clk_ref,1=clksrc_clk_sys_aux>)
+                #define selb_pcsc_CLKSRC_PLL_SYS 0x0
+                #define selb_pcsc_CLKSRC_PLL_USB 0x1
+                #define selb_pcsc_ROSC_CLKSRC 0x2
+                #define selb_pcsc_XOSC_CLKSRC 0x3
+                #define selb_pcsc_CLKSRC_GPIN0 0x4
+                #define selb_pcsc_CLKSRC_GPIN1 0x5
 
-        #define APB_CLK_PERI_CTRL hex_r(4000,8000,48)
-                #define posib_acpc_AUXSRC bitmask(5,<~7||0:clk_sys,1:clksrc_pll_sys>)
-                #define posib_acpc_KILL bitmask(10,<~10|Asynchronously kills the clock generator>)
-                #define posib_acpc_ENABLE bitmask(11,<~11|starts and stops the clock generator cleanly>)
+            #define posib_pcs_AUXSRC bitmask(5,<~7|AUXSRC||0=clksrc_pll_sys,1=clksrc_pll_usb>)
 
-        #define APB_CLK_USB_CTRL hex_r(4000,8000,54)
-                #define posib_acuc_AUXSRC bitmask(5,<~7|0:clksrc_pll_usb,1:clksrc_pll_sys>)
-                #define posib_acuc_KILL bitmask(10,<~10|Asynchronously kills the clock generator>)
-                #define posib_acuc_ENABLE bitmask(11,<~11|starts and stops the clock generator cleanly>)
+        #define APB_CLKS_PERI_CTRL hex_r(4000,8000,48)
+                #define posib_pcpc_AUXSRC bitmask(5,<~7||0:clk_sys,1:clksrc_pll_sys>)
+                #define posib_pcpc_KILL bitmask(10,<~10|Asynchronously kills the clock generator>)
+                #define posib_pcpc_ENABLE bitmask(11,<~11|starts and stops the clock generator cleanly>)
 
-        #define APB_CLK_ADC_CTRL hex_r(4000,8000,60)
-                #define posib_acac_AUXSRC bitmask(5,<~7|0:clksrc_pll_usb,1:clksrc_pll_sys>)
-                #define posib_acac_KILL bitmask(10,<~10|Asynchronously kills the clock generator>)
-                #define posib_acac_ENABLE bitmask(11,<~11|starts and stops the clock generator cleanly>)
+        #define APB_CLKS_USB_CTRL hex_r(4000,8000,54)
+                #define posib_pcuc_AUXSRC bitmask(5,<~7|0:clksrc_pll_usb,1:clksrc_pll_sys>)
+                #define posib_pcuc_KILL bitmask(10,<~10|Asynchronously kills the clock generator>)
+                #define posib_pcuc_ENABLE bitmask(11,<~11|starts and stops the clock generator cleanly>)
 
-        #define APB_CLK_RTC_CTRL hex_r(4000,8000,6c)
-                #define posib_acrc_AUXSRC bitmask(5,<~7||0:clksrc_pll_usb,1:clksrc_pll_sys,3:xosc_clksrc>)
-                #define posib_acrc_KILL bitmask(10,<~10|Asynchronously kills the clock generator>)
-                #define posib_acrc_ENABLE bitmask(11,<~11|starts and stops the clock generator cleanly>)
+        #define APB_CLKS_ADC_CTRL hex_r(4000,8000,60)
+                #define posib_pcac_AUXSRC bitmask(5,<~7|0:clksrc_pll_usb,1:clksrc_pll_sys>)
+                #define posib_pcac_KILL bitmask(10,<~10|Asynchronously kills the clock generator>)
+                #define posib_pcac_ENABLE bitmask(11,<~11|starts and stops the clock generator cleanly>)
 
-        #define APB_CLK_RTC_DIV hex_r(4000,8000,70)
-                #define posib_acrd_FRAC bitmask(0,<~7|Fractiinal component of the divisor>)
-                #define posib_acrd_INT bitmask(8,<~31|Integer component of the divisor|0:divide by 2^16>)
+        #define APB_CLKS_RTC_CTRL hex_r(4000,8000,6c)
+                #define posib_pcrc_AUXSRC bitmask(5,<~7||0:clksrc_pll_usb,1:clksrc_pll_sys,3:xosc_clksrc>)
+                #define posib_pcrc_KILL bitmask(10,<~10|Asynchronously kills the clock generator>)
+                #define posib_pcrc_ENABLE bitmask(11,<~11|starts and stops the clock generator cleanly>)
 
-        #define APB_CLK_SYS_RESUS_CTRL hex_r(4000,8000,78,<SYSTEM RESUSCURE CTRL>)
-            #define posb_acr_TIMEOUT bitmask(0,<~7>)
-            #define posb_acr_ENABLE bitmask(8,<~8>)
-            #define posb_acr_FRCE bitmask(12,<~8|Force resus>)
-            #define posb_acr_CLEAR bitmask(16,<~16>)
+        #define APB_CLKS_RTC_DIV hex_r(4000,8000,70)
+                #define posib_pcrd_FRAC bitmask(0,<~7|Fractiinal component of the divisor>)
+                #define posib_pcrd_INT bitmask(8,<~31|Integer component of the divisor|0:divide by 2^16>)
 
-    #define APB_XOSC             hex(4002,4000,<EXTERNAL OSCILATOR COUNTER>)
+        #define APB_CLKS_SYS_RESUS_CTRL hex_r(4000,8000,78,<AUTO RESUSCITATION/소생술/CTRL>)
+            #define posb_pcrc_TIMEOUT bitmask(0,<~7>)
+            #define posb_pcrc_ENABLE bitmask(8,<~8>)
+            #define posb_pcrc_FRCE bitmask(12,<~8|Force resus>)
+            #define posb_pcrc_CLEAR bitmask(16,<~16>)
+
+    #define APB_XOSC             hex(4002,4000,<SOSC|EXTERNAL OSCILATOR COUNTER>)
         #define APB_XOSC_CTRL    hex_r(4002,4000,00)
-            #define posib_axc_FREQ_RANGE bitmask(0,<~11|Frequency Range|0xaa0:1~15MHz>)
-            #define posib_axc_ENABLED bitmask(12,<~23|>)
-                #define enable_ROSC bshift(0xfab,12,<Ring Oscillator Enable)
-                #define disable_ROSC bshift(0xdle,12,<Ring Oscillator Disable)
+            #define posib_pxc_FREQ_RANGE bitmask(0,<~11|Frequency Range|0xaa0:1~15MHz>)
+            #define posib_pxc_ENABLED bitmask(12,<~23|>)
+                #define selb_pxc_ENABLE_ROSC bshift(0xfab,12,<Ring Oscillator Enable)
+                #define selb_pxc_DISABLE_ROSC bshift(0xdle,12,<Ring Oscillator Disable)
 
         #define APB_XOSC_STATUS  hex_r(4002,4000,04)
-            #define posib_axs_STABLE bitmask(31,<~31|Running and Stable>)
+            #define posib_pxs_STABLE bitmask(31,<~31|Running and Stable>)
+
+        #define APB_XOSC_DORMANT hex_r(4002,4000,08,<잠자기 모드>)
 
         #define APB_XOSC_STARTUP hex_r(4002,4000,0C)
-            #define posib_axs_DELAY bitmask(0,<~13|Delay>)
+            #define posib_pxs_DELAY bitmask(0,<~13|Delay>)
+
+        #define APB_XOSC_COUNT hex_r(4002,4000,1C)
 
     #define APB_RESETS  hex(4000,c000)
         #define APB_RESETS_RESET hex_r(4000,c000,00,<0:(ADC),1:(BUSCTRL),2:(DMA),3:(I2C0),4:(I2C1),5:(IO_BANK0),6:(IO_QSPI),7:(JTAG),8:(PADS_BNAK0),9:(PADS_QSPI),10:(PIO0),11:(PIO1),12:(PLL_SYS),13:(PLL_USB),14:(PWM),15:(RTC),16:(SPI0),17:(SPI1),18:(SYSCFG),19:(SYSINFO),20:(TBMAN),21:(TIMER),22:(UART0),23:(UART1),24:(USB_CTRL)>)
@@ -182,10 +193,12 @@
                 #define sel_pibc_funcsel_SIO bitsel(5,<gpio-0~29|Single-Cycle I/O>)
         
     #define APB_IO_QSPI     hex(4000,18000, APB)
-    #define APB_PADS_BNAK0  hex(4000,1c000, APB)
-        #define APB_PADS_BNAK0_VSEL hex_r(4000,1c00,000, Voltage Select reg,0:<0x0=3.3v ,0x1=1.8v>)
 
-        #define APB_PADS_BNAK0_GPIO_0_29 hex_r(4000,1c00,004, 7:OD(output disable),6:IE(input enable)
+    #define APB_PADS_BNAK0  hex(4000,1c000, APB)
+
+        #define APB_PADS_BNAK0_VSEL hex_r(4000,1c00,000,<0:Voltage Select reg||<0x0=3.3v, 0x1=1.8v>)
+
+        #define APB_PADS_BNAK0_GPIO_0_29 hex_r(4000,1c00,004,<inc +4>)
             #define posib_ppbgpio_IE bitmask(6, Input Enable)
             #define posib_ppbgpio_OD bitmask(7, Output Disable)
 
@@ -204,39 +217,39 @@
         #define APB_PADS_QSPI_SD2 hex_r(4002,0000,10, Serial Data 2)
         #define APB_PADS_QSPI_SD3 hex_r(4002,0000,14, Serial Data 3)
 
-    #define APB_PLL_SYS     hex(4002,8000, APB)
-        #define APB_PLL_SYS_CS hex_r(4002,8000,00,<CONTROL and STATUS reg>)
+    #define APB_PLLSYS     hex(4002,8000, <APB|PLLSYS>)
+        #define APB_PLLSYS_CS hex_r(4002,8000,00,<CONTROL and STATUS reg>)
             #define posib_ppsc_REFDIV bitmask(0,<~5|Divides the PLL input reference clock>)
             #define posib_ppsc_BYPASS bitmask(8,<~8|<passes the ref clock to the output>)
             #define posib_ppsc_LOCK   bitmask(31,<~31|<PLL is locked>)
 
-        #define APB_PLL_SYS_PWR        hex_r(4002,8000,04,<POWER modes reg>)
+        #define APB_PLLSYS_PWR        hex_r(4002,8000,04,<POWER modes reg>)
             #define posib_ppsp_PD bitmask(0,<~0|PLL Power Down>)
             #define posib_ppsp_POSTDIVPD bitmask(3,<~3|PLL post divider power down>)
             #define posib_ppsp_VCOPD  bitmask(5,<~5|PLL Voltage Controlled Oscilator Power Down>)
 
-        #define APB_PLL_SYS_FBDIV_INT  hex_r(4002,8000,08,<FEED BACK DEVISOR reg>)
+        #define APB_PLLSYS_FBDIV_INT  hex_r(4002,8000,08,<FEED BACK DEVISOR reg>)
             #define posib_ppsf_see  bitmask(0,<~11|interrupt:see ctrl reg description for constraints>)
 
-        #define APB_PLL_SYS_PRIM       hex_r(4002,8000,0c,<PRIMARY OUTPUT reg,NOT SECONDARY OUTPUT>)
+        #define APB_PLLSYS_PRIM       hex_r(4002,8000,0c,<PRIMARY OUTPUT reg,NOT SECONDARY OUTPUT>)
             #define posibb_ppsp_POSTDIV1 bitmask(12,<~14|divide by 1-7>)
             #define posibb_ppsp_POSTDIV2 bitmask(16,<18|divide by 1-7>)
 
-    #define APB_PLL_USB     hex(4002,c000, APB)
-        #define APB_PLL_USB_CS hex_r(4002,c000,00,<CONTROL and STATUS reg>)
+    #define APB_PLLUSB     hex(4002,c000, APB)
+        #define APB_PLLUSB_CS hex_r(4002,c000,00,<CONTROL and STATUS reg>)
             #define posib_ppuc_REFDIV bitmask(0,~5,<Divides the PLL input reference clock>)
             #define posib_ppuc_BYPASS bitmask(8,~8,<passes the ref clock to the output>)
             #define posib_ppuc_LOCK   bitmask(31,~31,<PLL is locked>)
 
-        #define APB_PLL_USB_PWR        hex_r(4002,c000,04,<POWER modes reg>)
+        #define APB_PLLUSB_PWR        hex_r(4002,c000,04,<POWER modes reg>)
             #define posib_ppup_PD bitmask(0,<~0|PLL Power Down>)
             #define posib_ppup_POSTDIVPD bitmask(3,<~3|PLL post divider power down>)
             #define posib_ppup_VCOPD  bitmask(5,<~5|PLL Voltage Controlled Oscilator Power Down>)
 
-        #define APB_PLL_USB_FBDIV_INT  hex_r(4002,c000,08,<FEED BACK DEVISOR reg>)
+        #define APB_PLLUSB_FBDIV_INT  hex_r(4002,c000,08,<FEED BACK DEVISOR reg>)
             #define posib_ppuf_see  bitmask(0,<~11|interrupt:see ctrl reg description for constraints>)
 
-        #define APB_PLL_USB_PRIM       hex_r(4002,c000,0c,<PRIMARY output reg>)
+        #define APB_PLLUSB_PRIM       hex_r(4002,c000,0c,<PRIMARY output reg>)
             #define posibb_ppup_POSTDIV1 bitmask(12,<~14|divide by 1-7>)
             #define posibb_ppup_POSTDIV2 bitmask(16,<~18|divide by 1-7>)
 
@@ -343,37 +356,37 @@
 
 #define PPB hex(e000,0000,<Private Peripheral Bus>)
 #define M0PLUS hex(e000,0000,<Cortex-m0plus>)
-    #define PPB_SYST_CSR hex_r(e000,e010,00,<Systic Control Status Reg)
-        #define posib_msc_CNTEN bitmask(0,<~0|Counter Enable||0:disable,1:enable>)
+    #define PPB_SYST_CSR hex_r(e000,e000,010,<Systic Control Status Reg)
+        #define posib_msc_ENABLE bitmask(0,<~0|Counter Enable||0:disable,1:enable>)
         #define posib_msc_TICKINT bitmask(1,<~1|Tick Interrupt>)
         #define posib_msc_CLKSRC bitmask(2,<~2|<0~External Reference Clock,1:Processor Clock >)
-        #define posib_msc_COUNT_FLAG bitmask(16,<~16|return 1 if timer coounted to 0>)
+        #define posib_msc_COUNTFLAG bitmask(16,<~16|return 1 if timer coounted to 0>)
 
-    #define PPB_SYST_RVR hex_r(e000,e014,00,<Systic Reload Value Reg>)
+    #define PPB_SYST_RVR hex_r(e000,e000,014,<Systic Reload Value Reg>)
 
-    #define PPB_SYST_CVR hex_r(e000,e018,00,<Systic Current Value Reg>)
+    #define PPB_SYST_CVR hex_r(e000,e000,018,<Systic Current Value Reg>)
 
-    #define PPB_NVIC_ISER hex_r(e000,e100,00,<Nested Vector Interrupt Controller Set-Enable Reg>)
+    #define PPB_NVIC_ISER hex_r(e000,e000,100,<Nested Vector Interrupt Controller Set-Enable Reg>)
 
-    #define PPB_NVIC_ICER hex_r(e000,e180,00,<Nested Vector Interrupt Controller Clear-Enable Reg>)
+    #define PPB_NVIC_ICER hex_r(e000,e000,180,<Nested Vector Interrupt Controller Clear-Enable Reg>)
 
-    #define PPB_NVIC_ISPR hex_r(e000,e200,00,<Nested Vector Interrupt Controller Set-Pending Reg>)
+    #define PPB_NVIC_ISPR hex_r(e000,e000,200,<Nested Vector Interrupt Controller Set-Pending Reg>)
 
-    #define PPB_NVIC_ICPR hex_r(e000,e200,00,<Nested Vector Interrupt Controller Clear-Pending Reg>)
+    #define PPB_NVIC_ICPR hex_r(e000,e000,280,<Nested Vector Interrupt Controller Clear-Pending Reg>)
 
-    #define PPB_CPUID hex_r(e000,ed00,00,<CPUID Base Regsiter>)
+    #define PPB_CPUID hex_r(e000,e000,d00,<CPUID Base Regsiter>)
 
-    #define PPB_ICSR hex_r(e000,ed04,00,<Interrupt Control State Reg>)
+    #define PPB_ICSR hex_r(e000,e000,d04,<Interrupt Control State Reg>)
 
-    #define PPB_VTOR hex_r(e000,ed08,00,<Vector Table Offset Reg>)
+    #define PPB_VTOR hex_r(e000,e000,d08,<Vector Table Offset Reg>)
 
-    #define PPB_AIRCR hex_r(e000,ed0c,00,<Application Interrupt Reset Control Reg>)
+    #define PPB_AIRCR hex_r(e000,e000,d0c,<Application Interrupt Reset Control Reg>)
 
-    #define PPB_SCR hex_r(e000,ed10,00,<System Control Reg>)
+    #define PPB_SCR hex_r(e000,e000,d10,<System Control Reg>)
 
-    #define PPB_CCR hex_r(e000,ed10,00,<Configuration Control Reg>)
+    #define PPB_CCR hex_r(e000,e000,d14,<Configuration Control Reg>)
 
-    #define PPB_MPU_RASR hex_r(e000,eda0,00,<MPU Region Attribute Size Reg>)
+    #define PPB_MPU_RASR hex_r(e000,e000,da0,<MPU Region Attribute Size Reg>)
 
 
 #endif // end of J_DEFINE_H
