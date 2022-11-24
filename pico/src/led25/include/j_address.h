@@ -182,8 +182,11 @@
             #define posib_prd_PADS_BANK0 bitmask(8)
             #define posib_prd_PLL_SYS bitmask(12)
             #define posib_prd_PLL_USB bitmask(13)
+            #define posib_prd_UART0 bitmask(22,<1>)
+            #define posib_prd_UART1 bitmask(23,<1>)
 
     #define APB_PSM         hex(4000,10000, APB)
+
     #define APB_IO_BANK0    hex(4000,14000, APB)
         #define APB_IO_BANK0_STATUS_0_29 hex_r(4000,1400,000, inc +8,)
         #define APB_IO_BANK0_CTRL_0_29 hex_r(4000,1400,004, inc +8<25*8+4>, sio_func == 5)
@@ -264,6 +267,7 @@
             #define posib_pu0d_OE bitmask(10,<~10|OVER RUN ERROR>)
 
         #define APB_UART0_RSR hex_r(4003,4000,004,<Receive Status Reg>)
+
         #define APB_UART0_FR hex_r(4003,4000,018,<FLAG Reg>)
             #define posib_pu0f_CTS bitmask(0,<~0|CLEAR TO SEND>)
             #define posib_pu0f_DSR bitmask(1,<~1|DATA SET READY>)
@@ -276,8 +280,11 @@
             #define posib_pu0f_RI bitmask(7,<~7|RING INDICATOR>)
 
         #define APB_UART0_ILPR hex_r(4003,4000,020,<IrDA Low-Power Counter Reg>)
+
         #define APB_UART0_IBRD hex_r(4003,4000,024,<Integer Baud Rate Divider Reg||quotient>)
+
         #define APB_UART0_FBRD hex_r(4003,4000,028,<Fractional Baud Rate Divider Reg||remainer>)
+
         #define APB_UART0_LCR_H hex_r(4003,4000,02c,<Line Control Reg>)
             #define posib_pu0l_BRK bitmask(0,<~0||1:Send Break||0:for nomal use)
             #define posib_pu0l_PEN bitmask(1,<~1||1:Parity enable||0:disable)
@@ -286,10 +293,11 @@
             #define posib_pu0l_FEN bitmask(4,<~4||1:FIFO Enable)
             #define posib_pu0l_WLEN bitmask(5,<~6||3:8bits|2:7bits|1:6bit|0|5bit>)
             #define posib_pu0l_SPS bitmask(7,<~7||Stick Parity Select>)
+
         #define APB_UART0_CR hex_r(4003,4000,030,<Control Reg>)
             #define posib_pu0c_EN bitmask(0,<~0|Uart Enable>)
-            #define posib_pu0c_TXE bitmask(8,<~8|Recieve Enable>)
-            #define posib_pu0c_RXE bitmask(8,<~8|Transmit Enable>)
+            #define posib_pu0c_TXE bitmask(8,<~8|Transmit Enable>)
+            #define posib_pu0c_RXE bitmask(9,<~9|Recieve Enable>)
 
     #define APB_UART1      hex(4003,8000, APB)
         #define APB_UART1_DR hex_r(4003,8000,000,<Data Reg>)
@@ -305,10 +313,10 @@
     #define APB_SPI1       hex(4004,0000, APB)
 
     #define APB_TIMER hex(4005,4000)
-        #define APB_TIMER_TIMEHW hex_r(4005,4000,00,<HIGH WRITE>)
-        #define APB_TIMER_TIMELW hex_r(4005,4000,04,<LOW WRITE)
-        #define APB_TIMER_TIMEHR hex_r(4005,4000,08,<HIGH READ)
-        #define APB_TIMER_TIMELR hex_r(4005,4000,0c,<LOW READ)
+        #define APB_TIMER_HW hex_r(4005,4000,00,<HIGH WRITE>)
+        #define APB_TIMER_LW hex_r(4005,4000,04,<LOW WRITE)
+        #define APB_TIMER_HR hex_r(4005,4000,08,<HIGH READ)
+        #define APB_TIMER_LR hex_r(4005,4000,0c,<LOW READ)
 //----------- armed 무장하다 ----
 // Arm alarm 0, and configure the time it will fire.
 // Once armed, the alarm fires when TIMER_ALARM0 == TIMELR.
@@ -366,13 +374,13 @@
 
     #define PPB_SYST_CVR hex_r(e000,e000,018,<Systic Current Value Reg>)
 
-    #define PPB_NVIC_ISER hex_r(e000,e000,100,<Nested Vector Interrupt Controller Set-Enable Reg>)
+    #define PPB_NVIC_ISER hex_r(e000,e000,100,<Nested Vector Interrupt Set-Enable Reg>)
 
-    #define PPB_NVIC_ICER hex_r(e000,e000,180,<Nested Vector Interrupt Controller Clear-Enable Reg>)
+    #define PPB_NVIC_ICER hex_r(e000,e000,180,<Nested Vector Interrupt Clear-Enable Reg>)
 
-    #define PPB_NVIC_ISPR hex_r(e000,e000,200,<Nested Vector Interrupt Controller Set-Pending Reg>)
+    #define PPB_NVIC_ISPR hex_r(e000,e000,200,<Nested Vector Interrupt Set-Pending Reg>)
 
-    #define PPB_NVIC_ICPR hex_r(e000,e000,280,<Nested Vector Interrupt Controller Clear-Pending Reg>)
+    #define PPB_NVIC_ICPR hex_r(e000,e000,280,<Nested Vector Interrupt Clear-Pending Reg>)
 
     #define PPB_CPUID hex_r(e000,e000,d00,<CPUID Base Regsiter>)
 

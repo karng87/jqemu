@@ -26,9 +26,8 @@ target := 03-led25-init_clock.c
 objs := startup_rp2040.c $(target) \
 		init-clock.c
 
-target := 04-led25-init_sys.c
-objs := startup_rp2040.c $(target) \
-		init-sys.c \
+target := init-sys.c
+objs := startup_rp2040.c $(target)
 
 
 OBJS :=  $(shell \

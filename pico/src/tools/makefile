@@ -4,7 +4,7 @@ TARGETS := $(shell find `pwd` -name '*.[cs]' | sed -En -e 's;src;build;' -e 's;.
 all: $(TARGETS)
 
 $(BDIR)/%.c.out: %.c
-	[[ ! -d $@D ]]; mkdir -p $@D
+	[[ ! -d $(@D) ]]; mkdir -p $(@D)
 	gcc $< -o$@
 
 echo:

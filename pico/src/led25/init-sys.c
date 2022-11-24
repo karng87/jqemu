@@ -8,6 +8,7 @@
 #define F_PER          120000000
 #define F_RTC          (F_REF / 256)
 #define F_TICK         1000000
+
 void O1_enable_XOSC(){
     // Enable XOSC: 12Mhz; warmming up time(47); enable;
     *phex_r(4002,4000,00,<APB|XOSC|CTRL|slect XOSC 12Mhz>)
@@ -18,7 +19,7 @@ void O1_enable_XOSC(){
     *phex_r(4002,4000,2000,APB_XOSC_CTRL,<+Atomic SET>)
         = bitshift(0xfab,12,<0xfab:ENABLE|0xdle:DISABLE||12:23:ENABLE>);
     // warmming up
-    while(1) if(*phex_r(4004,4000,04,<APB|XOSC|STATUS>) 
+    while(1) if(*phex_r(4002,4000,04,<APB|XOSC|STATUS>) 
                 & bitshift(1,31,<||31:posib_pxs STABLE>)) break;
 }
 void O2_set_PLL_SYS(){
@@ -108,16 +109,27 @@ void O4_XOSC_CLOCK(){
         | bitshift(1,9,<||9:ENABLE>);
 }
 
-void init_sys(void){
-    O1_enable_XOSC();
-    O2_set_PLL_SYS();
-    O3_set_PLL_USB();
-    O4_XOSC_CLOCK();
-
+void O5_enable_GPIO(void){
     // Enable GPIOs
     *phex_r(4000,c000,3000,<APB|RESETS|RESET|atomic CLR>)
         = bitshift(1,5,<||5:IO_BANK0)
         | bitshift(1,8,<||8:PADS_BNAK0);
     while(1) if((*phex_r(4000,c000,08,<APB|RESETS|DONE>) & bitshift(1,5,<||5:IO_BANK0>))
                 || (*phex_r(4000,c000,08,<APB|RESETS|DONE>) & bitshift(1,8,<||8:PADS_BNAK0))) break;
+}
+int main(){
+    O1_enable_XOSC();
+    O2_set_PLL_SYS();
+    O3_set_PLL_USB();
+    O4_XOSC_CLOCK();
+    O5_enable_GPIO();
+
+    *phex_r(d000,0000,24,<SIO|OE_SET>) = bitshift(1,25,<25GPIO);
+    *phex_r(4000,1400,cc,<APH|IO_BANK0|CTRL|25GPIO>) = bitshift(5,0,<5:SIO_FUNC||0:FUNCSEL>);
+    *phex_r(d000,0000,18,<SIO|OUT_CLR>) = bitshift(1,25,<||25GPIO);
+    while(1){
+        for(volatile int i = 0x100000 ; i!=0; i--);
+        *phex_r(d000,0000,1c,<SIO|OUT_XOR>) = bitshift(1, 25,<25-PIN>);
+    }
+    return 0;
 }
