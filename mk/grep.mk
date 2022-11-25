@@ -2,11 +2,11 @@
 
 BDIR ?=$(shell pwd | sed -En 's%src.*%build%p')
 path ?= \
-		~/Project/rasp/mcu-starter-projects \
 		~/Project/rasp/pico-sdk/src \
-		src \
 		~/Project/rasp/pico-sdk \
-		$(BDIR)
+		~/Project/rasp/mcu-starter-projects \
+		. 
+
 pn ?= 1
 
 fn ?= 1

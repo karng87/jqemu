@@ -58,38 +58,16 @@ SECTIONS
        launches only, to perform proper flash setup.
     */
 
-    .text : {
+    .flashtext : {
         __logical_binary_start = .;
         KEEP (*(.vectors))
         KEEP (*(.binary_info_header))
         __binary_info_header_end = .;
         KEEP (*(.reset))
-        /* TODO revisit this now memset/memcpy/float in ROM */
-        /* bit of a hack right now to exclude all floating point and time critical (e.g. memset, memcpy) code from
-         * FLASH ... we will include any thing excluded here in .data below by default */
-        *(.init)
-        *(EXCLUDE_FILE(*libgcc.a: *libc.a:*lib_a-mem*.o *libm.a:) .text*)
-        *(.fini)
-        /* Pull all c'tors into .text */
-        *crtbegin.o(.ctors)
-        *crtbegin?.o(.ctors)
-        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
-        *(SORT(.ctors.*))
-        *(.ctors)
-        /* Followed by destructors */
-        *crtbegin.o(.dtors)
-        *crtbegin?.o(.dtors)
-        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
-        *(SORT(.dtors.*))
-        *(.dtors)
-
-        *(.eh_frame*)
-        . = ALIGN(4);
-    } > FLASH
+    }
 
     .rodata : {
-        *(EXCLUDE_FILE(*libgcc.a: *libc.a:*lib_a-mem*.o *libm.a:) .rodata*)
-        . = ALIGN(4);
+        /* segments not marked as .flashdata are instead pulled into .data (in RAM) to avoid accidental flash accesses */
         *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.flashdata*)))
         . = ALIGN(4);
     } > FLASH
@@ -117,12 +95,35 @@ SECTIONS
     __binary_info_end = .;
     . = ALIGN(4);
 
-    /* End of .text-like segments */
-    __etext = .;
-
+    /* Vector table goes first in RAM, to avoid large alignment hole */
    .ram_vector_table (COPY): {
         *(.ram_vector_table)
     } > RAM
+
+    .text : {
+        __ram_text_start__ = .;
+        *(.init)
+        *(.text*)
+        *(.fini)
+        /* Pull all c'tors into .text */
+        *crtbegin.o(.ctors)
+        *crtbegin?.o(.ctors)
+        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+        *(SORT(.ctors.*))
+        *(.ctors)
+        /* Followed by destructors */
+        *crtbegin.o(.dtors)
+        *crtbegin?.o(.dtors)
+        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+        *(SORT(.dtors.*))
+        *(.dtors)
+
+        *(.eh_frame*)
+        . = ALIGN(4);
+        __ram_text_end__ = .;
+    } > RAM AT> FLASH
+    __ram_text_source__ = LOADADDR(.text);
+
 
     .data : {
         __data_start__ = .;
@@ -130,8 +131,6 @@ SECTIONS
 
         *(.time_critical*)
 
-        /* remaining .text and .rodata; i.e. stuff we exclude above because we want it in RAM */
-        *(.text*)
         . = ALIGN(4);
         *(.rodata*)
         . = ALIGN(4);
@@ -173,6 +172,8 @@ SECTIONS
         /* All data end */
         __data_end__ = .;
     } > RAM AT> FLASH
+    /* __etext is the name of the .data init source pointer (...) */
+    __etext = LOADADDR(.data);
 
     .uninitialized_data (COPY): {
         . = ALIGN(4);

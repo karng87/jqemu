@@ -7,17 +7,30 @@ OBJCOPY := arm-none-eabi-objcopy
 OBJDUMP := arm-none-eabi-objdump
 
 ARCH := -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG
-D := -DPICO_NO_FLASH=0 -DPICO_COPY_TO_RAM=0
+
+D := \
+    -DPICO_BOARD=\\\"pico\\\" \
+    -DPICO_BUILD=1 \
+    -DPICO_COPY_TO_RAM=0 \
+    -DPICO_NO_FLASH=0 \
+    -DPICO_NO_HARDWARE=0 \
+    -DPICO_ON_DEVICE=1 \
+    -DPICO_USE_BLOCKED_RAM=0 
+
+D += -DPICO_CXX_ENABLE_EXCEPTIONS=0
 
 BUILD_DIR := $(shell pwd | sed -En 's/src/build/p')
 
-SRCS  := crt0.s
+SRCS  := boot_crt0.s
 Crt0_OBJ:= $(shell for i in $(SRCS);do find `pwd` -name $$i | sed -En -e 's/src/build/' -e 's/.*/&.o/p'; done )
 
 INCLUDES := $(BASE_DIR)/include
 
-CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += $(MCU) $(D)
+CFLAGS += $(D)
+CFLAGS += \
+    -mcpu=cortex-m0plus -mthumb \
+    -O3 -DNDEBUG \
+    -ffunction-sections -fdata-sections 
 
 all: $(Crt0_OBJ)
 

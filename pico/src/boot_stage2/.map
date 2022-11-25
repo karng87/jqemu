@@ -1,0 +1,68 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+BOOT_ROM         0x0000000000000000 0x0000000000004000 xr
+XIP_FLASH        0x0000000010000000 0x0000000000200000 xr
+SRAM             0x0000000020000000 0x0000000000040000 xrw
+SRAM_X           0x0000000020040000 0x0000000000001000 xrw
+SRAM_Y           0x0000000020041000 0x0000000000000f00 xrw
+SRAM_END         0x0000000020041f00 0x00000000000000fc xr
+SRAM5_END        0x0000000000000000 0xffffffffffffffff
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+                0x0000000000000000                . = ORIGIN (SRAM5_END)
+
+.text           0x0000000000000000       0xf4
+ *(.entry)
+ *(.text)
+ .text          0x0000000000000000       0xf4 /Users/jkarng/Project/jqemu/pico/build/boot_stage2/boot_stage2.s.obj
+                0x0000000000000000                _stage2_boot
+                0x00000000000000be                read_flash_sreg
+                0x00000000000000ce                literals
+LOAD /Users/jkarng/Project/jqemu/pico/build/boot_stage2/boot_stage2.s.obj
+START GROUP
+LOAD /Applications/ArmGNUToolchain/11.3.rel1/arm-none-eabi/bin/../lib/gcc/arm-none-eabi/11.3.1/thumb/v6-m/nofp/libgcc.a
+LOAD /Applications/ArmGNUToolchain/11.3.rel1/arm-none-eabi/bin/../lib/gcc/arm-none-eabi/11.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/nofp/libc.a
+END GROUP
+START GROUP
+LOAD /Applications/ArmGNUToolchain/11.3.rel1/arm-none-eabi/bin/../lib/gcc/arm-none-eabi/11.3.1/thumb/v6-m/nofp/libgcc.a
+LOAD /Applications/ArmGNUToolchain/11.3.rel1/arm-none-eabi/bin/../lib/gcc/arm-none-eabi/11.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/nofp/libc.a
+LOAD /Applications/ArmGNUToolchain/11.3.rel1/arm-none-eabi/bin/../lib/gcc/arm-none-eabi/11.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/nofp/libnosys.a
+END GROUP
+OUTPUT(/Users/jkarng/Project/jqemu/pico/build/boot_stage2/boot_stage2.s.obj.elf elf32-littlearm)
+LOAD linker stubs
+
+.data           0x00000000000000f4        0x0
+ .data          0x00000000000000f4        0x0 /Users/jkarng/Project/jqemu/pico/build/boot_stage2/boot_stage2.s.obj
+
+.igot.plt       0x00000000000000f4        0x0
+ .igot.plt      0x00000000000000f4        0x0 /Users/jkarng/Project/jqemu/pico/build/boot_stage2/boot_stage2.s.obj
+
+.glue_7         0x00000000000000f4        0x0
+ .glue_7        0x00000000000000f4        0x0 linker stubs
+
+.glue_7t        0x00000000000000f4        0x0
+ .glue_7t       0x00000000000000f4        0x0 linker stubs
+
+.vfp11_veneer   0x00000000000000f4        0x0
+ .vfp11_veneer  0x00000000000000f4        0x0 linker stubs
+
+.v4_bx          0x00000000000000f4        0x0
+ .v4_bx         0x00000000000000f4        0x0 linker stubs
+
+.iplt           0x00000000000000f4        0x0
+ .iplt          0x00000000000000f4        0x0 /Users/jkarng/Project/jqemu/pico/build/boot_stage2/boot_stage2.s.obj
+
+.rel.dyn        0x00000000000000f4        0x0
+ .rel.iplt      0x00000000000000f4        0x0 /Users/jkarng/Project/jqemu/pico/build/boot_stage2/boot_stage2.s.obj
+
+.bss            0x00000000000000f4        0x0
+ .bss           0x00000000000000f4        0x0 /Users/jkarng/Project/jqemu/pico/build/boot_stage2/boot_stage2.s.obj
+
+.ARM.attributes
+                0x0000000000000000       0x22
+ .ARM.attributes
+                0x0000000000000000       0x22 /Users/jkarng/Project/jqemu/pico/build/boot_stage2/boot_stage2.s.obj

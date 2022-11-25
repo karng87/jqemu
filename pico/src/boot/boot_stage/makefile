@@ -1,11 +1,10 @@
-SHELL := /bin/bash
 
 CC := arm-none-eabi-gcc
 LD := arm-none-eabi-ld
 AS := arm-none-eabi-as
 OBJCOPY := arm-none-eabi-objcopy
 OBJDUMP := arm-none-eabi-objdump
-PAD_CHECKSUM := ${RASP}/bin/pad_checksum
+PAD_CHECKSUM := python3 pad_checksum.py
 
 ARCH := -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG
 
@@ -13,33 +12,24 @@ BUILD_DIR :=$(shell sed -En 's/src/build/p' <<< `pwd`)
 
 LD_SCRIPT := memmap_boot2.ld
 
-### -ffunction-sections -fdata-sections
-### 	each symbol has a section, function == .text.<func> ;  data == .data.<var>
-### 		e.g) .text.put32 .text.pin5 .bss.cpuirq
+CFLAGS := \
+        -DPICO_BOARD=\\\"pico\\\" \
+        -DPICO_BUILD=1 \
+        -DPICO_NO_HARDWARE=0 \
+        -DPICO_ON_DEVICE=1 \
+        -mcpu=cortex-m0plus -mthumb\
+        -O3 -DNDEBUG 
 
-CFLAGS := $(ARCH)
+LDFLAGS := \
+    -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG \
+    -Wl,--build-id=none --specs=nosys.specs -nostartfiles \
+    -Wl,--script=$(LD_SCRIPT) \
+    -Wl,-Map=$@.map
 
 AOPT := $(ARCH)
 
-LOPT := -nostdlib
-LOPT += -T $(LD_SCRIPT)
 
-LDFLAGS += $(ARCH)
-LDFLAGS += -Wl,--script=$(LD_SCRIPT)
-LDFLAGS += -Wl,--build-id=none --specs=nosys.specs -nostartfiles
-### --specs=nosys.specs
-### 	newlib does not by default provide implementations for the functions
-### 		that make only sense on a system with a console and an hard drive,
-### 		basically system calls such as read/write/open/close/...
-### 		if don't need to those functions,
-### 	using --specs=nosys.specs: make the app link with default
-### 		when called, the linker will return an error code
-
-#LDFLAGS += -Wl,-Map=$(patsubst %,%.map,$@)
-
-
-
-SRCS  := boot2.s
+SRCS  := boot_stage2.s
 TARGET := $(patsubst %,$(BUILD_DIR)/%.obj,$(SRCS))
 TARGETS := $(shell echo $(TARGET){,.elf{,.bin{,.S{,.o}}}})
 
@@ -55,8 +45,6 @@ $(BUILD_DIR)/%.s.obj: %.s
 
 $(BUILD_DIR)/%.S.o: $(BUILD_DIR)/%.S
 	$(CC) $(CFLAGS) -o $@ -c $<
-	$(eval export lib_stage2 := $@)
-	echo $(lib_stage2)
 
 $(BUILD_DIR)/%.obj.elf: $(BUILD_DIR)/%.obj
 	$(CC) $(LDFLAGS) -Wl,-Map=$(patsubst %,%.map,$<) $< -o $@

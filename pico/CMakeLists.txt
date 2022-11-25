@@ -10,28 +10,28 @@ cmake_minimum_required(VERSION 3.13)
 
 include(~/Project/rasp/pico-sdk/pico_sdk_init.cmake)
 
-project(Main C CXX ASM)
+project(Hack C CXX ASM)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-#set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 pico_sdk_init()
 
-#add_executable(0x02_hello_world src/0x02_hello_world.c)
-#add_executable(0x03_char src/0x03_char.c)
-#add_executable(0x06_double src/0x06_double.c)
+add_executable(${PROJECT_NAME}  src/hack/0x02_hello_world.c)
+#add_executable(0x03_char src/hack/0x03_char.c)
+#add_executable(0x06_double src/hack/0x06_double.c)
 
-add_subdirectory(src/sdk/dron)
-add_executable(${PROJECT_NAME}
-    src/sdk/dron.c)
+#add_subdirectory(src/hack/dron)
+#add_executable(${PROJECT_NAME}
+#    src/sdk/dron.c)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
-pico_enable_stdio_uart(${PROJECT_NAME} 0)
+pico_enable_stdio_uart(${PROJECT_NAME} 1)
 pico_add_extra_outputs(${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} dron pico_stdlib hardware_i2c)
+target_link_libraries(${PROJECT_NAME} pico_stdlib hardware_i2c)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 

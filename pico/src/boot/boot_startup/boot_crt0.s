@@ -2,24 +2,6 @@
 .cpu cortex-m0plus
 .thumb
 
-/*
-.section .vectors, "ax" // alocatable excutable
-.align 2
-.global __vectors
-__vectors:
-    .word 0x20042000
-    .word reset
-
-.thumb_func
-.global reset
-reset:
-    bl main
-    b hang
-
-.thumb_func
-hang: b .
-*/
-
 .global __vectors, __VECTOR_TABLE
 __VECTOR_TABLE:
 __vectors:
@@ -158,7 +140,6 @@ unhandled_user_irq_num_in_r0:
 // For flash builds we put it immediately after vector table; for NO_FLASH the
 // vectors are at a +0x100 offset because the bootrom enters RAM images directly
 // at their lowest address, so we put the header in the VTOR alignment hole.
-#define PICO_NO_BINARY_INFO 0
 #define BINARY_INFO_MARKER_START 0x7188ebf2
 #define BINARY_INFO_MARKER_END 0xe71aa390
 
@@ -294,11 +275,11 @@ data_cpy:
 .align 2
 //#define PICO_COPY_TO_RAM=0
 data_cpy_table:
-//#if PICO_COPY_TO_RAM
-//.word __ram_text_source__
-//.word __ram_text_start__
-//.word __ram_text_end__
-//#endif
+#if PICO_COPY_TO_RAM
+.word __ram_text_source__
+.word __ram_text_start__
+.word __ram_text_end__
+#endif
 .word __etext
 .word __data_start__
 .word __data_end__

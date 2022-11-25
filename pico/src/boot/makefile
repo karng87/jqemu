@@ -3,78 +3,83 @@ ARM := arm-none-eabi
 CC := $(ARM)-gcc
 AS := $(ARM)-as
 LD := $(ARM)-ld
+NM := $(ARM)-nm
+
 OBJCOPY := $(ARM)-objcopy
 OBJDUMP := $(ARM)-objdump
-NM := $(ARM)-nm
+
+PAD_CHECKSUM := $(RASP)/bin/pad_checksum
+ELF2UF2 := $(RASP)/bin/elf2uf2
+
 D := -DPICO_NO_FLASH=0 -DPICO_COPY_TO_RAM=0
 
 BDIR := $(shell pwd | sed -En 's/src/build/p')
+
 ARCH := -mcpu=cortex-m0plus -mthumb
+LD_SCRIPT := memmap_default.ld
+
+main := 02-led25_macro.c
+
+TARGETS := $(shell find `pwd` -name $(main) | sed -En 's;(.*)(src)(.*);echo \1build\3.obj{,.elf{,.bin{,.uf2}}};p' | sh)
+
+srcs := $(main)
+OBJS := $(shell find `pwd` $(srcs) | sed -En -e 's;(.*/)(src)(/.*);\1build\2.obj;')
+
+obj_stage2 := boot_stage2.s
+obj_crt0 := boot_crt0.s
+
+OBJS_STAGES:= $(shell find `pwd` -name $(obj_stage2) | sed -En 's;(.*)(src)(.*);echo \1build\3.obj.elf.bin.S;p' | sh)
+OBJS_CRT0:= $(shell find `pwd` -name $(obj_crt0) | sed -En 's;(.*)(src)(.*);echo \1build\3.obj;p' | sh)
 
 
-AOPT := --warn --fatal-warnings $(ARCH)
 
-COPT := -ffunction-sections -fdata-sections
-COPT := -Wall -O2
 
-LD := $(ARM)-ld
-CL_SCRIPT := memmap_default.ld
-L_SCRIPT := crt0/memmap_crt0.ld
+CFLAGS := \
+    -DPICO_BOARD=\"pico\" \
+	-DPICO_BUILD=1 \
+	-DPICO_CMAKE_BUILD_TYPE=\"Release\" \
+	-DPICO_COPY_TO_RAM=0 \
+	-DPICO_CXX_ENABLE_EXCEPTIONS=0 \
+	-DPICO_NO_FLASH=0 \
+	-DPICO_NO_HARDWARE=0 \
+	-DPICO_ON_DEVICE=1 \
+	-DPICO_TARGET_NAME=\"Hack\" \
+	-DPICO_USE_BLOCKED_RAM=0 \
+    -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG \
+    -ffunction-sections -fdata-sections -std=gnu11
 
-CLOPT += $(ARCH)
-CLOPT += -Wl,--build-id=none --specs=nosys.specs -nostdlib
-CLOPT += -Wl,--script=$(CL_SCRIPT)
+LDFLAGS := \
+    -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG \
+    -Wl,--script=$(LD_SCRIPT) \
+    -Wl,--build-id=none --specs=nosys.specs -Wl,--gc-sections
+    -Wl,-Map=$@.map
 
-LOPT := -nostdlib
-LOPT += -T $(L_SCRIPT)
-
-OBJCOPY := $(ARM)-objcopy
-OBJDUMP := $(ARM)-objdump
-
-ELF2UF2 := $(RASP)/bin/elf2uf2
-PAD_CHECKSUM := $(RASP)/bin/pad_checksum
-
-SRCS := led25.c
-SRCS := main.c func.s
-
-lib_own := $(shell for i in $(SRCS); do find `pwd` -name $$i | sed -En -e 's%src%build%' -e 's%.*%&.o%p' ;done)
-lib_stage2 := $(shell find `pwd` -name 'boot2.s' | sed -En -e 's%src%build%' -e 's%.*%&.obj.elf.bin.S.o%p')
-lib_crt0 := $(shell find `pwd` -name 'crt0.s' | sed -En -e 's%src%build%' -e 's%.*%&.o%p')
-
-TARGETS := $(shell find `pwd` -name $(word 1,$(SRCS))| sed -En -e 's%src%build%' -e 's%.*%echo &.o{,.elf{,.uf2}}%p' | sh)
 
 .PHONY: all stage2 crt0 echo clean tree 
 
-all:  stage2 crt0 $(lib_own) $(shell echo $(TARGETS))
+all:  stage startup $(lib_own) $(shell echo $(TARGETS))
 
-stage2:
-	make -C stage2
+stage:
+	make -C boot_stage
 
-crt0:
-	make -C crt0
+startup:
+	make -C boot_startup
 
-$(BDIR)/%.c.o: %.c
+$(BDIR)/%.c.obj: %.c
 	@[[ ! -d $(@D) ]]; mkdir -p $(@D)
-	$(CC) $(COPT) -c $< -o$@
+	$(CC) $(CFLAGS) -c $< -o$@
 
-$(BDIR)/%.s.o: %.s
+$(BDIR)/%.s.obj: %.s
 	@[[ ! -d $(@D) ]]; mkdir -p $(@D)
-	$(AS) $(AOPT) $< -o$@
+	$(CC) $(CFLAGS) $< -o$@
 
+$(filter %.elf,$(TARGETS)): $(OBJS_CRT0) $(OBJS_STAGES) $(OBJS)
+	$(CC) $(LDFLAGS) $^ -o$@
 
-#$(BDIR)/%.o.elf: $(lib_stage2) $(lib_crt0) $(lib_own)
-#	@[[ ! -d $(@D) ]]; mkdir -p $(@D)
-#	$(LD) $(LOPT)  $^ -o$@
-
-
-$(BDIR)/%.o.elf: $(lib_stage2) $(lib_crt0) $(lib_own)
-	@[[ ! -d $(@D) ]]; mkdir -p $(@D)
-	$(CC) $(CLOPT) $^ -o$@
-
-$(BDIR)/%.elf.bin: $(BDIR)/%.elf
+$(filter %.bin,$(TARGETS)): $(filter %.elf,$(TARGETS))
 	$(OBJCOPY) -Obinary $< $@
 
-$(BDIR)/%.elf.uf2: $(BDIR)/%.elf
+$(filter %.uf2,$(TARGETS)): $(filter %.bin,$(TARGETS))
 	$(ELF2UF2) $< $@
 
 include $(shell find `git rev-parse --show-toplevel` -name '*.mk' | sed -En '/grep\.mk/p')
@@ -97,8 +102,9 @@ flash: all
 
 tree:
 	@tree $(BDIR)
+
 echo:
-	for i in $(SRCS); do find `pwd` -name $$i | sed -En -e 's%src%build%' -e 's%.*%&.o%p' ;done
 	echo $(TARGETS)
+
 clean:
 	@rm -rf $(BDIR)/*
