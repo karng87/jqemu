@@ -21,11 +21,11 @@ CFLAGS := \
     -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG \
 	$(INCLUDE)
 
+# -nostartfiles: do not insert automatically crt0 code in gcc
 LDFLAGS := \
     -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG \
     -Wl,--build-id=none --specs=nosys.specs -nostartfiles \
     -Wl,--script=$(LD_SCRIPT) \
-    -Wl,-Map=$(@).map
 
 .PHONY : checksum all echo clean vi vib tree 
 
@@ -38,9 +38,10 @@ $(filter %.bin,$(TARGETS)): $(filter %.elf,$(TARGETS))
 	$(ARM)-objcopy -Obinary $< $@
 
 $(filter %.elf,$(TARGETS)): $(OBJS)
-	$(ARM)-gcc $(LDFLAGS)  $^ -o$@
+	$(ARM)-gcc $(LDFLAGS) -Wl,-Map=$@.map $^ -o$@
 	$(ARM)-objdump -D $@ > $@.lst
 	$(ARM)-objdump -h $@ > $@.header
+	$(ARM)-objdump -hD $@ > $@.dis
 
 $(BDIR)/%.s.obj: %.s
 	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
@@ -63,7 +64,7 @@ clean:
 	@rm -rf $(BDIR)/*
 
 echo:
-	@echo $(OBJS)
+	@echo $(BDIR)
 
 path ?= \
 		~/Project/rasp/pico-sdk/src \

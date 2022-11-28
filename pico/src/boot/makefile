@@ -17,19 +17,23 @@ BDIR := $(shell pwd | sed -En 's/src/build/p')
 
 ARCH := -mcpu=cortex-m0plus -mthumb
 LD_SCRIPT := memmap_default.ld
+LD_SCRIPT := memmap_copy_to_ram.ld
 
-main := 02-led25_macro.c
+targets := main.c func.s
+targets := 02-led25_macro.c
 
-TARGETS := $(shell find `pwd` -name $(main) | sed -En 's;(.*)(src)(.*);echo \1build\3.obj{,.elf{,.bin{,.uf2}}};p' | sh)
+TARGETS := $(shell find `pwd` -name $(word 1,$(targets)) \
+		   | sed -E 's;(.*)src(.*);echo \1build\2.obj{,.elf{,.bin,.uf2}};e')
 
-srcs := $(main)
-OBJS := $(shell find `pwd` $(srcs) | sed -En -e 's;(.*/)(src)(/.*);\1build\2.obj;')
+DEPS := $(shell for i in $(targets) \
+					;do find `pwd` -name $$i | sed -En -e 's,(.*)src(.*),\1build\2.obj,p' \
+					;done)
 
-obj_stage2 := boot_stage2.s
-obj_crt0 := boot_crt0.s
+stage2  := boot_stage2.s
+OBJS_STAGES := $(shell find `pwd` -name $(stage2) | sed -En 's,(.*)src(.*),\1build\2.obj.elf.bin.S,p')
 
-OBJS_STAGES:= $(shell find `pwd` -name $(obj_stage2) | sed -En 's;(.*)(src)(.*);echo \1build\3.obj.elf.bin.S;p' | sh)
-OBJS_CRT0:= $(shell find `pwd` -name $(obj_crt0) | sed -En 's;(.*)(src)(.*);echo \1build\3.obj;p' | sh)
+crt0 := boot_crt0.s
+OBJS_CRT0 := $(shell find `pwd` -name $(crt0) | sed -En 's,(.*)src(.*),\1build\2.obj,p')
 
 
 
@@ -52,7 +56,6 @@ LDFLAGS := \
     -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG \
     -Wl,--script=$(LD_SCRIPT) \
     -Wl,--build-id=none --specs=nosys.specs -Wl,--gc-sections
-    -Wl,-Map=$@.map
 
 
 .PHONY: all stage2 crt0 echo clean tree 
@@ -73,13 +76,14 @@ $(BDIR)/%.s.obj: %.s
 	@[[ ! -d $(@D) ]]; mkdir -p $(@D)
 	$(CC) $(CFLAGS) $< -o$@
 
-$(filter %.elf,$(TARGETS)): $(OBJS_CRT0) $(OBJS_STAGES) $(OBJS)
-	$(CC) $(LDFLAGS) $^ -o$@
+$(filter %.elf,$(TARGETS)): $(DEPS)
+	$(CC) $(LDFLAGS) -Wl,-Map=@.map $(OBJS_CRT0) $(OBJS_STAGES) $^  -o$@
 
 $(filter %.bin,$(TARGETS)): $(filter %.elf,$(TARGETS))
 	$(OBJCOPY) -Obinary $< $@
+	$(ARM)-objdump -hD $< > $@.lst
 
-$(filter %.uf2,$(TARGETS)): $(filter %.bin,$(TARGETS))
+$(filter %.uf2,$(TARGETS)): $(filter %.elf,$(TARGETS))
 	$(ELF2UF2) $< $@
 
 include $(shell find `git rev-parse --show-toplevel` -name '*.mk' | sed -En '/grep\.mk/p')
@@ -104,7 +108,7 @@ tree:
 	@tree $(BDIR)
 
 echo:
-	echo $(TARGETS)
+	@echo $(TARGETS)
 
 clean:
 	@rm -rf $(BDIR)/*

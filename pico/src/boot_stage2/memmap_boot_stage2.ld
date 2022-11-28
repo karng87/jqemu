@@ -25,9 +25,9 @@ MEMORY {
 }
 
 SECTIONS {
-    . = ORIGIN(SRAM5_END);
+    . = ORIGIN(SRAM_END);
     .text : {
         *(.entry)
         *(.text)
-    } >SRAM5_END
+    } >SRAM_END
 }

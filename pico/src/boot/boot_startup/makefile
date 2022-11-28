@@ -22,7 +22,7 @@ D += -DPICO_CXX_ENABLE_EXCEPTIONS=0
 BUILD_DIR := $(shell pwd | sed -En 's/src/build/p')
 
 SRCS  := boot_crt0.s
-Crt0_OBJ:= $(shell for i in $(SRCS);do find `pwd` -name $$i | sed -En -e 's/src/build/' -e 's/.*/&.o/p'; done )
+TASRGET := $(shell for i in $(SRCS);do find `pwd` -name $$i | sed -En -e 's,src,build,' -e 's,.*,&.obj,p'; done )
 
 INCLUDES := $(BASE_DIR)/include
 
@@ -32,13 +32,13 @@ CFLAGS += \
     -O3 -DNDEBUG \
     -ffunction-sections -fdata-sections 
 
-all: $(Crt0_OBJ)
+all: $(TASRGET)
 
-$(BUILD_DIR)/%.c.o: %.c
+$(BUILD_DIR)/%.c.obj: %.c
 	@if [[ ! -d $(@D) ]];then mkdir -p $(i@D) ;fi
 	$(CC) -c $(CFLAGS) $< -o $@ 
 
-$(BUILD_DIR)/%.s.o: %.s
+$(BUILD_DIR)/%.s.obj: %.s
 	@if [[ ! -d $(@D) ]];then mkdir -p $(@D) ;fi
 	$(CC) $(CFLAGS) -c $< -o$@ 
 

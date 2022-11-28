@@ -29,7 +29,7 @@
         #define posi_xsc0_SPI_FRF     bitmask(21,<SPI FRame Format:21>, 0<<(1-bit per SCK), 1<<(2-bit per SCK), 2<<(4-bit per SCK), frame format>)
         #define posi_xsc0_SSTE        bitmask(24,<~24| Slave select toggle enable)
 
-    #define XIP_SSI_CTRLR1 hex_r(1800,0004,00)
+    #define XIP_SSI_CTRLR1 hex_r(1800,0000,04)
         #define posi_xsc1_NDF bitmask( 0,<~15|NUMBER of DATA FRAMES>)
 
     #define XIP_SSI_ENR hex_r(1800,0000,08,<Synchronous Serial Interface Enable reg>)

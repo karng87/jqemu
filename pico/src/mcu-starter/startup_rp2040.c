@@ -3,19 +3,14 @@
 
 //-----------------------------------------------------------------------------
 #include <stdint.h>
-#include "rp2040.h"
 
-#define hadd(x,y) (x+y)
-#define had3(x,y,z) (x+y+z)
+#define hadd(x,y,z) (x+y+z)
 
-#define h0x(w,y,args...) hadd(0x ## w ## 0000, 0x ## y)
-#define h0xa(w,y,atomic,args...) had3(0x ## w ## 0000, 0x ## y, 0x ## atomic)
+#define hex_r(x,y,z,args...) (volatile unsigned int*)hadd(0x ## x ## 0000, 0x ## y, 0x ## z)
+#define hex(x,y,atomic,args...) hex_r(x,y,0)
 
+#define bitshift(x,y,args...) ((x)<<(y))
 
-#define p0x(x,y,args...) *(volatile unsigned int*)h0x(x,y)
-#define p0xa(x,y,atomic,args...) *(volatile unsigned int*)h0xa(x,y,atomic)
-
-#define bshift(x,y,args...) ((x) << (y))
 //-----------------------------------------------------------------------------
 #define DUMMY __attribute__ ((weak, alias ("irq_handler_dummy")))
 
@@ -131,16 +126,16 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
   // Note: This code must be position independent, it is linked at 0x10000000, but
   //       loaded at 0x20041f00.
   //XIP_SSI->SSIENR = 0;
-  p0x(1800,0008,<XIP_SSI_ENR reg>) = bshift(0,0,<disable:0<<posib_xse_EN:0>);
+  *hex_r(1800,0008,00,<XIP_SSI_ENR>) = bitshift(0,0,<disable:0<<posib_xse_EN:0>);
 
   //XIP_SSI->BAUDR = 2; // Must be even
-  p0x(1800,0014,<XIP_SSI_BAUDR reg>) = bshift(2,0,<divider:2 << posib_xsb_SCKDV:0~15>); // /2
+  *hex(1800,0014,<XIP_SSI_BAUDR>) = bitshift(2,0,<divider:2 << posib_xsb_SCKDV:0~15>); // /2
 
   //XIP_SSI->CTRLR0 = (XIP_SSI_CTRLR0_SPI_FRF_STD << XIP_SSI_CTRLR0_SPI_FRF_Pos) |
       //(XIP_SSI_CTRLR0_TMOD_EEPROM_READ << XIP_SSI_CTRLR0_TMOD_Pos) |
       //((32-1) << XIP_SSI_CTRLR0_DFS_32_Pos);
 
-  p0x(1800,0000,<XIP_SSI_CTRLR0>) =   bshift(0,21,<SPI_FRAME_FORMAT:0=1bit per SCK>,<posib SPI_FRF:21>)
+  *hex(1800,0000,<XIP_SSI_CTRLR0>) =   bshift(0,21,<SPI_FRAME_FORMAT:0=1bit per SCK>,<posib SPI_FRF:21>)
                                     | bshift(3,8,<EEPROM_READ MODE:3>,<TMOD:8=TRANSFER MODE>)
                                     | bshift(32-1,16,<DATA FRAME SIZE:16~20>);
 

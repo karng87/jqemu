@@ -5,13 +5,9 @@ Copyright (c) 2021, Alex Taradov <alex@taradov.com>. All rights reserved.
 
 MEMORY
 {
-  ROM : ORIGIN = 0x00000000, LENGTH = 16k
-  FLASH_BOOT (rx) : ORIGIN = 0x10000000, LENGTH = 256
-  FLASH_TEXT (rx) : ORIGIN = 0x10000100, LENGTH = 2048K - 256
-
-  SRAM (rwx) : ORIGIN = 0x20000000, LENGTH = 264K - 8k
-  SRAM_X (rwx) : ORIGIN = 0x20040000, LENGTH = 4K
-  SRAM_Y (rwx) : ORIGIN = 0x20001000, LENGTH = 4K
+  boot  (rx) : ORIGIN = 0x10000000, LENGTH = 256
+  flash (rx) : ORIGIN = 0x10000100, LENGTH = 2048K - 256
+  ram  (rwx) : ORIGIN = 0x20000000, LENGTH = 264K
 }
 
 ENTRY(boot_entry)
@@ -24,7 +20,7 @@ SECTIONS
     *(.boot*)
     . = 256-4;
     LONG(0xcccccccc) /* CRC */
-  } > FLASH_BOOT
+  } > boot
 
   .text : ALIGN(4)
   {
@@ -35,7 +31,7 @@ SECTIONS
     *(.rodata.*)
     . = ALIGN(4);
     _etext = .;
-  } > SRAM AT > FLASH_TEXT 
+  } > ram AT > flash
 
   .data : ALIGN(4)
   {
@@ -45,7 +41,7 @@ SECTIONS
     *(.data*)
     . = ALIGN(4);
     _edata = .;
-  } > SRAM AT > FLASH_TEXT 
+  } > ram AT > flash
 
   .bss : ALIGN(4)
   {
@@ -54,10 +50,10 @@ SECTIONS
     *(COMMON)
     . = ALIGN(4);
     _ebss = .;
-  } > SRAM 
+  } > ram
 
   PROVIDE(_end = .);
-  PROVIDE(_text_start = ORIGIN(FLASH_TEXT));
-  PROVIDE(_stack_top = ORIGIN(SRAM_Y) + LENGTH(SRAM_Y));
+  PROVIDE(_text_start = ORIGIN(flash));
+  PROVIDE(_stack_top = ORIGIN(ram) + LENGTH(ram));
 }
 
