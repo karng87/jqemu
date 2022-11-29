@@ -67,7 +67,7 @@ int main(int argc, char* argv[]){
         crc <<= 8;
         crc ^= crc_pico[tableoff];
     }
-    printf("=== << CRC : 0x%x >> ===\n",crc);
+    printf("=== [ CRC : 0x%x ] ===\n",crc);
     data[ra++] = (crc >>  0) & 0xff; // 252
     data[ra++] = (crc >>  8) & 0xff; // 253
     data[ra++] = (crc >> 16) & 0xff; // 254
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]){
         memcpy(uf2.data,&data[offset],256); // maxmum 256 byte
         uf2.magicEnd    =0x0AB16F30;
         fwrite(&uf2,1,sizeof(uf2),fp);
-        printf("==== uf2.targetAddr = %s[ %x ] [ %d / %d ] = (block index+1) / (total blocks) ====\n",mem,uf2.targetAddr,uf2.indexBlock+1,uf2.totalBlocks);
+        printf("=== [ UF2.TARGETADDR ] = %s[ %d ] [ %d / %d ] = (block index+1) / (total blocks) ===\n",mem,uf2.targetAddr,uf2.indexBlock+1,uf2.totalBlocks);
         address += 0x100; // 256
         offset +=0x100;
     }

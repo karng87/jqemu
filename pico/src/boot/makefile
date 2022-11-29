@@ -55,7 +55,9 @@ CFLAGS := \
 LDFLAGS := \
     -mcpu=cortex-m0plus -mthumb -O3 -DNDEBUG \
     -Wl,--script=$(LD_SCRIPT) \
-    -Wl,--build-id=none --specs=nosys.specs -Wl,--gc-sections
+    -nostartfiles
+
+#    -Wl,--build-id=none --specs=nosys.specs -Wl,--gc-sections
 
 
 .PHONY: all stage2 crt0 echo clean tree 
@@ -77,7 +79,7 @@ $(BDIR)/%.s.obj: %.s
 	$(CC) $(CFLAGS) $< -o$@
 
 $(filter %.elf,$(TARGETS)): $(DEPS)
-	$(CC) $(LDFLAGS) -Wl,-Map=@.map $(OBJS_CRT0) $(OBJS_STAGES) $^  -o$@
+	$(CC) $(LDFLAGS) -Wl,-Map=$@.map $(OBJS_CRT0) $(OBJS_STAGES) $^  -o$@
 
 $(filter %.bin,$(TARGETS)): $(filter %.elf,$(TARGETS))
 	$(OBJCOPY) -Obinary $< $@

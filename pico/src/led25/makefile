@@ -128,19 +128,27 @@ echo:
 include $(filter %grep.mk,$(shell find `git rev-parse --show-toplevel` -name '*.mk'))
 
 #------------------------------------------
-# freestanding: https://gcc.gnu.org/onlinedocs/gcc/Standards.html
-# 	by default 
-# 	gcc will act as the compiler for a hosted implementation
-# 		defining __STDC_HOSTED__ as 1
-# 		preassuming that when the names of "ISO C" "functions" aer sued,
-# 		they have the semantics defined int the standard
-# 	use the option -ffreestanding, to make it act as a conforming freestanding implementaion
-# 		for a freestanding environment
-# 		it will define __STDC_HOSTED__ to 0
+# freestanding: https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html#C-Dialect-Options
+# 	Assert that compilation targets a freestanding environment.
+# 	This implies -fno-builtin.
+# 	A freestanding environment is one in which 
+# 		the standard library may not exist, and 
+# 		program startup may not necessarily be at main.
+# 	The most obvious example is an OS kernel.
+# 	This is equivalent to -fno-hosted.
+# 	See Language Standards Supported by GCC,
+# 		for details of freestanding and hosted environments.
+#
+#
+#
+#
+#
+#
+#
 #-------------------------------------------
 #------------------------------
 # -nostdlib https://gcc.gnu.org/onlinedocs/gcc-12.2.0/gcc/Link-Options.html#Link-Options
-# 	Do not use the standard system 
+# 	Do not use the standard system /usr//lib/crt1.o(which contains the _start entry point)
 # 		"startup" files or "libraries" when linking.
 # 	No startup files and only the libraries you specify are passed to the linker,
 # 		and options specifying linkage of the system libraries, such as -static-libgcc or -shared-libgcc,

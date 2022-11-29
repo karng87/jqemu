@@ -1,51 +1,98 @@
-void put32(unsigned int, unsigned int);
-unsigned int get32(unsigned int);
-void delay(unsigned int);
 
-#define hex(x,y) 0x ## x ## y
-#define high 1
-#define low 0
+#define hadd(x,y,z) ((x)+(y)+(z))
+#define hex_reg(x,y,z,args...) (volatile unsigned int*)hadd(0x ## x ## 0000, 0x ## y, 0x ## z)
+#define hex_base(x,y,args...) hex_reg(x,y,0)
+#define bitshift(x,y,args...) ((x)<<(y))
 
-int notmain(){
-        #define RESETS hex(4000,c000)
-        #define RESET (0x0)
-        #define WDSEL (0x4)
-        #define DONE  (0x8)
-        #define XOR (0x1000)
-        #define SET (0x2000)
-        #define CLR (0x3000)
-        #define  io_bank0_bit (5)
-    put32((RESETS + RESET + CLR), high << io_bank0_bit);
+void PUT32 ( unsigned int, unsigned int );
+unsigned int GET32 ( unsigned int );
+void DELAY ( unsigned int );
+
+#define RESETS_BASE                 0x4000C000
+
+#define RESETS_RESET_RW             (RESETS_BASE+0x0+0x0000)
+#define RESETS_RESET_XOR            (RESETS_BASE+0x0+0x1000)
+#define RESETS_RESET_SET            (RESETS_BASE+0x0+0x2000)
+#define RESETS_RESET_CLR            (RESETS_BASE+0x0+0x3000)
+
+#define RESETS_WDSEL_RW             (RESETS_BASE+0x4+0x0000)
+#define RESETS_WDSEL_XOR            (RESETS_BASE+0x4+0x1000)
+#define RESETS_WDSEL_SET            (RESETS_BASE+0x4+0x2000)
+#define RESETS_WDSEL_CLR            (RESETS_BASE+0x4+0x3000)
+
+#define RESETS_RESET_DONE_RW        (RESETS_BASE+0x8+0x0000)
+#define RESETS_RESET_DONE_XOR       (RESETS_BASE+0x8+0x1000)
+#define RESETS_RESET_DONE_SET       (RESETS_BASE+0x8+0x2000)
+#define RESETS_RESET_DONE_CLR       (RESETS_BASE+0x8+0x3000)
+
+#define SIO_BASE                    0xD0000000
+
+#define SIO_GPIO_OUT_RW             (SIO_BASE+0x10)
+#define SIO_GPIO_OUT_SET            (SIO_BASE+0x14)
+#define SIO_GPIO_OUT_CLR            (SIO_BASE+0x18)
+#define SIO_GPIO_OUT_XOR            (SIO_BASE+0x1C)
+
+#define SIO_GPIO_OE_RW              (SIO_BASE+0x20)
+#define SIO_GPIO_OE_SET             (SIO_BASE+0x24)
+#define SIO_GPIO_OE_CLR             (SIO_BASE+0x28)
+#define SIO_GPIO_OE_XOR             (SIO_BASE+0x2C)
+
+#define IO_BANK0_BASE               0x40014000
+
+#define IO_BANK0_GPIO25_STATUS_RW   (IO_BANK0_BASE+0x0C8+0x0000)
+#define IO_BANK0_GPIO25_STATUS_XOR  (IO_BANK0_BASE+0x0C8+0x1000)
+#define IO_BANK0_GPIO25_STATUS_SET  (IO_BANK0_BASE+0x0C8+0x2000)
+#define IO_BANK0_GPIO25_STATUS_CLR  (IO_BANK0_BASE+0x0C8+0x3000)
+
+#define IO_BANK0_GPIO25_CTRL_RW     (IO_BANK0_BASE+0x0CC+0x0000)
+#define IO_BANK0_GPIO25_CTRL_XOR    (IO_BANK0_BASE+0x0CC+0x1000)
+#define IO_BANK0_GPIO25_CTRL_SET    (IO_BANK0_BASE+0x0CC+0x2000)
+#define IO_BANK0_GPIO25_CTRL_CLR    (IO_BANK0_BASE+0x0CC+0x3000)
+
+int notmain ( void )
+{
+    *hex_reg(4000,c000,3000,<APB|RESETS||RESET+CLR>) =  bitshift(1,5,<set||IO_BANK0>);
     while(1){
-        if(get32(RESETS + DONE) & (high << io_bank0_bit)) break;
-    }
-        #define SIO hex(d000,0000)
-        #define OUT (0x10)
-        #define OE  (0x20)
-        #define SIO_SET  0x4
-        #define SIO_CLR  0x8
-        #define SIO_XOR  0xc
-        #define pin25 25
-
-    put32(SIO+OE+SIO_CLR, high << pin25); // output disable pin 25
-    put32(SIO+OUT+SIO_CLR, high << pin25); // turn off pin 25
-
-        #define IO_BANK0 hex(4001,4000)
-        #define STATUS_25 0xc8 
-        #define CTRL_25 0xcc
-        #define funcsel_bit 0
-        #define func_sio 5
-
-    put32(IO_BANK0 + CTRL_25,(func_sio<<funcsel_bit));
-
-    put32(SIO+OE+SIO_SET, high << pin25);
-
-    while(1){
-        put32(SIO+OUT+SIO_SET,high << pin25);
-        delay(hex(10,0000));
-        put32(SIO+OUT+SIO_CLR,high<<pin25);
-        delay(hex(10,0000));
+        if((*hex_reg(4000,c000,08,<APB|RESETS||DONE|)) & (bitshift(1,5,<set||IO_BANK0>))) break;
     }
 
-    return 0;
+    /*
+    while(1)
+    {
+        if((GET32(RESETS_RESET_DONE_RW)&(1<<5))!=0) break;
+    }
+    */
+
+    //output disable
+    PUT32(SIO_GPIO_OE_CLR,1<<25);
+    //turn off pin 25
+    PUT32(SIO_GPIO_OUT_CLR,1<<25);
+
+    //set the function select to SIO (software controlled I/O)
+    PUT32(IO_BANK0_GPIO25_CTRL_RW,5);
+
+    //output enable
+    PUT32(SIO_GPIO_OE_SET,1<<25);
+    while(1)
+    {
+        //turn on the led
+        PUT32(SIO_GPIO_OUT_SET,1<<25);
+        DELAY(0x100000);
+        //turn off the led
+        PUT32(SIO_GPIO_OUT_CLR,1<<25);
+        DELAY(0x100000);
+    }
+    return(0);
 }
+
+//-------------------------------------------------------------------------
+//
+// Copyright (c) 2021 David Welch dwelch@dwelch.com
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//-------------------------------------------------------------------------

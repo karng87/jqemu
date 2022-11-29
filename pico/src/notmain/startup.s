@@ -8,20 +8,20 @@
     b .
 
 .thumb_func
-.global put32
-put32:
+.global PUT32
+PUT32:
     str r1, [r0]
     bx lr
 
 .thumb_func
-.global get32
-get32:
+.global GET32
+GET32:
     ldr r0, [r0]
     bx lr
 
-.global delay
+.global DELAY
 .thumb_func
-delay:
+DELAY:
     sub r0, #1
-    bne delay
+    bne DELAY
     bx lr

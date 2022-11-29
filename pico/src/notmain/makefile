@@ -41,86 +41,84 @@
 #-------------------------------------------
 BDIR := $(shell pwd | sed -En 's;src;build;p')
 
-#target := notmain.c
-#deps := start.s notmain.c
 target := led25.c
 deps := $(target)
-prerequisite:= bin2uf2.c
-defines := flash
-ld_scripts := $(shell find `pwd` -name '*.ld')
-INCLUDE:= $(shell pwd | sed -En 's%.*%&/include%p') 
 
-DEFINES := -D$(shell sed -En 's%.*%\U&%p' <<< $(defines))
-LD_SCRIPT := $(filter %sram.ld,$(ld_scripts)) 
-INCLUDES := -I$(INCLUDE)
+target := notmain.c
+target := notmain_macro.c
+deps := $(target) startup.s
 
-OS := $(shell uname -s)
-ARM := arm-none-eabi
-ARCH := -mcpu=cortex-m0plus
+target := notmain_macro.c
+deps := $(target)
 
-AOPTS := --warn --fatal-warnings $(ARCH)
+tool := bin2uf2.c
 
-COPTS += -W -Wall -std=gnu11 -Os
-COPTS += -ffreestanding
-COPTS += -fno-diagnostics-show-caret
-COPTS += -fdata-sections -ffunction-sections
-COPTS += -funsigned-char -funsigned-bitfields
-COPTS += $(ARCH)
-COPTS += -MD -MP -MT $@ -MF $@.d
-INCLUDES += -I includes
-DEFINES += 
-COPTS += $(INCLUDES) $(DEFINES)
-
-LOPTS += -nostdlib 
-LOPTS += -T $(LD_SCRIPT)
-
-CLOPTS += -nostdlib 
-CLOPTS += -Wl,--gc-sections
-CLOPTS += -T $(LD_SCRIPT)
-CLOPTS += -Wl,-Map=$@.map
+tools_dir := $(shell pwd | sed -En 's,(.*src)/.*,\1/tools,p')
+tools_srcs := $(shell find $(tools_dir) -name '*.[cs]') 
+tools_src := $(filter %$(tool),$(tools_srcs))
+tools_bin2uf2 := $(shell sed -En 's,(.*)/src/(.*),\1/build/\2.out,p' <<< $(tools_src))
 
 TARGETS := $(shell echo $(shell \
 		find `pwd` -name '$(target)' \
-		| sed -En -e 's%src%build%' -e 's%.*%&.o{,.elf{,.bin{,.uf2}}}%p'))
+		| sed -E -e 's%src%build%' -e 's;.*;echo &.o{,.elf{,.bin{,.uf2}}};e'))
 
 DEPS :=  $(shell \
 		for i in $(deps) \
 		;do find `pwd` -name $$i | sed -En -e 's%src%build%' -e 's%.*%&.o%p' \
 		;done)
 
-PREREQUISITE := $(shell \
-				for i in $(prerequisite) \
-				;do find `pwd` -name $$i \
-				| sed -En -e 's%src%build%' -e 's%.*%&.out%p' \
-				;done)
+defines := flash
 
-all : $(PREREQUISITE) $(TARGETS)
+ld_scripts := $(shell find `pwd` -name '*.ld')
 
-$(BDIR)/%.c.out: %.c
-	if [[ ! -d $(@D) ]];then mkdir -p $(@D);fi
-	gcc $(INCLUDES) $(DEFINES) -O2 $^ -o$@
+DEFINEs := -D$(shell sed -En 's%.*%\U&%p' <<< $(defines))
+LD_SCRIPT := $(filter %sram.ld,$(ld_scripts)) 
+
+OS := $(shell uname -s)
+ARM := arm-none-eabi
+ARCH := -mcpu=cortex-m0plus
+
+ASFLAGS := --warn --fatal-warnings $(ARCH)
+
+LDFLAGS += -nostdlib 
+LDFLAGS += -T $(LD_SCRIPT)
+
+CFLAGS += -W -Wall -std=gnu11 -Os
+CFLAGS += -ffreestanding
+CFLAGS += -fno-diagnostics-show-caret
+CFLAGS += -fdata-sections -ffunction-sections
+CFLAGS += -funsigned-char -funsigned-bitfields
+CFLAGS += $(ARCH)
+CFLAGS += -MD -MP -MT $@ -MF $@.d
+CFLAGS += $(DEFINES)
+
+LDCFLAGS += -nostdlib 
+LDCFLAGS += -Wl,--gc-sections
+LDCFLAGS += -T $(LD_SCRIPT)
+
+.PHONY: tools echo clear flash
+all : tools $(TARGETS)
+
+tools:
+	make -C $(tools_dir)
 
 $(filter %uf2,$(TARGETS)): $(filter %bin,$(TARGETS))
-	$(PREREQUISITE) $< $@
+	$(tools_bin2uf2) $< $@
 
 $(filter %bin,$(TARGETS)): $(filter %elf,$(TARGETS))
 	$(ARM)-objcopy -O binary $^ $@
 
 $(filter %elf,$(TARGETS)): $(DEPS)
-	$(ARM)-ld $(LOPTS)  $^ -o$@
+	$(ARM)-ld $(LDFLAGS)  $^ -o$@
 	$(ARM)-objdump -D $@ > $@.lst
 
 $(BDIR)/%.s.o: %.s
-	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
-	$(ARM)-as $(AOPTS) $< -o $@ 
+	@if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
+	$(ARM)-as $(ASFLAGS) $< -o $@ 
 
 $(BDIR)/%.c.o: %.c
-	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
-	$(ARM)-gcc -c $(COPTS) $< -o$@ 
-
-$(BDIR)/%.cc.o: %.cc
-	if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
-	$(ARM)-gcc -c $(COPTS) $< -o$@ 
+	@if [[ ! -d $(@D) ]]; then mkdir -p $(@D);fi
+	$(ARM)-gcc -c $(CFLAGS) $< -o$@ 
 
 dev :=$(if $(filter Linux,$(OS)) \
 	       ,$(shell lsblk | sed -En '/^└─.*t *$$/{s/[^a-z]*([a-z1]*).*/\/dev\/\1/p}') \
@@ -146,7 +144,7 @@ clean:
 	@rm -rf $(BDIR)/*
 
 echo:
-	echo $(TARGETS)
+	@echo $(TARGETS)
 
 -include $(BDIR)/%.d 
 include $(filter %grep.mk,$(shell find `git rev-parse --show-toplevel` -name '*.mk'))
