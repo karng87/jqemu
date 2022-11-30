@@ -92,9 +92,9 @@ CFLAGS += $(ARCH)
 CFLAGS += -MD -MP -MT $@ -MF $@.d
 CFLAGS += $(DEFINES)
 
-LDCFLAGS += -nostdlib 
-LDCFLAGS += -Wl,--gc-sections
-LDCFLAGS += -T $(LD_SCRIPT)
+CLDFLAGS += -nostdlib 
+CLDFLAGS += -Wl,--gc-sections
+CLDFLAGS += -T $(LD_SCRIPT)
 
 .PHONY: tools echo clear flash
 all : tools $(TARGETS)
