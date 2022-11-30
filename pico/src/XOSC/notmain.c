@@ -1,3 +1,4 @@
+
 void PUT32 ( unsigned int, unsigned int );
 unsigned int GET32 ( unsigned int );
 
@@ -97,11 +98,20 @@ static void do_delay ( unsigned int x )
         }
     }
 }
+
+#define hadd(x,y,z) ((x)+(y)+(z))
+#define hex_reg(x,y,z,args...) (volatile unsigned int*)hadd(0x ## x ## 0000, 0x ## y, 0x ## z)
+//#define hex_base(x,y,args...) hex_reg(x,y,0)
+#define bitshift(x,y,args...) ((x)<<(y))
+
 static void clock_init ( void )
 {
     PUT32(CLK_SYS_RESUS_CTRL_RW,0);
+    *hex_reg(4000,8000,78,<APB|CLOCKS|RESUS|CTRL>) = bitshift(0,0,<0:timeout||TIMEOUT:0~7>);
+    //*(volatile unsigned int*)(0x40000000+0x8000+0x78) = 0;
     //PUT32(CLK_REF_CTRL_RW,0);
     //PUT32(CLK_SYS_CTRL_RW,0);
+
     PUT32(XOSC_CTRL_RW,0xAA0);      //1 - 15MHZ
     PUT32(XOSC_STARTUP_RW,47);      //straight from the datasheet
     PUT32(XOSC_CTRL_SET,0xFAB000);  //enable

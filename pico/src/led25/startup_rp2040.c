@@ -51,14 +51,14 @@ DUMMY void irq_handler_rtc(void);
 
 extern int main(void);
 
-extern uint32_t _text_start;
-extern uint32_t _stack_top;
-extern uint32_t _text;
-extern uint32_t _etext;
-extern uint32_t _data;
-extern uint32_t _edata;
-extern uint32_t _bss;
-extern uint32_t _ebss;
+extern unsigned int _text_start;
+extern unsigned int _stack_top;
+extern unsigned int _text;
+extern unsigned int _etext;
+extern unsigned int _data;
+extern unsigned int _edata;
+extern unsigned int _bss;
+extern unsigned int _ebss;
 
 //-----------------------------------------------------------------------------
 // Note: Vector table does not need to be placed in a separate section on this MCU,
@@ -130,7 +130,7 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
       //#define XIP_SSI_ENR hex(1800,0008, Enable register0)
                 //#define f_xse_SSI_EN fset(0,:0, SSI Enable)
           //XIP_SSI->SSIENR = 0;
-          //*(volatile uint32_t *)(hex(1800,0008)) = 0;
+          //*(volatile unsigned int *)(hex(1800,0008)) = 0;
   *hex_reg(1800,0000,08,<XIP|SSI|ENR>) = bitshift(0,0,<0:disable|0:posib_xse EN>);
 
       //#define XIP_SSI_BAUDR hex(1800,0014, Baud Rate)
@@ -185,8 +185,8 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
   //XIP_SSI->SSIENR = XIP_SSI_SSIENR_SSI_EN_Msk;
   *hex_reg(1800,0000,08,<XIP_SSI_ENR>) = bitshift(1,0,<||0:SSI ENABLE>);
 
-  uint32_t *src = &_text_start; // _text_start -> flash mem
-  uint32_t *dst = &_text;       // _text -> sram
+  unsigned int *src = &_text_start; // _text_start -> flash mem
+  unsigned int *dst = &_text;       // _text -> sram
 
   while (dst < &_edata)
     *dst++ = *src++;
@@ -197,8 +197,8 @@ __attribute__((naked, used, noreturn, section(".boot.entry"))) void boot_entry(v
 
     //#define PPB hex(e000,0000, PPB:Private Peripheral Bus)
         //#define VTOR hex(e000,ed08,PPB)
-  //SCB->VTOR = (uint32_t)vectors;
-  *hex_reg(e000,0000,ed08,<PPB|VTOR|Vector Table Offset Reg>) = (uint32_t)vectors;
+  //SCB->VTOR = (unsigned int)vectors;
+  *hex_reg(e000,0000,ed08,<PPB|VTOR|Vector Table Offset Reg>) = (unsigned int)vectors;
 
   asm (R"asm(
     msr    msp, %[sp] // move status register <> master stack pointer <> &_stack_top

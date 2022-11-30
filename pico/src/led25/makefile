@@ -7,8 +7,6 @@ objs := startup_rp2040.c $(target) \
 target := 01-led25.c
 objs := startup_rp2040.c $(target) \
 
-target := 02-led25_macro.c
-objs := startup_rp2040.c $(target) \
 
 
 
@@ -29,6 +27,9 @@ objs := startup_rp2040.c $(target) \
 target := init-sys.c
 objs := startup_rp2040.c $(target)
 
+
+target := 02-led25_macro.c
+objs := startup_rp2040.c $(target) \
 
 OBJS :=  $(shell \
 		for i in $(objs) \

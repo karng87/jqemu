@@ -2,7 +2,7 @@ BDIR := $(shell pwd | sed -En 's/src/build/p')
 ARM := arm-none-eabi
 MCPU:= -mcpu=cortex-m0plus -mthumb
 
-target := init-clock.c
+#target := init-clock.c
 target := notmain.c
 deps := $(target) start.s
 DEF := -DSRAM
@@ -19,30 +19,31 @@ CFLAGS += -MD -MP -MT $@ -MF $@.d
 LDFLAGS += -nostdlib
 LDFLAGS += -T $(ld_script)
 
+srcs := $(shell find `pwd` -name '*.[cs]')
 deps_a := $(shell for i in $(deps);do find `pwd` -name $$i ;done)
 
 DEPS := $(shell for i in $(deps_a);do sed -En 's,(.*)src(.*),\1build\2.o,p' <<< $$i ;done)
 
 TARGETS := $(shell sed -E 's;(.*)src(.*);echo \1build\2.o{,.elf{,.bin{,.uf2}}};e' <<< $(filter %$(target),$(deps_a)))
 
-tools_dir := $(shell pwd | sed -En 's,(.*src/).*,\1tools,p')
-tools_srcs := $(shell find $(tools_dir) -name '*.[cs]')
-TOOLS_BIN2UF2 := $(shell sed -En 's,(.*)src(.*),\1build\2.out,p' <<< $(filter %$(tool),$(tools_srcs)))
+tool_src := $(filter %$(tool),$(srcs))
+TOOLS_BIN2UF2 := $(shell sed -En 's,(.*)src(.*),\1build\2.out,p' <<< $(tool_src))
 
 
 .PHONY: all echo clean tree
 
-all: tools $(TARGETS)
+all: $(TOOLS_BIN2UF2) $(TARGETS)
 
-tools:
-	make -C $(tools_dir)
+$(TOOLS_BIN2UF2): $(tool_src)
+	@[[ ! -d $(@D) ]]; mkdir -p $(@D)
+	gcc -DSRAM $< -o $@
 
 $(BDIR)/%.c.o: %.c
 	@[[ ! -d $(@D) ]]; mkdir -p $(@D)
 	$(ARM)-gcc -c $(CFLAGS) $< -o$@
 
 $(BDIR)/%.s.o: %.s
-	[[ ! -d $(@D) ]]; mkdir -p $(@D)
+	@[[ ! -d $(@D) ]]; mkdir -p $(@D)
 	$(ARM)-as $(ASFLAGS) $< -o$@
 
 $(filter %.elf,$(TARGETS)): $(DEPS)
@@ -72,8 +73,8 @@ flash: all
 	fi
 
 echo: 
-	@echo $(DEPS)
-	@echo $(TARGETS)
+	@echo $(tool_src)
+	@echo $(TOOLS_BIN2UF2)
 
 clean:
 	rm -rf $(BDIR)/*
